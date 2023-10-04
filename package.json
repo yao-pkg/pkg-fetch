@@ -1,5 +1,5 @@
 {
-  "name": "pkg-fetch",
+  "name": "@yao-pkg/pkg-fetch",
   "version": "3.5.2",
   "description": "Compiles and stores base binaries for pkg",
   "main": "lib-es5/index.js",
