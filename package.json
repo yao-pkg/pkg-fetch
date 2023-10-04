@@ -4,7 +4,10 @@
   "description": "Compiles and stores base binaries for pkg",
   "main": "lib-es5/index.js",
   "license": "MIT",
-  "repository": "yao-pkg/pkg-fetch",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yao-pkg/pkg-fetch.git"
+  },
   "bin": {
     "pkg-fetch": "lib-es5/bin.js"
   },
@@ -114,5 +117,8 @@
   },
   "lint-staged": {
     "*.{js,css,md}": "prettier --write"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
