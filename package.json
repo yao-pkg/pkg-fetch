@@ -61,10 +61,7 @@
   },
   "release-it": {
     "github": {
-      "release": true
-    },
-    "git": {
-      "tagName": "v${version}"
+      "release": false
     },
     "hooks": {
       "before:init": [
