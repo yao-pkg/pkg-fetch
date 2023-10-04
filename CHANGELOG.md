@@ -1,3 +1,9 @@
+## [3.5.4](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.3...v3.5.4) (2023-10-04)
+
+### Bug Fixes
+
+- update expected shas ([056e749](https://github.com/yao-pkg/pkg-fetch/commit/056e7497a4e46162101d36428977a48c09cfe10b))
+
 ## [3.5.3](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.2...v3.5.3) (2023-10-04)
 
 ### Bug Fixes
