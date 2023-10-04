@@ -15,6 +15,6 @@ Important things:
 - Once the actions will end, copy the sha256 checksums printed at the end of the release body, create a file `shas.txt`, run the command `npm run updateExpected`, that will read the `shas.txt` file and update`lib/expected-shas.json` file with the correct values. Once ended, commit the changes and push them to the repo.
 - If this is a minor/major bump, tag and create the official release starting from the draft release created by the workflow.
 - If this is not a new release, the `build-all.yml` workflow will copy all asset to the latest release. Remember to update the `expected-shas.json` file with the new checksums anyway.
-- Publish `pkg-fetch` to npm.
-- Bump `pkg-fetch` version in pkg `package.json` file.
-- Release `pkg` to npm.
+- Publish `pkg-fetch` to npm with `npm run release` command. This will create the git tag and publish to npm.
+- Bump `pkg-fetch` version in `pkg` `package.json` file.
+- Release `pkg` to npm with `npm run release` command. This will create the git tag, publish pkg to npm and publish a release with changelog.
