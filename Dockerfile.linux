@@ -21,7 +21,7 @@ COPY . ./
 
 ARG PKG_FETCH_OPTION_n
 
-RUN yarn install
+RUN yarn install --ignore-engines
 
 RUN scl enable devtoolset-10 rh-python36 \
     " \

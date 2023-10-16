@@ -22,7 +22,7 @@ jobs:
         with:
           node-version: 14
 
-      - run: yarn install
+      - run: yarn install --ignore-engines
 
       - run: choco install nasm
 

@@ -34,6 +34,6 @@ ENV READELF_host=/usr/bin/readelf
 
 COPY . ./
 
-RUN yarn install
+RUN yarn install --ignore-engines
 
 RUN yarn start --arch $PKG_FETCH_OPTION_a --node-range $PKG_FETCH_OPTION_n --platform $PKG_FETCH_OPTION_p --output dist

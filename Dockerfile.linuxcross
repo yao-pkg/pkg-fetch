@@ -34,7 +34,7 @@ RUN npm install -g yarn
 
 COPY . ./
 
-RUN yarn install
+RUN yarn install --ignore-engines
 
 ARG PKG_FETCH_OPTION_a
 ARG PKG_FETCH_OPTION_n
