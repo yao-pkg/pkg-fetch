@@ -37,6 +37,10 @@ export function localPlace({
 }: LocalPlaceOptions) {
   let binDir: string;
 
+  if(process.env.PKG_NODE_PATH) {
+    return path.resolve(process.env.PKG_NODE_PATH);
+  }
+
   if (output) {
     binDir = path.resolve(output);
   } else {

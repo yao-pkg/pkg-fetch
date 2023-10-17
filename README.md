@@ -115,3 +115,18 @@ review.
 For example:
 
 `yarn start --node-range node18 --arch x64 --output dist`
+
+## Environment
+
+| Var              | Description                                                                                                  |
+| ---------------- | ------------------------------------------------------------------------------------------------------------ |
+| `PKG_BUILD_PATH` | Directory to use to clone and build nodejs binaries. Default to system temporary directory                   |
+| `PKG_CACHE_PATH` | Path to pkg-cache. Default to `~/.pkg-cache`                                                                 |
+| `PKG_IGNORE_TAG` | Ignore tag folder when checking local binary path                                                            |
+| `PKG_NODE_PATH`  | Custom path to the local nodejs binary to use                                                                |
+| `HTTPS_PROXY`    | Optional HTTPS proxy to use when fetching binaries                                                           |
+| `HTTP_PROXY`     | Optional HTTP proxy to use when fetching binaries                                                            |
+| `MAKE_JOB_COUNT` | Number of parallel jobs when building binaries (value passed to `make -j` option). Default to number of cpus |
+| `CFLAGS`         | Flags to use when invoking C compiler                                                                        |
+| `CXXFLAGS`       | Flags to use when invoking C++ compiler                                                                      |
+| `STRIP`          | Path to `strip` command. Default to `strip`                                                                  |
