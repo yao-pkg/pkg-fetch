@@ -1,3 +1,22 @@
+## [3.5.5](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.4...v3.5.5) (2023-10-17)
+
+### Features
+
+- support for custom `PKG_NODE_PATH` ([#7](https://github.com/yao-pkg/pkg-fetch/issues/7)) ([4bfcccb](https://github.com/yao-pkg/pkg-fetch/commit/4bfcccb9af1b600cb47509d8eef90efe9d2c84c7))
+
+### Bug Fixes
+
+- update expected sha of node 18.18.2 and 16.20.2 ([#6](https://github.com/yao-pkg/pkg-fetch/issues/6)) ([62ffff2](https://github.com/yao-pkg/pkg-fetch/commit/62ffff231b2f12b886c4d420f999d238fce4c655))
+- update to node 18.18.2 and node 16.20.2 ([#4](https://github.com/yao-pkg/pkg-fetch/issues/4)) ([7a62329](https://github.com/yao-pkg/pkg-fetch/commit/7a6232968d8431f162052d60ba23140a1ed761a0))
+
+### Chores
+
+- add `--ignore-engines` to all install comands ([6c9ac01](https://github.com/yao-pkg/pkg-fetch/commit/6c9ac01407e36fa6bdcdb0376e481bd97f392778))
+
+### Documentation
+
+- add important notice about new releases ([66457a2](https://github.com/yao-pkg/pkg-fetch/commit/66457a27f85d2fe8563f7b86b36ee7bfd41ba28a))
+
 ## [3.5.4](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.3...v3.5.4) (2023-10-04)
 
 ### Bug Fixes
