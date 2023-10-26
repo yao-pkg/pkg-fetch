@@ -62,7 +62,12 @@ jobs:
 
       - run: yarn install --ignore-engines
 
-      - run: CC="clang -arch arm64" CXX="clang++ -arch arm64" yarn start --node-range node${{ matrix.target-node }} --arch arm64 --output dist
+      - run: yarn start --node-range node${{ matrix.target-node }} --arch arm64 --output dist
+        env:
+          CC: clang -arch arm64
+          CXX: clang++ -arch arm64
+          CC_host: clang
+          CXX_host: clang++
 
       - name: Check if binary is compiled
         id: check_file
