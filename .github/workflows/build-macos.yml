@@ -14,16 +14,16 @@ jobs:
         target-node: [14, 16, 18, 19]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: latest
 
-      - name: Use Node.js 14
-        uses: actions/setup-node@v1
+      - name: Use Node.js 18
+        uses: actions/setup-node@v4
         with:
-          node-version: 14
+          node-version: 18
 
       - run: yarn install --ignore-engines
 
@@ -34,8 +34,48 @@ jobs:
         run: |
           (test -f dist/*.sha256sum && echo ::set-output name=EXISTS::true) || echo ::set-output name=EXISTS::false
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: steps.check_file.outputs.EXISTS == 'true'
         with:
           name: node${{ matrix.target-node }}-macos-x64
+          path: dist/*
+
+  macos-arm64:
+    runs-on: macos-11.0
+
+    strategy:
+      fail-fast: false
+      matrix:
+        target-node: [14, 16, 18, 19]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest
+
+      - name: Use Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - run: yarn install --ignore-engines
+
+      - run: yarn start --node-range node${{ matrix.target-node }} --arch arm64 --output dist
+        env:
+          CC: clang -arch arm64
+          CXX: clang++ -arch arm64
+          CC_host: clang
+          CXX_host: clang++
+
+      - name: Check if binary is compiled
+        id: check_file
+        run: |
+          (test -f dist/*.sha256sum && echo ::set-output name=EXISTS::true) || echo ::set-output name=EXISTS::false
+
+      - uses: actions/upload-artifact@v3
+        if: steps.check_file.outputs.EXISTS == 'true'
+        with:
+          name: node${{ matrix.target-node }}-macos-arm64
           path: dist/*
