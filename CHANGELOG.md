@@ -1,3 +1,13 @@
+## [3.5.6](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.5...v3.5.6) (2023-10-28)
+
+### Features
+
+- macOS arm64 build ([#8](https://github.com/yao-pkg/pkg-fetch/issues/8)) ([8f8986f](https://github.com/yao-pkg/pkg-fetch/commit/8f8986f0daea763e1ec0b2d3238f5acfd77b0f28))
+
+### Bug Fixes
+
+- update expected sha ([82cddb0](https://github.com/yao-pkg/pkg-fetch/commit/82cddb03df6723fccb2102efa68ea4e6c232ae97))
+
 ## [3.5.5](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.4...v3.5.5) (2023-10-17)
 
 ### Features
