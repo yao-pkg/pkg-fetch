@@ -16,12 +16,12 @@ index 62f041ce52..4688ec0fdd 100755
 --- a/configure.py
 +++ b/configure.py
 @@ -1270,7 +1270,6 @@ def configure_node(o):
-
+ 
    # Enable branch protection for arm64
    if target_arch == 'arm64':
 -    o['cflags']+=['-msign-return-address=all']
      o['variables']['arm_fpu'] = options.arm_fpu or 'neon'
-
+ 
    if options.node_snapshot_main is not None:
 diff --git a/deps/v8/include/v8-initialization.h b/deps/v8/include/v8-initialization.h
 index d3e35d6ec5..6e9bbe3849 100644
@@ -30,14 +30,14 @@ index d3e35d6ec5..6e9bbe3849 100644
 @@ -89,6 +89,10 @@ class V8_EXPORT V8 {
    static void SetFlagsFromCommandLine(int* argc, char** argv,
                                        bool remove_flags);
-
+ 
 +  static void EnableCompilationForSourcelessUse();
 +  static void DisableCompilationForSourcelessUse();
 +  static void FixSourcelessScript(Isolate* v8_isolate, Local<UnboundScript> script);
 +
    /** Get the version string. */
    static const char* GetVersion();
-
+ 
 diff --git a/deps/v8/src/api/api.cc b/deps/v8/src/api/api.cc
 index a91dfc271c..a4cd4eeb31 100644
 --- a/deps/v8/src/api/api.cc
@@ -45,7 +45,7 @@ index a91dfc271c..a4cd4eeb31 100644
 @@ -806,6 +806,28 @@ void V8::SetFlagsFromCommandLine(int* argc, char** argv, bool remove_flags) {
                                         HelpOptions(HelpOptions::kDontExit));
  }
-
+ 
 +bool save_lazy;
 +bool save_predictable;
 +
@@ -69,10 +69,10 @@ index a91dfc271c..a4cd4eeb31 100644
 +}
 +
  RegisteredExtension* RegisteredExtension::first_extension_ = nullptr;
-
+ 
  RegisteredExtension::RegisteredExtension(std::unique_ptr<Extension> extension)
 diff --git a/deps/v8/src/codegen/compiler.cc b/deps/v8/src/codegen/compiler.cc
-index 31c5acceeb..bced3c7165 100644
+index 31c5acceeb..56cad8671f 100644
 --- a/deps/v8/src/codegen/compiler.cc
 +++ b/deps/v8/src/codegen/compiler.cc
 @@ -3475,7 +3475,7 @@ MaybeHandle<SharedFunctionInfo> GetSharedFunctionInfoForScriptImpl(
@@ -85,7 +85,7 @@ index 31c5acceeb..bced3c7165 100644
      } else if (can_consume_code_cache) {
        compile_timer.set_consuming_code_cache();
 diff --git a/deps/v8/src/objects/js-function.cc b/deps/v8/src/objects/js-function.cc
-index 94f7a672a7..a5822dd39a 100644
+index 94f7a672a7..57bb3fc7f1 100644
 --- a/deps/v8/src/objects/js-function.cc
 +++ b/deps/v8/src/objects/js-function.cc
 @@ -1280,6 +1280,9 @@ Handle<String> JSFunction::ToString(Handle<JSFunction> function) {
@@ -105,7 +105,7 @@ index 5621b15d98..722e1d18cb 100644
 @@ -635,6 +635,14 @@ bool SharedFunctionInfo::ShouldFlushCode(
    }
    if (!data.IsBytecodeArray()) return false;
-
+ 
 +  Object script_obj = script();
 +  if (!script_obj.IsUndefined()) {
 +    Script script = Script::cast(script_obj);
@@ -115,7 +115,7 @@ index 5621b15d98..722e1d18cb 100644
 +  }
 +
    if (IsStressFlushingEnabled(code_flush_mode)) return true;
-
+ 
    BytecodeArray bytecode = BytecodeArray::cast(data);
 diff --git a/deps/v8/src/parsing/parsing.cc b/deps/v8/src/parsing/parsing.cc
 index 8c55a6fb6e..70bf82a57d 100644
@@ -126,11 +126,11 @@ index 8c55a6fb6e..70bf82a57d 100644
    DCHECK(info->flags().is_toplevel());
    DCHECK_NULL(info->literal());
 +  if (String::cast(script->source()).IsUndefined(isolate)) return false;
-
+ 
    VMState<PARSER> state(isolate);
-
+ 
 @@ -75,6 +76,7 @@ bool ParseFunction(ParseInfo* info, Handle<SharedFunctionInfo> shared_info,
-
+ 
    // Create a character stream for the parser.
    Handle<Script> script(Script::cast(shared_info->script()), isolate);
 +  if (String::cast(script->source()).IsUndefined(isolate)) return false;
@@ -142,7 +142,7 @@ index c83e8e4581..8cb451e147 100644
 --- a/deps/v8/src/snapshot/code-serializer.cc
 +++ b/deps/v8/src/snapshot/code-serializer.cc
 @@ -659,10 +659,6 @@ SerializedCodeSanityCheckResult SerializedCodeData::SanityCheck(
-
+ 
  SerializedCodeSanityCheckResult SerializedCodeData::SanityCheckJustSource(
      uint32_t expected_source_hash) const {
 -  uint32_t source_hash = GetHeaderValue(kSourceHashOffset);
@@ -151,7 +151,7 @@ index c83e8e4581..8cb451e147 100644
 -  }
    return SerializedCodeSanityCheckResult::kSuccess;
  }
-
+ 
 @@ -679,10 +675,6 @@ SerializedCodeSanityCheckResult SerializedCodeData::SanityCheckWithoutSource()
    if (version_hash != Version::Hash()) {
      return SerializedCodeSanityCheckResult::kVersionMismatch;
@@ -170,11 +170,11 @@ index 449013906e..3a85e4a541 100644
 @@ -169,7 +169,7 @@ function fork(modulePath, args = [], options) {
      throw new ERR_CHILD_PROCESS_IPC_REQUIRED('options.stdio');
    }
-
+ 
 -  return spawn(options.execPath, args, options);
 +  return module.exports.spawn(options.execPath, args, options);
  }
-
+ 
  function _forkChild(fd, serializationMode) {
 diff --git a/lib/internal/bootstrap/pkg.js b/lib/internal/bootstrap/pkg.js
 new file mode 100644
@@ -264,7 +264,7 @@ index 917ba90a1c..c69638deba 100644
 @@ -51,7 +51,11 @@ const {
    },
  } = require('internal/v8/startup_snapshot');
-
+ 
 +let _alreadyPrepared = false;
 +
  function prepareMainThreadExecution(expandArgv1 = false, initializeModules = true) {
@@ -301,7 +301,7 @@ index d396a3df8c..74419c83c1 100644
        [kParsingContext]: parsingContext,
 +      sourceless = false,
      } = options;
-
+ 
      validateString(filename, 'options.filename');
 @@ -103,7 +104,8 @@ class Script extends ContextifyScript {
              cachedData,
@@ -319,7 +319,7 @@ index 4e614df1a9..3500b875c7 100644
 +++ b/node.gyp
 @@ -460,6 +460,9 @@
      },
-
+ 
      'conditions': [
 +      ['target_arch=="arm64"', {
 +        'cflags': ['-msign-return-address=all'], # Pointer authentication
@@ -337,7 +337,7 @@ index de372400fd..2538afa37d 100644
      start_io_thread_async.data = this;
 -    // Ignore failure, SIGUSR1 won't work, but that should not block node start.
 -    StartDebugSignalHandler();
-
+ 
      parent_env_->AddCleanupHook([](void* data) {
        Environment* env = static_cast<Environment*>(data);
 diff --git a/src/node.cc b/src/node.cc
@@ -347,7 +347,7 @@ index a9336a1430..c4a97eb85a 100644
 @@ -322,6 +322,8 @@ MaybeLocal<Value> StartExecution(Environment* env, StartExecutionCallback cb) {
      return env->RunSnapshotDeserializeMain();
    }
-
+ 
 +  StartExecution(env, "internal/bootstrap/pkg");
 +
    if (env->worker_context() != nullptr) {
@@ -355,7 +355,7 @@ index a9336a1430..c4a97eb85a 100644
    }
 @@ -543,14 +545,6 @@ static void PlatformInit(ProcessInitializationFlags::Flags flags) {
    }
-
+ 
    if (!(flags & ProcessInitializationFlags::kNoDefaultSignalHandling)) {
 -#if HAVE_INSPECTOR
 -    sigset_t sigmask;
@@ -367,9 +367,9 @@ index a9336a1430..c4a97eb85a 100644
 -
      ResetSignalHandlers();
    }
-
+ 
 diff --git a/src/node_contextify.cc b/src/node_contextify.cc
-index 64860d7e56..042ecba428 100644
+index 64860d7e56..abdb5593ba 100644
 --- a/src/node_contextify.cc
 +++ b/src/node_contextify.cc
 @@ -75,6 +75,7 @@ using v8::String;
@@ -379,47 +379,50 @@ index 64860d7e56..042ecba428 100644
 +using v8::V8;
  using v8::Value;
  using v8::WeakCallbackInfo;
-
+ 
 @@ -772,13 +773,14 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
    Local<ArrayBufferView> cached_data_buf;
    bool produce_cached_data = false;
    Local<Context> parsing_context = context;
 +  bool sourceless = false;
-
+ 
    Local<Symbol> id_symbol;
    if (argc > 2) {
      // new ContextifyScript(code, filename, lineOffset, columnOffset,
      //                      cachedData, produceCachedData, parsingContext,
-     //                      hostDefinedOptionId)
+-    //                      hostDefinedOptionId)
 -    CHECK_EQ(argc, 8);
-+    CHECK_EQ(argc, 9);
++    //                      hostDefinedOptionId, sourceless)
++    CHECK_GE(argc, 8);
      CHECK(args[2]->IsNumber());
      line_offset = args[2].As<Int32>()->Value();
      CHECK(args[3]->IsNumber());
-@@ -799,6 +801,8 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -799,6 +801,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
      }
      CHECK(args[7]->IsSymbol());
      id_symbol = args[7].As<Symbol>();
-+
-+    sourceless = args[8]->IsTrue();
++    if (argc > 8) {
++      CHECK(args[8]->IsBoolean());
++      sourceless = args[8]->IsTrue();
++    }
    }
-
+ 
    ContextifyScript* contextify_script =
-@@ -847,6 +851,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -847,6 +853,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
    ShouldNotAbortOnUncaughtScope no_abort_scope(env);
    Context::Scope scope(parsing_context);
-
+ 
 +  if (sourceless && produce_cached_data) {
 +    V8::EnableCompilationForSourcelessUse();
 +  }
 +
    MaybeLocal<UnboundScript> maybe_v8_script =
        ScriptCompiler::CompileUnboundScript(isolate, &source, compile_options);
-
-@@ -861,6 +869,11 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+ 
+@@ -861,6 +871,11 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
      return;
    }
-
+ 
 +  if (sourceless && compile_options == ScriptCompiler::kConsumeCodeCache) {
 +    if (!source.GetCachedData()->rejected) {
 +      V8::FixSourcelessScript(env->isolate(), v8_script);
@@ -428,17 +431,17 @@ index 64860d7e56..042ecba428 100644
    contextify_script->script_.Reset(isolate, v8_script);
    contextify_script->script_.SetWeak();
    contextify_script->object()->SetInternalFieldForNodeCore(kUnboundScriptSlot,
-@@ -894,6 +907,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -894,6 +909,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
            .IsNothing())
      return;
-
+ 
 +  if (sourceless && produce_cached_data) {
 +    V8::DisableCompilationForSourcelessUse();
 +  }
 +
    TRACE_EVENT_END0(TRACING_CATEGORY_NODE2(vm, script), "ContextifyScript::New");
  }
-
+ 
 diff --git a/src/node_main.cc b/src/node_main.cc
 index f66099a557..29624b22cf 100644
 --- a/src/node_main.cc
@@ -446,7 +449,7 @@ index f66099a557..29624b22cf 100644
 @@ -22,6 +22,8 @@
  #include "node.h"
  #include <cstdio>
-
+ 
 +int reorder(int argc, char** argv);
 +
  #ifdef _WIN32
@@ -461,7 +464,7 @@ index f66099a557..29624b22cf 100644
  }
  #else
  // UNIX
-
+ 
  int main(int argc, char* argv[]) {
 +  return reorder(argc, argv);
 +}
@@ -555,7 +558,7 @@ index 29cb7fc6b2..7a27f506f5 100644
 +++ b/src/node_options.cc
 @@ -302,6 +302,7 @@ void Parse(
  // TODO(addaleax): Make that unnecessary.
-
+ 
  DebugOptionsParser::DebugOptionsParser() {
 +  return;
  #ifndef DISABLE_SINGLE_EXECUTABLE_APPLICATION
