@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 node_range=$1
 
 if [ -z "$node_range" ]; then
