@@ -92,7 +92,7 @@ index 94f7a672a7..a5822dd39a 100644
      Handle<Object> maybe_class_positions = JSReceiver::GetDataProperty(
          isolate, function, isolate->factory()->class_positions_symbol());
      if (maybe_class_positions->IsClassPositions()) {
-+      if (String::cast(Script::cast(shared_info->script()).source()).isUndefined(isolate)) {
++      if (String::cast(Script::cast(shared_info->script()).source()).IsUndefined(isolate)) {
 +        return isolate->factory()->NewStringFromAsciiChecked("class {}");
 +      }
        ClassPositions class_positions =
