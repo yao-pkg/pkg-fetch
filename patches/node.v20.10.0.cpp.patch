@@ -322,7 +322,7 @@ index 4e614df1a9..3500b875c7 100644
  
      'conditions': [
 +      ['target_arch=="arm64"', {
-+        'cflags': ['-msign-return-address=all'], # Pointer authentication
++        'cflags': ['-mbranch-protection=standard'], # Pointer authentication
 +      }],
        ['OS in "aix os400"', {
          'ldflags': [
