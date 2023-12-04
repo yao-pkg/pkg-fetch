@@ -460,7 +460,7 @@ index f66099a557..29624b22cf 100644
    argv[argc] = nullptr;
    // Now that conversion is done, we can finally start.
 -  return node::Start(argc, argv);
-+  return return reorder(argc, argv);
++  return reorder(argc, argv);
  }
  #else
  // UNIX
