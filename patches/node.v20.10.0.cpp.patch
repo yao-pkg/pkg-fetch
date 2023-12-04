@@ -1,7 +1,7 @@
-diff --git a/common.gypi b/common.gypi
+diff --git node/common.gypi node/common.gypi
 index 4589f51517..97555b4c0b 100644
---- a/common.gypi
-+++ b/common.gypi
+--- node/common.gypi
++++ node/common.gypi
 @@ -174,7 +174,7 @@
                'MSVC_runtimeType': 2   # MultiThreadedDLL (/MD)
              }],
@@ -11,10 +11,10 @@ index 4589f51517..97555b4c0b 100644
              }, {
                'lto': ' -flto ', # Clang
              }],
-diff --git a/configure.py b/configure.py
+diff --git node/configure.py node/configure.py
 index 62f041ce52..4688ec0fdd 100755
---- a/configure.py
-+++ b/configure.py
+--- node/configure.py
++++ node/configure.py
 @@ -1270,7 +1270,6 @@ def configure_node(o):
  
    # Enable branch protection for arm64
@@ -23,10 +23,10 @@ index 62f041ce52..4688ec0fdd 100755
      o['variables']['arm_fpu'] = options.arm_fpu or 'neon'
  
    if options.node_snapshot_main is not None:
-diff --git a/deps/v8/include/v8-initialization.h b/deps/v8/include/v8-initialization.h
+diff --git node/deps/v8/include/v8-initialization.h node/deps/v8/include/v8-initialization.h
 index d3e35d6ec5..6e9bbe3849 100644
---- a/deps/v8/include/v8-initialization.h
-+++ b/deps/v8/include/v8-initialization.h
+--- node/deps/v8/include/v8-initialization.h
++++ node/deps/v8/include/v8-initialization.h
 @@ -89,6 +89,10 @@ class V8_EXPORT V8 {
    static void SetFlagsFromCommandLine(int* argc, char** argv,
                                        bool remove_flags);
@@ -38,10 +38,10 @@ index d3e35d6ec5..6e9bbe3849 100644
    /** Get the version string. */
    static const char* GetVersion();
  
-diff --git a/deps/v8/src/api/api.cc b/deps/v8/src/api/api.cc
+diff --git node/deps/v8/src/api/api.cc node/deps/v8/src/api/api.cc
 index a91dfc271c..a4cd4eeb31 100644
---- a/deps/v8/src/api/api.cc
-+++ b/deps/v8/src/api/api.cc
+--- node/deps/v8/src/api/api.cc
++++ node/deps/v8/src/api/api.cc
 @@ -806,6 +806,28 @@ void V8::SetFlagsFromCommandLine(int* argc, char** argv, bool remove_flags) {
                                         HelpOptions(HelpOptions::kDontExit));
  }
@@ -71,10 +71,10 @@ index a91dfc271c..a4cd4eeb31 100644
  RegisteredExtension* RegisteredExtension::first_extension_ = nullptr;
  
  RegisteredExtension::RegisteredExtension(std::unique_ptr<Extension> extension)
-diff --git a/deps/v8/src/codegen/compiler.cc b/deps/v8/src/codegen/compiler.cc
+diff --git node/deps/v8/src/codegen/compiler.cc node/deps/v8/src/codegen/compiler.cc
 index 31c5acceeb..56cad8671f 100644
---- a/deps/v8/src/codegen/compiler.cc
-+++ b/deps/v8/src/codegen/compiler.cc
+--- node/deps/v8/src/codegen/compiler.cc
++++ node/deps/v8/src/codegen/compiler.cc
 @@ -3475,7 +3475,7 @@ MaybeHandle<SharedFunctionInfo> GetSharedFunctionInfoForScriptImpl(
      maybe_script = lookup_result.script();
      maybe_result = lookup_result.toplevel_sfi();
@@ -84,10 +84,10 @@ index 31c5acceeb..56cad8671f 100644
        compile_timer.set_hit_isolate_cache();
      } else if (can_consume_code_cache) {
        compile_timer.set_consuming_code_cache();
-diff --git a/deps/v8/src/objects/js-function.cc b/deps/v8/src/objects/js-function.cc
+diff --git node/deps/v8/src/objects/js-function.cc node/deps/v8/src/objects/js-function.cc
 index 94f7a672a7..57bb3fc7f1 100644
---- a/deps/v8/src/objects/js-function.cc
-+++ b/deps/v8/src/objects/js-function.cc
+--- node/deps/v8/src/objects/js-function.cc
++++ node/deps/v8/src/objects/js-function.cc
 @@ -1280,6 +1280,9 @@ Handle<String> JSFunction::ToString(Handle<JSFunction> function) {
      Handle<Object> maybe_class_positions = JSReceiver::GetDataProperty(
          isolate, function, isolate->factory()->class_positions_symbol());
@@ -98,10 +98,10 @@ index 94f7a672a7..57bb3fc7f1 100644
        ClassPositions class_positions =
            ClassPositions::cast(*maybe_class_positions);
        int start_position = class_positions.start();
-diff --git a/deps/v8/src/objects/shared-function-info-inl.h b/deps/v8/src/objects/shared-function-info-inl.h
+diff --git node/deps/v8/src/objects/shared-function-info-inl.h node/deps/v8/src/objects/shared-function-info-inl.h
 index 5621b15d98..722e1d18cb 100644
---- a/deps/v8/src/objects/shared-function-info-inl.h
-+++ b/deps/v8/src/objects/shared-function-info-inl.h
+--- node/deps/v8/src/objects/shared-function-info-inl.h
++++ node/deps/v8/src/objects/shared-function-info-inl.h
 @@ -635,6 +635,14 @@ bool SharedFunctionInfo::ShouldFlushCode(
    }
    if (!data.IsBytecodeArray()) return false;
@@ -117,10 +117,10 @@ index 5621b15d98..722e1d18cb 100644
    if (IsStressFlushingEnabled(code_flush_mode)) return true;
  
    BytecodeArray bytecode = BytecodeArray::cast(data);
-diff --git a/deps/v8/src/parsing/parsing.cc b/deps/v8/src/parsing/parsing.cc
+diff --git node/deps/v8/src/parsing/parsing.cc node/deps/v8/src/parsing/parsing.cc
 index 8c55a6fb6e..70bf82a57d 100644
---- a/deps/v8/src/parsing/parsing.cc
-+++ b/deps/v8/src/parsing/parsing.cc
+--- node/deps/v8/src/parsing/parsing.cc
++++ node/deps/v8/src/parsing/parsing.cc
 @@ -42,6 +42,7 @@ bool ParseProgram(ParseInfo* info, Handle<Script> script,
                    Isolate* isolate, ReportStatisticsMode mode) {
    DCHECK(info->flags().is_toplevel());
@@ -137,10 +137,10 @@ index 8c55a6fb6e..70bf82a57d 100644
    Handle<String> source(String::cast(script->source()), isolate);
    std::unique_ptr<Utf16CharacterStream> stream(
        ScannerStream::For(isolate, source, shared_info->StartPosition(),
-diff --git a/deps/v8/src/snapshot/code-serializer.cc b/deps/v8/src/snapshot/code-serializer.cc
+diff --git node/deps/v8/src/snapshot/code-serializer.cc node/deps/v8/src/snapshot/code-serializer.cc
 index c83e8e4581..8cb451e147 100644
---- a/deps/v8/src/snapshot/code-serializer.cc
-+++ b/deps/v8/src/snapshot/code-serializer.cc
+--- node/deps/v8/src/snapshot/code-serializer.cc
++++ node/deps/v8/src/snapshot/code-serializer.cc
 @@ -659,10 +659,6 @@ SerializedCodeSanityCheckResult SerializedCodeData::SanityCheck(
  
  SerializedCodeSanityCheckResult SerializedCodeData::SanityCheckJustSource(
@@ -163,10 +163,10 @@ index c83e8e4581..8cb451e147 100644
    uint32_t payload_length = GetHeaderValue(kPayloadLengthOffset);
    uint32_t max_payload_length = this->size_ - kHeaderSize;
    if (payload_length > max_payload_length) {
-diff --git a/lib/child_process.js b/lib/child_process.js
+diff --git node/lib/child_process.js node/lib/child_process.js
 index 449013906e..3a85e4a541 100644
---- a/lib/child_process.js
-+++ b/lib/child_process.js
+--- node/lib/child_process.js
++++ node/lib/child_process.js
 @@ -169,7 +169,7 @@ function fork(modulePath, args = [], options) {
      throw new ERR_CHILD_PROCESS_IPC_REQUIRED('options.stdio');
    }
@@ -176,11 +176,11 @@ index 449013906e..3a85e4a541 100644
  }
  
  function _forkChild(fd, serializationMode) {
-diff --git a/lib/internal/bootstrap/pkg.js b/lib/internal/bootstrap/pkg.js
+diff --git node/lib/internal/bootstrap/pkg.js node/lib/internal/bootstrap/pkg.js
 new file mode 100644
 index 0000000000..a697294fdf
 --- /dev/null
-+++ b/lib/internal/bootstrap/pkg.js
++++ node/lib/internal/bootstrap/pkg.js
 @@ -0,0 +1,49 @@
 +'use strict';
 +
@@ -231,10 +231,10 @@ index 0000000000..a697294fdf
 +    }
 +  }());
 +}());
-diff --git a/lib/internal/modules/cjs/loader.js b/lib/internal/modules/cjs/loader.js
+diff --git node/lib/internal/modules/cjs/loader.js node/lib/internal/modules/cjs/loader.js
 index b077ee386b..b4271b5951 100644
---- a/lib/internal/modules/cjs/loader.js
-+++ b/lib/internal/modules/cjs/loader.js
+--- node/lib/internal/modules/cjs/loader.js
++++ node/lib/internal/modules/cjs/loader.js
 @@ -95,7 +95,7 @@ const { containsModuleSyntax } = internalBinding('contextify');
  const assert = require('internal/assert');
  const fs = require('fs');
@@ -244,10 +244,10 @@ index b077ee386b..b4271b5951 100644
  const { safeGetenv } = internalBinding('credentials');
  const {
    privateSymbols: {
-diff --git a/lib/internal/modules/package_json_reader.js b/lib/internal/modules/package_json_reader.js
+diff --git node/lib/internal/modules/package_json_reader.js node/lib/internal/modules/package_json_reader.js
 index 88c079d10d..a7eaca0574 100644
---- a/lib/internal/modules/package_json_reader.js
-+++ b/lib/internal/modules/package_json_reader.js
+--- node/lib/internal/modules/package_json_reader.js
++++ node/lib/internal/modules/package_json_reader.js
 @@ -12,7 +12,7 @@ const {
  const {
    ERR_INVALID_PACKAGE_CONFIG,
@@ -257,10 +257,10 @@ index 88c079d10d..a7eaca0574 100644
  const { resolve, sep, toNamespacedPath } = require('path');
  const permission = require('internal/process/permission');
  const { kEmptyObject } = require('internal/util');
-diff --git a/lib/internal/process/pre_execution.js b/lib/internal/process/pre_execution.js
+diff --git node/lib/internal/process/pre_execution.js node/lib/internal/process/pre_execution.js
 index 917ba90a1c..c69638deba 100644
---- a/lib/internal/process/pre_execution.js
-+++ b/lib/internal/process/pre_execution.js
+--- node/lib/internal/process/pre_execution.js
++++ node/lib/internal/process/pre_execution.js
 @@ -51,7 +51,11 @@ const {
    },
  } = require('internal/v8/startup_snapshot');
@@ -291,10 +291,10 @@ index 917ba90a1c..c69638deba 100644
      const {
        Module: {
          _preloadModules,
-diff --git a/lib/vm.js b/lib/vm.js
+diff --git node/lib/vm.js node/lib/vm.js
 index d396a3df8c..74419c83c1 100644
---- a/lib/vm.js
-+++ b/lib/vm.js
+--- node/lib/vm.js
++++ node/lib/vm.js
 @@ -80,6 +80,7 @@ class Script extends ContextifyScript {
        produceCachedData = false,
        importModuleDynamically,
@@ -313,10 +313,10 @@ index d396a3df8c..74419c83c1 100644
      } catch (e) {
        throw e; /* node-do-not-add-exception-line */
      }
-diff --git a/node.gyp b/node.gyp
-index 4e614df1a9..3500b875c7 100644
---- a/src/inspector_agent.cc
-+++ b/src/inspector_agent.cc
+diff --git node/src/inspector_agent.cc node/src/inspector_agent.cc
+index de372400fd..2538afa37d 100644
+--- node/src/inspector_agent.cc
++++ node/src/inspector_agent.cc
 @@ -707,8 +707,6 @@ bool Agent::Start(const std::string& path,
                                StartIoThreadAsyncCallback));
      uv_unref(reinterpret_cast<uv_handle_t*>(&start_io_thread_async));
@@ -326,10 +326,10 @@ index 4e614df1a9..3500b875c7 100644
  
      parent_env_->AddCleanupHook([](void* data) {
        Environment* env = static_cast<Environment*>(data);
-diff --git a/src/node.cc b/src/node.cc
+diff --git node/src/node.cc node/src/node.cc
 index a9336a1430..c4a97eb85a 100644
---- a/src/node.cc
-+++ b/src/node.cc
+--- node/src/node.cc
++++ node/src/node.cc
 @@ -322,6 +322,8 @@ MaybeLocal<Value> StartExecution(Environment* env, StartExecutionCallback cb) {
      return env->RunSnapshotDeserializeMain();
    }
@@ -354,10 +354,10 @@ index a9336a1430..c4a97eb85a 100644
      ResetSignalHandlers();
    }
  
-diff --git a/src/node_contextify.cc b/src/node_contextify.cc
+diff --git node/src/node_contextify.cc node/src/node_contextify.cc
 index 64860d7e56..abdb5593ba 100644
---- a/src/node_contextify.cc
-+++ b/src/node_contextify.cc
+--- node/src/node_contextify.cc
++++ node/src/node_contextify.cc
 @@ -75,6 +75,7 @@ using v8::String;
  using v8::Symbol;
  using v8::Uint32;
@@ -428,10 +428,10 @@ index 64860d7e56..abdb5593ba 100644
    TRACE_EVENT_END0(TRACING_CATEGORY_NODE2(vm, script), "ContextifyScript::New");
  }
  
-diff --git a/src/node_main.cc b/src/node_main.cc
-index f66099a557..29624b22cf 100644
---- a/src/node_main.cc
-+++ b/src/node_main.cc
+diff --git node/src/node_main.cc node/src/node_main.cc
+index f66099a557..4048f6bd93 100644
+--- node/src/node_main.cc
++++ node/src/node_main.cc
 @@ -22,6 +22,8 @@
  #include "node.h"
  #include <cstdio>
@@ -538,10 +538,10 @@ index f66099a557..29624b22cf 100644
 +
 +  return adjacent(c, nargv);
 +}
-diff --git a/src/node_options.cc b/src/node_options.cc
+diff --git node/src/node_options.cc node/src/node_options.cc
 index 29cb7fc6b2..7a27f506f5 100644
---- a/src/node_options.cc
-+++ b/src/node_options.cc
+--- node/src/node_options.cc
++++ node/src/node_options.cc
 @@ -302,6 +302,7 @@ void Parse(
  // TODO(addaleax): Make that unnecessary.
  
@@ -550,10 +550,10 @@ index 29cb7fc6b2..7a27f506f5 100644
  #ifndef DISABLE_SINGLE_EXECUTABLE_APPLICATION
    if (sea::IsSingleExecutable()) return;
  #endif
-diff --git a/tools/icu/icu-generic.gyp b/tools/icu/icu-generic.gyp
+diff --git node/tools/icu/icu-generic.gyp node/tools/icu/icu-generic.gyp
 index 2655b9e694..1d951571c7 100644
---- a/tools/icu/icu-generic.gyp
-+++ b/tools/icu/icu-generic.gyp
+--- node/tools/icu/icu-generic.gyp
++++ node/tools/icu/icu-generic.gyp
 @@ -52,7 +52,7 @@
          'conditions': [
            [ 'os_posix == 1 and OS != "mac" and OS != "ios"', {
