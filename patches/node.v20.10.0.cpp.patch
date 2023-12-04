@@ -315,20 +315,6 @@ index d396a3df8c..74419c83c1 100644
      }
 diff --git a/node.gyp b/node.gyp
 index 4e614df1a9..3500b875c7 100644
---- a/node.gyp
-+++ b/node.gyp
-@@ -460,6 +460,9 @@
-     },
- 
-     'conditions': [
-+      ['target_arch=="arm64"', {
-+        'cflags': ['-mbranch-protection=standard'], # Pointer authentication
-+      }],
-       ['OS in "aix os400"', {
-         'ldflags': [
-           '-Wl,-bnoerrmsg',
-diff --git a/src/inspector_agent.cc b/src/inspector_agent.cc
-index de372400fd..2538afa37d 100644
 --- a/src/inspector_agent.cc
 +++ b/src/inspector_agent.cc
 @@ -707,8 +707,6 @@ bool Agent::Start(const std::string& path,
