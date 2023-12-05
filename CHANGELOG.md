@@ -1,3 +1,22 @@
+## [3.5.7](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.6...v3.5.7) (2023-12-05)
+
+### Features
+
+- support for latest NodeJS v20 ([#11](https://github.com/yao-pkg/pkg-fetch/issues/11)) ([31bbc32](https://github.com/yao-pkg/pkg-fetch/commit/31bbc321666278877749d6023d259cd0ab50675a))
+
+### Bug Fixes
+
+- node20 patch syntax error winx64 ([2ba1dd8](https://github.com/yao-pkg/pkg-fetch/commit/2ba1dd8939764330e0f373ce38efc68d6e890ed9)), closes [#11](https://github.com/yao-pkg/pkg-fetch/issues/11)
+- update expected shas ([98624e3](https://github.com/yao-pkg/pkg-fetch/commit/98624e3a522401962b496dc6e682c75d986b4e1d))
+- update expected shas ([fc07c46](https://github.com/yao-pkg/pkg-fetch/commit/fc07c4659546849a57de06cdf91599cb9f7c9c6b))
+- v20 patch ARM64 ([#12](https://github.com/yao-pkg/pkg-fetch/issues/12)) ([07ed56d](https://github.com/yao-pkg/pkg-fetch/commit/07ed56d3e3b45f233b3ef4e92d3458c4eb32e1d9))
+
+### Chores
+
+- add .yarn to gitignore ([729c0a1](https://github.com/yao-pkg/pkg-fetch/commit/729c0a1871a7d70843cbc5ad9fd70c08c4c2757d))
+- add missing macos-linux v20 matrix ([28d96e9](https://github.com/yao-pkg/pkg-fetch/commit/28d96e99af719107d3ee4211d987a6f0e8dd9800))
+- update vscode settings ([a787d4d](https://github.com/yao-pkg/pkg-fetch/commit/a787d4d7bb071419394d917f94677bfc6249c720))
+
 ## [3.5.6](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.5...v3.5.6) (2023-10-28)
 
 ### Features
