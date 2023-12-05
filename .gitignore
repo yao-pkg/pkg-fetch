@@ -4,6 +4,8 @@
 # dependencies
 /node_modules
 
+/.yarn/ 
+
 # logs
 npm-debug.log
 yarn-error.log
