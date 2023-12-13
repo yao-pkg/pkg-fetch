@@ -48,7 +48,7 @@ jobs:
       - name: Check if binary is compiled
         id: check_file
         run: |
-          (test -f root/pkg-fetch/dist/*.sha256sum && echo ::set-output name=EXISTS::true) || echo ::set-output name=EXISTS::false
+          (test -f root/pkg-fetch/dist/*.sha256sum && echo "EXISTS=true" >> $GITHUB_OUTPUT) || echo "EXISTS=false" >> $GITHUB_OUTPUT
 
       - uses: actions/upload-artifact@v2
         if: steps.check_file.outputs.EXISTS == 'true'
