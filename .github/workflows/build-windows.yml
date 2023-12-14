@@ -31,7 +31,7 @@ jobs:
       - name: Check if binary is compiled
         id: check_file
         run: |
-          if (Test-Path -Path dist\\*.sha256sum -PathType Leaf) { echo "::set-output name=EXISTS::true" } else { echo "::set-output name=EXISTS::false" }
+          if (Test-Path -Path dist\\*.sha256sum -PathType Leaf) { echo ""EXISTS=true" >> $GITHUB_OUTPUT" } else { echo ""EXISTS=false" >> $GITHUB_OUTPUT" }
 
       - uses: actions/upload-artifact@v2
         if: steps.check_file.outputs.EXISTS == 'true'
