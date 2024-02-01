@@ -27,11 +27,11 @@ jobs:
           context: .
           file: ./Dockerfile.linux
           platforms: linux/amd64
-          outputs: type=tar,dest=../out.tar
+          outputs: type=tar,dest=./out.tar
 
       - name: Extract binaries from Docker image
         run: |
-          tar xvf ../out.tar root/pkg-fetch/dist
+          tar xvf ./out.tar root/pkg-fetch/dist
 
       - name: Check if binary is compiled
         id: check_file
@@ -68,11 +68,11 @@ jobs:
           context: .
           file: ./Dockerfile.linuxcross
           platforms: linux/amd64
-          outputs: type=tar,dest=../out.tar
+          outputs: type=tar,dest=./out.tar
 
       - name: Extract binaries from Docker image
         run: |
-          tar xvf ../out.tar root/pkg-fetch/dist
+          tar xvf ./out.tar root/pkg-fetch/dist
 
       - name: Check if binary is compiled
         id: check_file
