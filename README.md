@@ -50,14 +50,10 @@ This project deploys multiple defense measures to ensure that the safe binaries 
 
 1. Clone Node.js as a sibling to your current `pkg-fetch` clone
 
-- `git clone https://github.com/nodejs/node.git`
-- `cd node`
+   - `git clone -b v18.13.0 --single-branch https://github.com/nodejs/node.git`
+   - `cd node`
 
-2. Checkout the tag you wish to generate a patch for
-
-- `git checkout v18.13.0`
-
-3. Attempt to apply the closest patch (e.g. applying the existing patch for
+2. Attempt to apply the closest patch (e.g. applying the existing patch for
    18.12.1 when trying to generate a new patch for 18.13.0)
 
 - `git apply ..\pkg-fetch\patches\node.v18.12.1.cpp.patch --reject`
