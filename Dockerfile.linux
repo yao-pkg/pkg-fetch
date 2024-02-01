@@ -13,8 +13,8 @@ RUN yum install -y \
     make patch python2 \
     rh-python36-python
 
-RUN curl -L https://rpm.nodesource.com/nsolid_setup_rpm.sh | bash -s -- 18
-RUN yum install nodejs -y --setopt=nodesource-nodejs.module_hotfixes=1
+RUN curl -fsSL https://rpm.nodesource.com/setup_16.x | bash -
+RUN yum install -y nodejs
 RUN npm install -g yarn
 
 COPY . ./
