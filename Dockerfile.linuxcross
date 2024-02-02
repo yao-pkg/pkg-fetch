@@ -1,4 +1,4 @@
-FROM ubuntu:bionic
+FROM ubuntu:bionic AS build
 
 USER root:root
 WORKDIR /root/pkg-fetch/
@@ -40,3 +40,6 @@ ARG PKG_FETCH_OPTION_a
 ARG PKG_FETCH_OPTION_n
 
 RUN yarn start --arch $PKG_FETCH_OPTION_a --node-range $PKG_FETCH_OPTION_n --output dist
+
+FROM scratch
+COPY --from=build /root/pkg-fetch/dist /
