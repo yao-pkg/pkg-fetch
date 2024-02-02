@@ -39,7 +39,6 @@ jobs:
           }
 
       - uses: actions/upload-artifact@v4
-        if: steps.check_file.outputs.EXISTS == 'true'
         with:
           name: node${{ matrix.target-node }}-windows-${{ matrix.target-arch }}
           path: dist\\*
