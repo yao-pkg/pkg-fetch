@@ -47,7 +47,7 @@ jobs:
       - name: Check if binary is compiled, skip if download only
         id: check_file
         run: |
-          ln -l dist
+          ls -l dist
           (test -f dist/*.sha256sum && echo "EXISTS=true" >> $GITHUB_OUTPUT) || echo "EXISTS=false" >> $GITHUB_OUTPUT
 
       - uses: actions/upload-artifact@v4
