@@ -28,24 +28,18 @@ jobs:
           context: .
           file: ./Dockerfile.linux
           platforms: linux/amd64
-          outputs: type=docker
-
-      - name: Extract binaries from Docker image
-        run: |
-          mkdir -p dist
-          CONTAINER_ID=$(docker create ${{ steps.build.outputs.imageid }})
-          docker cp $CONTAINER_ID:/root/pkg-fetch/dist ./dist
+          outputs: type=local, dest=dist
 
       - name: Check if binary is compiled
         id: check_file
         run: |
-          (test -f ./dist/*.sha256sum && echo "EXISTS=true" >> $GITHUB_OUTPUT) || echo "EXISTS=false" >> $GITHUB_OUTPUT
+          (test -f dist/*.sha256sum && echo "EXISTS=true" >> $GITHUB_OUTPUT) || echo "EXISTS=false" >> $GITHUB_OUTPUT
 
       - uses: actions/upload-artifact@v4
         if: steps.check_file.outputs.EXISTS == 'true'
         with:
           name: node${{ matrix.target-node }}-linux-x64
-          path: ./dist/*
+          path: dist/*
 
   linux-arm64:
     runs-on: ubuntu-20.04
@@ -72,21 +66,15 @@ jobs:
           context: .
           file: ./Dockerfile.linuxcross
           platforms: linux/amd64
-          outputs: type=docker
-
-      - name: Extract binaries from Docker image
-        run: |
-          mkdir -p dist
-          CONTAINER_ID=$(docker create ${{ steps.build.outputs.imageid }})
-          docker cp $CONTAINER_ID:/root/pkg-fetch/dist ./dist
+          outputs: type=local, dest=dist
 
       - name: Check if binary is compiled
         id: check_file
         run: |
-          (test -f ./dist/*.sha256sum && echo "EXISTS=true" >> $GITHUB_OUTPUT) || echo "EXISTS=false" >> $GITHUB_OUTPUT
+          (test -f dist/*.sha256sum && echo "EXISTS=true" >> $GITHUB_OUTPUT) || echo "EXISTS=false" >> $GITHUB_OUTPUT
 
       - uses: actions/upload-artifact@v4
         if: steps.check_file.outputs.EXISTS == 'true'
         with:
           name: node${{ matrix.target-node }}-linux-arm64
-          path: ./dist/*
+          path: dist/*

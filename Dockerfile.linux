@@ -1,4 +1,4 @@
-FROM oraclelinux:7
+FROM oraclelinux:7 AS build
 
 USER root:root
 WORKDIR /root/pkg-fetch/
@@ -27,3 +27,6 @@ RUN scl enable devtoolset-10 rh-python36 \
     " \
     yarn start --node-range $PKG_FETCH_OPTION_n --output dist \
     "
+
+FROM scratch
+COPY --from=build /root/pkg-fetch/dist /
