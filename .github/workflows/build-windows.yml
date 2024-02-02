@@ -28,7 +28,7 @@ jobs:
 
       - run: yarn start --node-range node${{ matrix.target-node }} --arch ${{ matrix.target-arch }} --output dist
 
-      - name: Check if binary is compiled
+      - name: Check if binary is compiled, skip if download only
         id: check_file
         run: |
           if (Test-Path -Path dist\\*.sha256sum -PathType Leaf) { echo ""EXISTS=true" >> $GITHUB_OUTPUT" } else { echo ""EXISTS=false" >> $GITHUB_OUTPUT" }

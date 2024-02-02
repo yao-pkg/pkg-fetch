@@ -39,19 +39,16 @@ jobs:
           context: .
           file: ./Dockerfile.alpine
           platforms: linux/amd64
-          outputs: type=tar,dest=../out.tar
+          outputs: type=local, dest=dist
 
-      - name: Extract binaries from Docker image
-        run: |
-          tar xvf ../out.tar root/pkg-fetch/dist
-
-      - name: Check if binary is compiled
+      - name: Check if binary is compiled, skip if download only
         id: check_file
         run: |
-          (test -f root/pkg-fetch/dist/*.sha256sum && echo "EXISTS=true" >> $GITHUB_OUTPUT) || echo "EXISTS=false" >> $GITHUB_OUTPUT
+          ls -l dist
+          (test -f dist/*.sha256sum && echo "EXISTS=true" >> $GITHUB_OUTPUT) || echo "EXISTS=false" >> $GITHUB_OUTPUT
 
       - uses: actions/upload-artifact@v4
         if: steps.check_file.outputs.EXISTS == 'true'
         with:
           name: node${{ matrix.target-node }}-alpine-${{ matrix.target-arch }}
-          path: root/pkg-fetch/dist/*
+          path: dist/*

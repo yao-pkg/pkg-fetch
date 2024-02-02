@@ -1,13 +1,15 @@
-FROM ubuntu:bionic
+FROM ubuntu:bionic AS build
 
 USER root:root
 WORKDIR /root/pkg-fetch/
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update
-RUN apt-get install -y curl software-properties-common
-RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
-RUN apt-get install -y nodejs
+RUN apt-get install -y curl software-properties-common ca-certificates gnupg
+
+# Install Node.js
+RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && \
+    apt-get install -y nodejs
 
 RUN apt-get install -y binutils g++-8 git make patch python3 python3-distutils
 
@@ -40,3 +42,6 @@ ARG PKG_FETCH_OPTION_a
 ARG PKG_FETCH_OPTION_n
 
 RUN yarn start --arch $PKG_FETCH_OPTION_a --node-range $PKG_FETCH_OPTION_n --output dist
+
+FROM scratch
+COPY --from=build /root/pkg-fetch/dist /

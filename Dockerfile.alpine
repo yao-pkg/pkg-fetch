@@ -1,7 +1,7 @@
 ARG HOST_ARCH=x86_64
 ARG TARGET_TRIPLE=aarch64-linux-musl
 
-FROM muslcc/$HOST_ARCH:$TARGET_TRIPLE
+FROM muslcc/$HOST_ARCH:$TARGET_TRIPLE AS build
 
 ARG PKG_FETCH_OPTION_a
 ARG PKG_FETCH_OPTION_n
@@ -37,3 +37,6 @@ COPY . ./
 RUN yarn install --ignore-engines
 
 RUN yarn start --arch $PKG_FETCH_OPTION_a --node-range $PKG_FETCH_OPTION_n --platform $PKG_FETCH_OPTION_p --output dist
+
+FROM scratch
+COPY --from=build /root/pkg-fetch/dist /

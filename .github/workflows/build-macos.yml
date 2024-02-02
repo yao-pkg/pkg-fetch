@@ -29,9 +29,10 @@ jobs:
 
       - run: yarn start --node-range node${{ matrix.target-node }} --output dist
 
-      - name: Check if binary is compiled
+      - name: Check if binary is compiled, skip if download only
         id: check_file
         run: |
+          ls -l dist
           (test -f dist/*.sha256sum && echo "EXISTS=true" >> $GITHUB_OUTPUT) || echo "EXISTS=false" >> $GITHUB_OUTPUT
 
       - uses: actions/upload-artifact@v3
