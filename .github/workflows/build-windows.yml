@@ -17,10 +17,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use Node.js 14
+      - name: Use Node.js 16
         uses: actions/setup-node@v4
         with:
-          node-version: 14
+          node-version: 16
 
       - run: yarn install --ignore-engines
 
@@ -31,7 +31,12 @@ jobs:
       - name: Check if binary is compiled, skip if download only
         id: check_file
         run: |
-          if (Test-Path -Path dist\\*.sha256sum -PathType Leaf) { echo ""EXISTS=true" >> $GITHUB_OUTPUT" } else { echo ""EXISTS=false" >> $GITHUB_OUTPUT" }
+          ls dist
+          if (Test-Path -Path dist\\*.sha256sum -PathType Leaf) { 
+            "EXISTS=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          } else { 
+            "EXISTS=false" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          }
 
       - uses: actions/upload-artifact@v4
         if: steps.check_file.outputs.EXISTS == 'true'
