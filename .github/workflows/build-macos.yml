@@ -73,6 +73,7 @@ jobs:
       - name: Check if binary is compiled
         id: check_file
         run: |
+          ls -l dist
           (test -f dist/*.sha256sum && echo "EXISTS=true" >> $GITHUB_OUTPUT) || echo "EXISTS=false" >> $GITHUB_OUTPUT
 
       - uses: actions/upload-artifact@v4
