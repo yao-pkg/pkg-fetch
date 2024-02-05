@@ -75,7 +75,7 @@ jobs:
         run: |
           (test -f dist/*.sha256sum && echo "EXISTS=true" >> $GITHUB_OUTPUT) || echo "EXISTS=false" >> $GITHUB_OUTPUT
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: steps.check_file.outputs.EXISTS == 'true'
         with:
           name: node${{ matrix.target-node }}-macos-arm64
