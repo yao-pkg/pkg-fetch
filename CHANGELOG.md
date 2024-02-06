@@ -1,3 +1,28 @@
+## [3.5.8](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.7...v3.5.8) (2024-02-06)
+
+### Features
+
+- drop node 19 ([a4fa899](https://github.com/yao-pkg/pkg-fetch/commit/a4fa8992a08bb2c597ac6222063a6f023f6fc07e))
+- node 20.11.0 and 18.19.0 patches ([#18](https://github.com/yao-pkg/pkg-fetch/issues/18)) ([de81e9f](https://github.com/yao-pkg/pkg-fetch/commit/de81e9f50c7e5c6c796762503cef8c3dc66fbffe))
+
+### Bug Fixes
+
+- add missing binaries shas ([16392db](https://github.com/yao-pkg/pkg-fetch/commit/16392dbfc1f0a9b559c323c9986f84f646b9113f))
+- build issues ([#20](https://github.com/yao-pkg/pkg-fetch/issues/20)) ([59a2c69](https://github.com/yao-pkg/pkg-fetch/commit/59a2c69e8d8d544a5711ab0fe09a08ba9d040327))
+- bump shas ([#21](https://github.com/yao-pkg/pkg-fetch/issues/21)) ([7099e0f](https://github.com/yao-pkg/pkg-fetch/commit/7099e0f006f025cc89a0004f85f04841be9541d6))
+- mac-os uploaded artifacts ([#23](https://github.com/yao-pkg/pkg-fetch/issues/23)) ([7b7e2ce](https://github.com/yao-pkg/pkg-fetch/commit/7b7e2ce56ecbf923fe843958ad9ff160389a69ea))
+- patches for arm64 ([#15](https://github.com/yao-pkg/pkg-fetch/issues/15)) ([c7dff09](https://github.com/yao-pkg/pkg-fetch/commit/c7dff099190a393a27f24880b154dbc87acb2ede))
+- windows build ([#22](https://github.com/yao-pkg/pkg-fetch/issues/22)) ([65a09c7](https://github.com/yao-pkg/pkg-fetch/commit/65a09c7458cdf33c399e4c0f0628e015495ce39e))
+
+### Chores
+
+- bump actions ([#19](https://github.com/yao-pkg/pkg-fetch/issues/19)) ([3f7d742](https://github.com/yao-pkg/pkg-fetch/commit/3f7d742305cd83badc9ea03dbba517c8fad23ba4))
+- remove all calls to "set-output" from actions ([#14](https://github.com/yao-pkg/pkg-fetch/issues/14)) ([1461d59](https://github.com/yao-pkg/pkg-fetch/commit/1461d596fac6e86334694ef4440ea1d966380e67))
+
+### Documentation
+
+- update docs ([2eb79e5](https://github.com/yao-pkg/pkg-fetch/commit/2eb79e529f4f9574030afd4cc2e7c505b38bdc52))
+
 ## [3.5.7](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.6...v3.5.7) (2023-12-05)
 
 ### Features

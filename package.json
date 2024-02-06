@@ -1,6 +1,6 @@
 {
   "name": "@yao-pkg/pkg-fetch",
-  "version": "3.5.7",
+  "version": "3.5.8",
   "description": "Compiles and stores base binaries for pkg",
   "main": "lib-es5/index.js",
   "license": "MIT",
