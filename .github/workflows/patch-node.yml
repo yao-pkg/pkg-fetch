@@ -36,7 +36,7 @@ jobs:
                 fi
 
                 # check if patch file exists
-                if [ -f "$PATCH_FILE" ]; then
+                if [ ! -f "$PATCH_FILE" ]; then
                   echo "No patch file found for Node.js version ${{ inputs.nodeVersion }}"
                   exit 1
                 fi
