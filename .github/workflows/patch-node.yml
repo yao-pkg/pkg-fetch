@@ -22,7 +22,7 @@ jobs:
                 # find the patch file by checking the patch file matching major version input node version
                 MAJOR_VERSION=$(echo ${{ inputs.nodeVersion }} | cut -d'.' -f1)
                 echo "Node.js major version: $MAJOR_VERSION"
-                $PATCH_FILE=$(ls patches/node.v$MAJOR_VERSION.*.patch)
+                PATCH_FILE=$(ls patches/node.v$MAJOR_VERSION.*.patch)
                 if [ -z "$PATCH_FILE" ]; then
                   echo "No patch file found for Node.js version ${{ inputs.nodeVersion }}"
                   exit 1
