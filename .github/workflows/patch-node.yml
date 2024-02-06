@@ -20,7 +20,7 @@ jobs:
             - name: Checkout nodejs and create new patch
               run: |
                 cd ..
-                ls
+                ls pkg-fetch
                 echo "Cloning Node.js repository"
                 git clone -b v${{ inputs.nodeVersion }} --single-branch https://github.com/nodejs/node.git
                 cd node
