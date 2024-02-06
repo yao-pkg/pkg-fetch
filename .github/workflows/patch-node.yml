@@ -42,7 +42,7 @@ jobs:
                 fi
 
                 echo "Patch $PATCH_FILE applies cleanly, creating new patch file"
-
+                git apply ../pkg-fetch/$PATCH_FILE
                 # delete old patch file and create new one
                 rm -rf ../pkg-fetch/$PATCH_FILE
                 git add -A
@@ -57,6 +57,7 @@ jobs:
                 body: "This PR bumps the Node.js patch version to v${{ inputs.nodeVersion }}"
                 branch: "nodejs-v${{ inputs.nodeVersion }}"
                 base: "main"
+                delete-branch: true
                 labels: "enhancement, nodejs"
                 draft: false
               
