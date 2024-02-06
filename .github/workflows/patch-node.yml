@@ -35,7 +35,8 @@ jobs:
                   PATCH_FILE=patches/node.v${{ inputs.patchFile }}.cpp.patch
                 fi
 
-                if [ -z "$PATCH_FILE" ]; then
+                # check if patch file exists
+                if [ -f "$PATCH_FILE" ]; then
                   echo "No patch file found for Node.js version ${{ inputs.nodeVersion }}"
                   exit 1
                 fi
