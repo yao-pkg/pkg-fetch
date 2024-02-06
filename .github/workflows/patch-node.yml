@@ -7,6 +7,12 @@ on:
         description: 'Node.js version (e.g. 20.11.0)'
         default: ''
         type: string
+        required: true
+      patchFile:
+        description: 'Patch version to use (e.g. 20.11.0). Leave empty to use the matching major patch'
+        default: ''
+        type: string
+        required: false
 
 jobs:
     build:
@@ -22,7 +28,13 @@ jobs:
                 # find the patch file by checking the patch file matching major version input node version
                 MAJOR_VERSION=$(echo ${{ inputs.nodeVersion }} | cut -d'.' -f1)
                 echo "Node.js major version: $MAJOR_VERSION"
-                PATCH_FILE=$(ls patches/node.v$MAJOR_VERSION.*.patch)
+
+                if [ -z "${{ inputs.patchFile }}" ]; then
+                  PATCH_FILE=$(ls patches/node.v$MAJOR_VERSION.*.patch)
+                else
+                  PATCH_FILE=patches/node.v${{ inputs.patchFile }}.cpp.patch
+                fi
+
                 if [ -z "$PATCH_FILE" ]; then
                   echo "No patch file found for Node.js version ${{ inputs.nodeVersion }}"
                   exit 1
@@ -46,7 +58,7 @@ jobs:
                 # delete old patch file and create new one
                 rm -rf ../pkg-fetch/$PATCH_FILE
                 git add -A
-                git diff --staged --src-prefix=node/ --dst-prefix=node/ > ../pkg-fetch/patches/node.v${{ inputs.nodeVersion }}.cpp.patch2
+                git diff --staged --src-prefix=node/ --dst-prefix=node/ > ../pkg-fetch/patches/node.v${{ inputs.nodeVersion }}.cpp.patch
             
             - name: Create Pull Request
               uses: peter-evans/create-pull-request@v4
