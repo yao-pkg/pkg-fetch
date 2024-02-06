@@ -46,7 +46,7 @@ jobs:
                 # delete old patch file and create new one
                 rm -rf ../pkg-fetch/$PATCH_FILE
                 git add -A
-                git diff --staged --src-prefix=node/ --dst-prefix=node/ > ../pkg-fetch/patches/node.v${{ inputs.nodeVersion }}.cpp.patch
+                git diff --staged --src-prefix=node/ --dst-prefix=node/ > ../pkg-fetch/patches/node.v${{ inputs.nodeVersion }}.cpp.patch2
             
             - name: Create Pull Request
               uses: peter-evans/create-pull-request@v4
