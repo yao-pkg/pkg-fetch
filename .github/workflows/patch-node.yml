@@ -1,0 +1,57 @@
+name: Create new Node.js patch
+
+on:
+  workflow_dispatch:
+    inputs:
+      nodeVersion:
+        description: 'Node.js version (e.g. 20.11.0)'
+        default: ''
+        type: string
+
+jobs:
+    build:
+        permissions:
+            contents: write
+            pull-requests: write
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            
+            - name: Checkout nodejs and create new patch
+              run: |
+                cd ..
+                git clone -b v${{ inputs.nodeVersion }} --single-branch https://github.com/nodejs/node.git
+                cd node
+                
+                # find the patch file by checking the patch file matching major version input node version
+                MAJOR_VERSION=$(echo ${{ inputs.nodeVersion }} | cut -d'.' -f1)
+                $PATCH_FILE=$(ls ../pkg-fetch/patches/node.v$MAJOR_VERSION.*.patch)
+                if [ -z "$PATCH_FILE" ]; then
+                  echo "No patch file found for Node.js version ${{ inputs.nodeVersion }}"
+                  exit 1
+                fi
+
+                # apply the patch, if there are conflicts exit with error
+                git apply --check $PATCH_FILE
+                if [ $? -ne 0 ]; then
+                  echo "Patch $PATCH_FILE does not apply cleanly"
+                  exit 1
+                fi
+
+                # delete old patch file and create new one
+                rm -rf $PATCH_FILE
+                git add -A
+                git diff --staged --src-prefix=node/ --dst-prefix=node/ > ../pkg-fetch/patches/node.v${{ inputs.nodeVersion }}.cpp.patch
+            
+            - name: Create Pull Request
+              uses: peter-evans/create-pull-request@v4
+              with:
+                token: ${{ secrets.GITHUB_TOKEN }}
+                commit-message: "feat: add v${{ inputs.nodeVersion }} patch"
+                title: "feat: add v${{ inputs.nodeVersion }} patch"
+                body: "This PR bumps the Node.js patch version to v${{ inputs.nodeVersion }}"
+                branch: "nodejs-v${{ inputs.nodeVersion }}"
+                base: "main"
+                labels: "enhancement, nodejs"
+                draft: false
+              
