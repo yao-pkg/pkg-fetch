@@ -20,11 +20,14 @@ jobs:
             - name: Checkout nodejs and create new patch
               run: |
                 cd ..
+                ls
+                echo "Cloning Node.js repository"
                 git clone -b v${{ inputs.nodeVersion }} --single-branch https://github.com/nodejs/node.git
                 cd node
                 
                 # find the patch file by checking the patch file matching major version input node version
                 MAJOR_VERSION=$(echo ${{ inputs.nodeVersion }} | cut -d'.' -f1)
+                echo "Node.js major version: $MAJOR_VERSION"
                 $PATCH_FILE=$(ls ../pkg-fetch/patches/node.v$MAJOR_VERSION.*.patch)
                 if [ -z "$PATCH_FILE" ]; then
                   echo "No patch file found for Node.js version ${{ inputs.nodeVersion }}"
@@ -32,11 +35,14 @@ jobs:
                 fi
 
                 # apply the patch, if there are conflicts exit with error
+                echo "Applying patch $PATCH_FILE"
                 git apply --check $PATCH_FILE
                 if [ $? -ne 0 ]; then
                   echo "Patch $PATCH_FILE does not apply cleanly"
                   exit 1
                 fi
+
+                echo "Patch $PATCH_FILE applies cleanly, creating new patch file"
 
                 # delete old patch file and create new one
                 rm -rf $PATCH_FILE
