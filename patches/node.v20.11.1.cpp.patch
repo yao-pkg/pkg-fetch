@@ -258,10 +258,10 @@ index 88c079d10d..a7eaca0574 100644
  const permission = require('internal/process/permission');
  const { kEmptyObject } = require('internal/util');
 diff --git node/lib/internal/process/pre_execution.js node/lib/internal/process/pre_execution.js
-index 9142fed75e..557627919e 100644
+index cffffc28d3..679b9c3939 100644
 --- node/lib/internal/process/pre_execution.js
 +++ node/lib/internal/process/pre_execution.js
-@@ -51,7 +51,11 @@ const {
+@@ -52,7 +52,11 @@ const {
    },
  } = require('internal/v8/startup_snapshot');
  
@@ -273,7 +273,7 @@ index 9142fed75e..557627919e 100644
    return prepareExecution({
      expandArgv1,
      initializeModules,
-@@ -230,7 +234,8 @@ function patchProcessObject(expandArgv1) {
+@@ -231,7 +235,8 @@ function patchProcessObject(expandArgv1) {
    // If requested, update process.argv[1] to replace whatever the user provided with the resolved absolute file path of
    // the entry point.
    if (expandArgv1 && process.argv[1] &&
@@ -283,7 +283,7 @@ index 9142fed75e..557627919e 100644
      // Expand process.argv[1] into a full path.
      const path = require('path');
      try {
-@@ -744,6 +749,7 @@ function loadPreloadModules() {
+@@ -747,6 +752,7 @@ function loadPreloadModules() {
    // For user code, we preload modules if `-r` is passed
    const preloadModules = getOptionValue('--require');
    if (preloadModules && preloadModules.length > 0) {
