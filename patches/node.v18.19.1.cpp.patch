@@ -405,7 +405,7 @@ index b48e79c282..3b86fa8933 100644
        throw e; /* node-do-not-add-exception-line */
      }
 diff --git node/node.gyp node/node.gyp
-index 08cb3f38e8..6c0d2761ab 100644
+index 08cb3f38e8..0f64039ff5 100644
 --- node/node.gyp
 +++ node/node.gyp
 @@ -116,6 +116,9 @@
