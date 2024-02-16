@@ -1,3 +1,20 @@
+## [3.5.9](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.8...v3.5.9) (2024-02-16)
+
+### Features
+
+- add v18.19.1 patch ([#28](https://github.com/yao-pkg/pkg-fetch/issues/28)) ([3845065](https://github.com/yao-pkg/pkg-fetch/commit/3845065386ba99dc30ff731f2f9a6d49b210e50f))
+- add v20.11.1 patch ([#29](https://github.com/yao-pkg/pkg-fetch/issues/29)) ([a69918b](https://github.com/yao-pkg/pkg-fetch/commit/a69918b166b5b32be4e74cff96b7be066d87988d))
+
+### Bug Fixes
+
+- bump expected-shas.json ([d58bdcb](https://github.com/yao-pkg/pkg-fetch/commit/d58bdcb96cdc293ca77ce73a1340e63918429b51))
+
+### Chores
+
+- fix patch node workflow ([#24](https://github.com/yao-pkg/pkg-fetch/issues/24)) ([34c5ab3](https://github.com/yao-pkg/pkg-fetch/commit/34c5ab30bb0e35ca1190dbe1749cb39918a6f829))
+- make workflow update patches.json ([361fd63](https://github.com/yao-pkg/pkg-fetch/commit/361fd63e7193ee42ff9d51f9228e47db5bc03c9d))
+- patch node workflow ([0f00204](https://github.com/yao-pkg/pkg-fetch/commit/0f0020420ea60924fd1f05af64ae215c37396930))
+
 ## [3.5.8](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.7...v3.5.8) (2024-02-06)
 
 ### Features
