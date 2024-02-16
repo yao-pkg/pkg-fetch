@@ -35,6 +35,9 @@ jobs:
                   PATCH_FILE=patches/node.v${{ inputs.patchFile }}.cpp.patch
                 fi
 
+                # extract patch version from PATCH_FILE. E.g. node.v20.11.1.cpp.patch -->  20.11.1
+                PATCH_VERSION=$(echo $PATCH_FILE | grep -oP 'node.v\K[0-9]+\.[0-9]+\.[0-9]+')
+
                 echo "Patch file: $PATCH_FILE"
 
                 # check if patch file exists
@@ -60,8 +63,15 @@ jobs:
                 git apply ../pkg-fetch/$PATCH_FILE
                 # delete old patch file and create new one
                 rm -rf ../pkg-fetch/$PATCH_FILE
+                
                 git add -A
                 git diff --staged --src-prefix=node/ --dst-prefix=node/ > ../pkg-fetch/patches/node.v${{ inputs.nodeVersion }}.cpp.patch
+
+                # Update patches.json
+                echo "Updating patches.json"
+                cd ../pkg-fetch/patches
+                
+                sed -i "s/\"v$PATCH_VERSION\": \[\"node.v$PATCH_VERSION.cpp.patch\"\]/\"v${{ inputs.nodeVersion }}\": \[\"node.v${{ inputs.nodeVersion }}.cpp.patch\"\]/" patches.json
             
             - name: Create Pull Request
               uses: peter-evans/create-pull-request@v4
