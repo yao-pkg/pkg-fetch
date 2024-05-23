@@ -1,0 +1,48 @@
+name: Test patch
+
+on:
+  workflow_dispatch:
+    inputs:
+      args:
+        description: 'Command arguments'
+        default: '--node-range node18'
+        type: string
+        required: true
+jobs:
+  test:
+    strategy:
+      fail-fast: false # prevent test to stop if one fails
+      matrix:
+        node-version: [20] # match patched node versions
+        os: [ubuntu-latest] # Skip macos-latest, windows-latest for now
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "yarn"
+
+      - name: Install deps
+        run: yarn install --ignore-engines
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Build
+        run: yarn build
+
+      - name: Check Patches
+        run: |
+          mkdir -p output
+          yarn start --test --force-build --output ./output ${{ github.event.inputs.args }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          path: ./output/*
+
