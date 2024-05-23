@@ -1,5 +1,5 @@
 diff --git node/common.gypi node/common.gypi
-index dba2631f21..4c4c430dc1 100644
+index 38471d4639..4e38b557b9 100644
 --- node/common.gypi
 +++ node/common.gypi
 @@ -174,7 +174,7 @@
@@ -12,7 +12,7 @@ index dba2631f21..4c4c430dc1 100644
                'lto': ' -flto ', # Clang
              }],
 diff --git node/configure.py node/configure.py
-index 4638f04b6a..ffa1c6338a 100755
+index 82916748fd..59575698b5 100755
 --- node/configure.py
 +++ node/configure.py
 @@ -1289,9 +1289,7 @@ def configure_node(o):
@@ -41,7 +41,7 @@ index 3d59c73f7c..00b2de4524 100644
    static const char* GetVersion();
  
 diff --git node/deps/v8/src/api/api.cc node/deps/v8/src/api/api.cc
-index 8d224bea2e..8402afc0fb 100644
+index 3b1a81680b..f49f824cfd 100644
 --- node/deps/v8/src/api/api.cc
 +++ node/deps/v8/src/api/api.cc
 @@ -709,6 +709,29 @@ void V8::SetFlagsFromCommandLine(int* argc, char** argv, bool remove_flags) {
@@ -237,10 +237,10 @@ index 0000000000..a697294fdf
 +  }());
 +}());
 diff --git node/lib/internal/modules/cjs/loader.js node/lib/internal/modules/cjs/loader.js
-index 316996a8c3..8cd0727556 100644
+index 69473df97e..efbd05066d 100644
 --- node/lib/internal/modules/cjs/loader.js
 +++ node/lib/internal/modules/cjs/loader.js
-@@ -89,7 +89,7 @@ const { internalCompileFunction } = require('internal/vm');
+@@ -95,7 +95,7 @@ const {
  const assert = require('internal/assert');
  const fs = require('fs');
  const path = require('path');
@@ -382,11 +382,25 @@ index 4795be82e7..977124a014 100644
      const {
        Module: {
          _preloadModules,
+diff --git node/lib/internal/vm.js node/lib/internal/vm.js
+index 624e6825b8..fee9d341f2 100644
+--- node/lib/internal/vm.js
++++ node/lib/internal/vm.js
+@@ -126,7 +126,8 @@ function makeContextifyScript(code,
+                                   cachedData,
+                                   produceCachedData,
+                                   parsingContext,
+-                                  hostDefinedOptionId);
++                                  hostDefinedOptionId,
++								  false);
+   } catch (e) {
+     throw e; /* node-do-not-add-exception-line */
+   }
 diff --git node/lib/vm.js node/lib/vm.js
-index b48e79c282..3b86fa8933 100644
+index 6bea7e5e74..575a5527d9 100644
 --- node/lib/vm.js
 +++ node/lib/vm.js
-@@ -77,6 +77,7 @@ class Script extends ContextifyScript {
+@@ -80,6 +80,7 @@ class Script extends ContextifyScript {
        produceCachedData = false,
        importModuleDynamically,
        [kParsingContext]: parsingContext,
@@ -394,12 +408,12 @@ index b48e79c282..3b86fa8933 100644
      } = options;
  
      validateString(filename, 'options.filename');
-@@ -97,7 +98,8 @@ class Script extends ContextifyScript {
-             columnOffset,
+@@ -103,7 +104,8 @@ class Script extends ContextifyScript {
              cachedData,
              produceCachedData,
--            parsingContext);
-+            parsingContext,
+             parsingContext,
+-            hostDefinedOptionId);
++            hostDefinedOptionId,
 +            sourceless);
      } catch (e) {
        throw e; /* node-do-not-add-exception-line */
@@ -432,7 +446,7 @@ index b1ba86b7b0..e2478e537c 100644
      parent_env_->AddCleanupHook([](void* data) {
        Environment* env = static_cast<Environment*>(data);
 diff --git node/src/node.cc node/src/node.cc
-index 0c75b5a08e..385a03090f 100644
+index 367d47325b..5e3cd94124 100644
 --- node/src/node.cc
 +++ node/src/node.cc
 @@ -304,6 +304,8 @@ MaybeLocal<Value> StartExecution(Environment* env, StartExecutionCallback cb) {
@@ -460,40 +474,45 @@ index 0c75b5a08e..385a03090f 100644
    }
  
 diff --git node/src/node_contextify.cc node/src/node_contextify.cc
-index 3da8746e2c..ff60588e77 100644
+index 65a7acbcfb..160784d64c 100644
 --- node/src/node_contextify.cc
 +++ node/src/node_contextify.cc
-@@ -75,6 +75,7 @@ using v8::ScriptOrigin;
- using v8::String;
+@@ -75,6 +75,7 @@ using v8::String;
+ using v8::Symbol;
  using v8::Uint32;
  using v8::UnboundScript;
 +using v8::V8;
  using v8::Value;
  using v8::WeakCallbackInfo;
- using v8::WeakCallbackType;
-@@ -787,11 +788,12 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+ 
+@@ -786,13 +787,14 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
    Local<ArrayBufferView> cached_data_buf;
    bool produce_cached_data = false;
    Local<Context> parsing_context = context;
 +  bool sourceless = false;
  
+   Local<Symbol> id_symbol;
    if (argc > 2) {
      // new ContextifyScript(code, filename, lineOffset, columnOffset,
-     //                      cachedData, produceCachedData, parsingContext)
--    CHECK_EQ(argc, 7);
-+    CHECK_EQ(argc, 8);
+     //                      cachedData, produceCachedData, parsingContext,
+     //                      hostDefinedOptionId)
+-    CHECK_EQ(argc, 8);
++    CHECK_EQ(argc, 9);
      CHECK(args[2]->IsNumber());
      line_offset = args[2].As<Int32>()->Value();
      CHECK(args[3]->IsNumber());
-@@ -810,6 +812,7 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -811,8 +813,9 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
        CHECK_NOT_NULL(sandbox);
        parsing_context = sandbox->context();
      }
-+    sourceless = args[7]->IsTrue();
+-    CHECK(args[7]->IsSymbol());
++	CHECK(args[7]->IsSymbol());
+     id_symbol = args[7].As<Symbol>();
++	sourceless = args[8]->IsTrue();
    }
  
    ContextifyScript* contextify_script =
-@@ -860,6 +863,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -861,6 +864,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
    ShouldNotAbortOnUncaughtScope no_abort_scope(env);
    Context::Scope scope(parsing_context);
  
@@ -504,21 +523,20 @@ index 3da8746e2c..ff60588e77 100644
    MaybeLocal<UnboundScript> maybe_v8_script =
        ScriptCompiler::CompileUnboundScript(isolate, &source, compile_options);
  
-@@ -873,6 +880,13 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -874,7 +881,11 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
                       "ContextifyScript::New");
      return;
    }
-+
-+  if (sourceless && compile_options == ScriptCompiler::kConsumeCodeCache) {
+-
++   if (sourceless && compile_options == ScriptCompiler::kConsumeCodeCache) {
 +    if (!source.GetCachedData()->rejected) {
 +      V8::FixSourcelessScript(env->isolate(), v8_script);
 +    }
 +  }
-+
    contextify_script->script_.Reset(isolate, v8_script);
- 
-   std::unique_ptr<ScriptCompiler::CachedData> new_cached_data;
-@@ -897,6 +911,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+   contextify_script->script_.SetWeak();
+   contextify_script->object()->SetInternalFieldForNodeCore(kUnboundScriptSlot,
+@@ -908,6 +919,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
            .IsNothing())
      return;
  
