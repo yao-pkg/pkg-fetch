@@ -1,5 +1,5 @@
 diff --git node/common.gypi node/common.gypi
-index efcd8da848..a067916e98 100644
+index db09a8a33d..6b2053467d 100644
 --- node/common.gypi
 +++ node/common.gypi
 @@ -182,7 +182,7 @@
@@ -12,10 +12,10 @@ index efcd8da848..a067916e98 100644
                'lto': ' -flto ', # Clang
              }],
 diff --git node/configure.py node/configure.py
-index 00c8513d68..dc97dbed88 100755
+index 84b016cd85..3b31b09f04 100755
 --- node/configure.py
 +++ node/configure.py
-@@ -1282,7 +1282,6 @@ def configure_node(o):
+@@ -1275,7 +1275,6 @@ def configure_node(o):
  
    # Enable branch protection for arm64
    if target_arch == 'arm64':
@@ -39,7 +39,7 @@ index d3e35d6ec5..6e9bbe3849 100644
    static const char* GetVersion();
  
 diff --git node/deps/v8/src/api/api.cc node/deps/v8/src/api/api.cc
-index a06394e6c1..154b7a82a8 100644
+index a91dfc271c..a4cd4eeb31 100644
 --- node/deps/v8/src/api/api.cc
 +++ node/deps/v8/src/api/api.cc
 @@ -806,6 +806,28 @@ void V8::SetFlagsFromCommandLine(int* argc, char** argv, bool remove_flags) {
@@ -232,10 +232,10 @@ index 0000000000..a697294fdf
 +  }());
 +}());
 diff --git node/lib/internal/modules/cjs/loader.js node/lib/internal/modules/cjs/loader.js
-index 2c48ff9512..3ddc97349b 100644
+index b077ee386b..b4271b5951 100644
 --- node/lib/internal/modules/cjs/loader.js
 +++ node/lib/internal/modules/cjs/loader.js
-@@ -100,7 +100,7 @@ const { containsModuleSyntax } = internalBinding('contextify');
+@@ -95,7 +95,7 @@ const { containsModuleSyntax } = internalBinding('contextify');
  const assert = require('internal/assert');
  const fs = require('fs');
  const path = require('path');
@@ -258,10 +258,10 @@ index 88c079d10d..a7eaca0574 100644
  const permission = require('internal/process/permission');
  const { kEmptyObject } = require('internal/util');
 diff --git node/lib/internal/process/pre_execution.js node/lib/internal/process/pre_execution.js
-index 9d80d2a55c..0e28abfbf8 100644
+index cffffc28d3..679b9c3939 100644
 --- node/lib/internal/process/pre_execution.js
 +++ node/lib/internal/process/pre_execution.js
-@@ -50,7 +50,11 @@ const {
+@@ -52,7 +52,11 @@ const {
    },
  } = require('internal/v8/startup_snapshot');
  
@@ -273,7 +273,7 @@ index 9d80d2a55c..0e28abfbf8 100644
    return prepareExecution({
      expandArgv1,
      initializeModules,
-@@ -239,7 +243,8 @@ function patchProcessObject(expandArgv1) {
+@@ -231,7 +235,8 @@ function patchProcessObject(expandArgv1) {
    // If requested, update process.argv[1] to replace whatever the user provided with the resolved absolute file path of
    // the entry point.
    if (expandArgv1 && process.argv[1] &&
@@ -283,7 +283,7 @@ index 9d80d2a55c..0e28abfbf8 100644
      // Expand process.argv[1] into a full path.
      const path = require('path');
      try {
-@@ -715,6 +720,7 @@ function loadPreloadModules() {
+@@ -747,6 +752,7 @@ function loadPreloadModules() {
    // For user code, we preload modules if `-r` is passed
    const preloadModules = getOptionValue('--require');
    if (preloadModules && preloadModules.length > 0) {
@@ -292,10 +292,10 @@ index 9d80d2a55c..0e28abfbf8 100644
        Module: {
          _preloadModules,
 diff --git node/lib/vm.js node/lib/vm.js
-index 34814c430d..db1f4779b6 100644
+index 44861be46d..9775ef58b7 100644
 --- node/lib/vm.js
 +++ node/lib/vm.js
-@@ -97,6 +97,7 @@ class Script extends ContextifyScript {
+@@ -80,6 +80,7 @@ class Script extends ContextifyScript {
        produceCachedData = false,
        importModuleDynamically,
        [kParsingContext]: parsingContext,
@@ -303,7 +303,7 @@ index 34814c430d..db1f4779b6 100644
      } = options;
  
      validateString(filename, 'options.filename');
-@@ -120,7 +121,8 @@ class Script extends ContextifyScript {
+@@ -103,7 +104,8 @@ class Script extends ContextifyScript {
              cachedData,
              produceCachedData,
              parsingContext,
@@ -314,10 +314,10 @@ index 34814c430d..db1f4779b6 100644
        throw e; /* node-do-not-add-exception-line */
      }
 diff --git node/src/inspector_agent.cc node/src/inspector_agent.cc
-index 63c8ae14ab..0007b5adcd 100644
+index de372400fd..2538afa37d 100644
 --- node/src/inspector_agent.cc
 +++ node/src/inspector_agent.cc
-@@ -717,8 +717,6 @@ bool Agent::Start(const std::string& path,
+@@ -707,8 +707,6 @@ bool Agent::Start(const std::string& path,
                                StartIoThreadAsyncCallback));
      uv_unref(reinterpret_cast<uv_handle_t*>(&start_io_thread_async));
      start_io_thread_async.data = this;
@@ -327,10 +327,10 @@ index 63c8ae14ab..0007b5adcd 100644
      parent_env_->AddCleanupHook([](void* data) {
        Environment* env = static_cast<Environment*>(data);
 diff --git node/src/node.cc node/src/node.cc
-index 10e04ed8a2..4af1ea4a4d 100644
+index 524f80ee69..419cb95c4c 100644
 --- node/src/node.cc
 +++ node/src/node.cc
-@@ -367,6 +367,8 @@ MaybeLocal<Value> StartExecution(Environment* env, StartExecutionCallback cb) {
+@@ -322,6 +322,8 @@ MaybeLocal<Value> StartExecution(Environment* env, StartExecutionCallback cb) {
      return env->RunSnapshotDeserializeMain();
    }
  
@@ -339,7 +339,7 @@ index 10e04ed8a2..4af1ea4a4d 100644
    if (env->worker_context() != nullptr) {
      return StartExecution(env, "internal/main/worker_thread");
    }
-@@ -588,14 +590,6 @@ static void PlatformInit(ProcessInitializationFlags::Flags flags) {
+@@ -543,14 +545,6 @@ static void PlatformInit(ProcessInitializationFlags::Flags flags) {
    }
  
    if (!(flags & ProcessInitializationFlags::kNoDefaultSignalHandling)) {
@@ -355,7 +355,7 @@ index 10e04ed8a2..4af1ea4a4d 100644
    }
  
 diff --git node/src/node_contextify.cc node/src/node_contextify.cc
-index e9d50ac402..9892a26b24 100644
+index a68f6bb686..eab5eb9b8b 100644
 --- node/src/node_contextify.cc
 +++ node/src/node_contextify.cc
 @@ -75,6 +75,7 @@ using v8::String;
@@ -366,7 +366,7 @@ index e9d50ac402..9892a26b24 100644
  using v8::Value;
  using v8::WeakCallbackInfo;
  
-@@ -788,13 +789,14 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -798,13 +799,14 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
    Local<ArrayBufferView> cached_data_buf;
    bool produce_cached_data = false;
    Local<Context> parsing_context = context;
@@ -383,7 +383,7 @@ index e9d50ac402..9892a26b24 100644
      CHECK(args[2]->IsNumber());
      line_offset = args[2].As<Int32>()->Value();
      CHECK(args[3]->IsNumber());
-@@ -815,6 +817,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -825,6 +827,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
      }
      CHECK(args[7]->IsSymbol());
      id_symbol = args[7].As<Symbol>();
@@ -394,7 +394,7 @@ index e9d50ac402..9892a26b24 100644
    }
  
    ContextifyScript* contextify_script =
-@@ -863,6 +869,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -873,6 +879,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
    ShouldNotAbortOnUncaughtScope no_abort_scope(env);
    Context::Scope scope(parsing_context);
  
@@ -405,7 +405,7 @@ index e9d50ac402..9892a26b24 100644
    MaybeLocal<UnboundScript> maybe_v8_script =
        ScriptCompiler::CompileUnboundScript(isolate, &source, compile_options);
  
-@@ -877,6 +887,11 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -887,6 +897,11 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
      return;
    }
  
@@ -417,7 +417,7 @@ index e9d50ac402..9892a26b24 100644
    contextify_script->script_.Reset(isolate, v8_script);
    contextify_script->script_.SetWeak();
    contextify_script->object()->SetInternalFieldForNodeCore(kUnboundScriptSlot,
-@@ -910,6 +925,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -920,6 +935,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
            .IsNothing())
      return;
  
@@ -539,7 +539,7 @@ index f66099a557..4048f6bd93 100644
 +  return adjacent(c, nargv);
 +}
 diff --git node/src/node_options.cc node/src/node_options.cc
-index fa09d45039..39dd8336c4 100644
+index 5da6918af8..56c793ba96 100644
 --- node/src/node_options.cc
 +++ node/src/node_options.cc
 @@ -302,6 +302,7 @@ void Parse(
