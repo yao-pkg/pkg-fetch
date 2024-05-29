@@ -13,7 +13,5 @@ yarn-error.log
 # TypeScript incremental compilation cache
 *.tsbuildinfo
 
-shas.txt
-
 /dist/
 
