@@ -30,7 +30,7 @@ jobs:
       # add missing distutils package to python 3.12
       - name: Install distutils
         run: |
-          pip install distutils
+          pip install setuptools
 
       - run: yarn start --node-range node${{ matrix.target-node }} --output dist
 
@@ -71,7 +71,7 @@ jobs:
       # add missing distutils package to python 3.12
       - name: Install distutils
         run: |
-          pip install distutils
+          pip install setuptools
 
       - run: yarn start --node-range node${{ matrix.target-node }} --arch arm64 --output dist
         env:
