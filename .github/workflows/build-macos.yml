@@ -27,6 +27,11 @@ jobs:
 
       - run: yarn install --ignore-engines
 
+      # add missing distutils package to python 3.12
+      - name: Install distutils
+        run: |
+          pip install distutils
+
       - run: yarn start --node-range node${{ matrix.target-node }} --output dist
 
       - name: Check if binary is compiled, skip if download only
@@ -62,6 +67,11 @@ jobs:
           node-version: 18
 
       - run: yarn install --ignore-engines
+
+      # add missing distutils package to python 3.12
+      - name: Install distutils
+        run: |
+          pip install distutils
 
       - run: yarn start --node-range node${{ matrix.target-node }} --arch arm64 --output dist
         env:
