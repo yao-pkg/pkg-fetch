@@ -31,6 +31,8 @@ ENV AR_host=ar
 ENV NM_host=nm
 ENV RANLIB_host=ranlib
 ENV READELF_host=readelf
+# Fix issue with -mbranch-protection=standard
+ENV TUNE_CCARGS:remove = -mbranch-protection=standard
 
 RUN npm install -g yarn
 
