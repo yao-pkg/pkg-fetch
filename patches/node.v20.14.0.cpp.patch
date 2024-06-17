@@ -11,32 +11,6 @@ index 0af8af37c6..604a28c3cf 100644
              }, {
                'lto': ' -flto ', # Clang
              }],
-diff --git node/deps/cares/config/linux/ares_config.h node/deps/cares/config/linux/ares_config.h
-index 3cb135a35c..9b619fe9e3 100644
---- node/deps/cares/config/linux/ares_config.h
-+++ node/deps/cares/config/linux/ares_config.h
-@@ -116,7 +116,9 @@
- #define HAVE_GETNAMEINFO 1
- 
- /* Define to 1 if you have `getrandom` */
--#define HAVE_GETRANDOM 1
-+/* Fixes https://github.com/yao-pkg/pkg-fetch/pull/35#issuecomment-2165554043 */
-+// #define HAVE_GETRANDOM 1
-+#undef HAVE_GETRANDOM
- 
- /* Define to 1 if you have `getservbyport_r` */
- #define HAVE_GETSERVBYPORT_R 1
-@@ -329,7 +331,9 @@
- #define HAVE_SYS_PARAM_H 1
- 
- /* Define to 1 if you have the <sys/random.h> header file. */
--#define HAVE_SYS_RANDOM_H 1
-+/* Fixes https://github.com/yao-pkg/pkg-fetch/pull/35#issuecomment-2165554043 */
-+// #define HAVE_SYS_RANDOM_H 1
-+#undef HAVE_SYS_RANDOM_H
- 
- /* Define to 1 if you have the <sys/select.h> header file. */
- #define HAVE_SYS_SELECT_H 1
 diff --git node/deps/v8/include/v8-initialization.h node/deps/v8/include/v8-initialization.h
 index d3e35d6ec5..6e9bbe3849 100644
 --- node/deps/v8/include/v8-initialization.h
