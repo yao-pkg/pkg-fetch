@@ -1,4 +1,4 @@
-FROM oraclelinux:7 AS build
+FROM oraclelinux:9 AS build
 
 USER root:root
 WORKDIR /root/pkg-fetch/
