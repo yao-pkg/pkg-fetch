@@ -29,10 +29,8 @@ ARG PKG_FETCH_OPTION_n
 
 RUN yarn install --ignore-engines
 
-RUN scl enable devtoolset-10 python36 \
-    " \
-    yarn start --node-range $PKG_FETCH_OPTION_n --output dist \
-    "
+RUN source /opt/rh/gcc-toolset-10/enable && \
+    yarn start --node-range $PKG_FETCH_OPTION_n --output dist
 
 FROM scratch
 COPY --from=build /root/pkg-fetch/dist /
