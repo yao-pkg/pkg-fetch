@@ -25,21 +25,6 @@ index 82916748fd..59575698b5 100755
      o['variables']['arm_fpu'] = options.arm_fpu or 'neon'
  
    if options.node_snapshot_main is not None:
-diff --git node/deps/cares/config/linux/ares_config.h node/deps/cares/config/linux/ares_config.h
-index 3cb135a35c..131ad80f2a 100644
---- node/deps/cares/config/linux/ares_config.h
-+++ node/deps/cares/config/linux/ares_config.h
-@@ -329,7 +329,9 @@
- #define HAVE_SYS_PARAM_H 1
- 
- /* Define to 1 if you have the <sys/random.h> header file. */
--#define HAVE_SYS_RANDOM_H 1
-+/* Fixes https://github.com/yao-pkg/pkg-fetch/pull/35#issuecomment-2165554043 */
-+// #define HAVE_SYS_RANDOM_H 1
-+#undef HAVE_SYS_RANDOM_H
- 
- /* Define to 1 if you have the <sys/select.h> header file. */
- #define HAVE_SYS_SELECT_H 1
 diff --git node/deps/v8/include/v8-initialization.h node/deps/v8/include/v8-initialization.h
 index 3d59c73f7c..00b2de4524 100644
 --- node/deps/v8/include/v8-initialization.h
