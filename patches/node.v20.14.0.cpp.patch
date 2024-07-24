@@ -280,27 +280,18 @@ index 16e291484b..9c998f3409 100644
        Module: {
          _preloadModules,
 diff --git node/lib/path.js node/lib/path.js
-index 1a2b3e38ec..1a5506f34d 100644
+index 1a2b3e38ec..3d213d26ba 100644
 --- node/lib/path.js
 +++ node/lib/path.js
-@@ -167,13 +167,13 @@ const win32 = {
+@@ -164,6 +164,8 @@ const win32 = {
+     let resolvedTail = '';
+     let resolvedAbsolute = false;
+ 
++    console.log('Resolve', args);
++
      for (let i = args.length - 1; i >= -1; i--) {
        let path;
        if (i >= 0) {
--        path = args[i];
--        validateString(path, `paths[${i}]`);
--
-+        path = args[i]; 
-         // Skip empty entries
--        if (path.length === 0) {
-+        if (!path || path.length === 0) {
-           continue;
-         }
-+
-+        validateString(path, `paths[${i}]`);
-       } else if (resolvedDevice.length === 0) {
-         path = process.cwd();
-       } else {
 diff --git node/lib/vm.js node/lib/vm.js
 index 34814c430d..db1f4779b6 100644
 --- node/lib/vm.js
