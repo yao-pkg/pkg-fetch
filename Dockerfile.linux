@@ -1,20 +1,26 @@
-FROM oraclelinux:7 AS build
+FROM oraclelinux:8 AS build
 
 USER root:root
 WORKDIR /root/pkg-fetch/
 
-RUN yum install -y oracle-softwarecollection-release-el7
+# Install required tools and enable the necessary repositories
+RUN dnf install -y oracle-epel-release-el8 oraclelinux-developer-release-el8
 
-RUN yum-config-manager --enable ol7_latest ol7_optional_latest software_collections
-RUN yum upgrade -y
+# Enable the developer repo for devtoolset and python36
+RUN dnf config-manager --enable ol8_UEKR6 ol8_addons ol8_developer ol8_developer_EPEL
 
-RUN yum install -y \
-    devtoolset-10 glibc-headers kernel-headers \
+# Upgrade all packages
+RUN dnf upgrade -y
+
+# Install the necessary development tools and packages
+RUN dnf install -y \
+    gcc-toolset-10 glibc-headers kernel-headers \
     make patch python2 \
-    rh-python36-python
+    python3
 
-RUN curl -fsSL https://rpm.nodesource.com/setup_16.x | bash -
-RUN yum install -y nodejs
+# Install Node.js 20 and yarn
+RUN curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -
+RUN dnf install -y nodejs
 RUN npm install -g yarn
 
 COPY . ./
@@ -23,10 +29,8 @@ ARG PKG_FETCH_OPTION_n
 
 RUN yarn install --ignore-engines
 
-RUN scl enable devtoolset-10 rh-python36 \
-    " \
-    yarn start --node-range $PKG_FETCH_OPTION_n --output dist \
-    "
+RUN source /opt/rh/gcc-toolset-10/enable && \
+    yarn start --node-range $PKG_FETCH_OPTION_n --output dist
 
 FROM scratch
 COPY --from=build /root/pkg-fetch/dist /
