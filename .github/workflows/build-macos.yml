@@ -74,6 +74,7 @@ jobs:
       - name: Install distutils
         run: |
           pip install setuptools
+          pip install distutils
 
       - run: yarn start --node-range node${{ matrix.target-node }} --arch arm64 --output dist
         # env:
