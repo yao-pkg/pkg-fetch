@@ -6,7 +6,7 @@ on:
 
 jobs:
   macos-x64:
-    runs-on: macos-13.0
+    runs-on: macos-13
 
     strategy:
       fail-fast: false
@@ -47,7 +47,7 @@ jobs:
           path: dist/*
 
   macos-arm64:
-    runs-on: macos-13.0
+    runs-on: macos-13
 
     strategy:
       fail-fast: false
