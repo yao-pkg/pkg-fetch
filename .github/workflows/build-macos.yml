@@ -47,7 +47,7 @@ jobs:
           path: dist/*
 
   macos-arm64:
-    runs-on: macos-14 # starting from 14 it's ARM
+    runs-on: macos-13
 
     strategy:
       fail-fast: false
@@ -76,11 +76,11 @@ jobs:
           pip install setuptools
 
       - run: yarn start --node-range node${{ matrix.target-node }} --arch arm64 --output dist
-        # env:
-        #   CC: clang -arch arm64
-        #   CXX: clang++ -arch arm64
-        #   CC_host: clang
-        #   CXX_host: clang++
+        env:
+          CC: clang -arch arm64
+          CXX: clang++ -arch arm64
+          CC_host: clang
+          CXX_host: clang++
 
       - name: Check if binary is compiled
         id: check_file
