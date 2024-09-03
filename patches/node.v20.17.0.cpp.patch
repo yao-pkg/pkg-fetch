@@ -1,8 +1,8 @@
 diff --git node/common.gypi node/common.gypi
-index 0af8af37c6..604a28c3cf 100644
+index 7c0b4a0851..064e453130 100644
 --- node/common.gypi
 +++ node/common.gypi
-@@ -183,7 +183,7 @@
+@@ -184,7 +184,7 @@
                'MSVC_runtimeType': 2   # MultiThreadedDLL (/MD)
              }],
              ['llvm_version=="0.0"', {
@@ -152,7 +152,7 @@ index c83e8e4581..8cb451e147 100644
    uint32_t max_payload_length = this->size_ - kHeaderSize;
    if (payload_length > max_payload_length) {
 diff --git node/lib/child_process.js node/lib/child_process.js
-index c09fca5125..ebf8b443f8 100644
+index 48870b35ad..d2aca054b2 100644
 --- node/lib/child_process.js
 +++ node/lib/child_process.js
 @@ -169,7 +169,7 @@ function fork(modulePath, args = [], options) {
@@ -220,10 +220,10 @@ index 0000000000..a697294fdf
 +  }());
 +}());
 diff --git node/lib/internal/modules/cjs/loader.js node/lib/internal/modules/cjs/loader.js
-index 7bbd59e163..1a4acdb11b 100644
+index c284b39b1a..ce38f028e4 100644
 --- node/lib/internal/modules/cjs/loader.js
 +++ node/lib/internal/modules/cjs/loader.js
-@@ -102,7 +102,7 @@ const {
+@@ -138,7 +138,7 @@ const {
  const assert = require('internal/assert');
  const fs = require('fs');
  const path = require('path');
@@ -246,10 +246,10 @@ index 88c079d10d..a7eaca0574 100644
  const permission = require('internal/process/permission');
  const { kEmptyObject } = require('internal/util');
 diff --git node/lib/internal/process/pre_execution.js node/lib/internal/process/pre_execution.js
-index 16e291484b..9c998f3409 100644
+index 59308ab817..35583f830a 100644
 --- node/lib/internal/process/pre_execution.js
 +++ node/lib/internal/process/pre_execution.js
-@@ -50,7 +50,11 @@ const {
+@@ -51,7 +51,11 @@ const {
    },
  } = require('internal/v8/startup_snapshot');
  
@@ -261,7 +261,7 @@ index 16e291484b..9c998f3409 100644
    return prepareExecution({
      expandArgv1,
      initializeModules,
-@@ -242,7 +246,8 @@ function patchProcessObject(expandArgv1) {
+@@ -243,7 +247,8 @@ function patchProcessObject(expandArgv1) {
    // If requested, update process.argv[1] to replace whatever the user provided with the resolved absolute file path of
    // the entry point.
    if (expandArgv1 && process.argv[1] &&
@@ -302,23 +302,26 @@ index 34814c430d..db1f4779b6 100644
        throw e; /* node-do-not-add-exception-line */
      }
 diff --git node/src/inspector_agent.cc node/src/inspector_agent.cc
-index 63c8ae14ab..0007b5adcd 100644
+index 4cab7dea04..a1f0d51ab5 100644
 --- node/src/inspector_agent.cc
 +++ node/src/inspector_agent.cc
-@@ -717,8 +717,6 @@ bool Agent::Start(const std::string& path,
+@@ -738,11 +738,6 @@ bool Agent::Start(const std::string& path,
                                StartIoThreadAsyncCallback));
      uv_unref(reinterpret_cast<uv_handle_t*>(&start_io_thread_async));
      start_io_thread_async.data = this;
--    // Ignore failure, SIGUSR1 won't work, but that should not block node start.
--    StartDebugSignalHandler();
+-    if (parent_env_->should_start_debug_signal_handler()) {
+-      // Ignore failure, SIGUSR1 won't work, but that should not block node
+-      // start.
+-      StartDebugSignalHandler();
+-    }
  
      parent_env_->AddCleanupHook([](void* data) {
        Environment* env = static_cast<Environment*>(data);
 diff --git node/src/node.cc node/src/node.cc
-index 3e4f1b5d73..754138b5b2 100644
+index 9f6f8e53ab..ee8fa43f2f 100644
 --- node/src/node.cc
 +++ node/src/node.cc
-@@ -367,6 +367,8 @@ MaybeLocal<Value> StartExecution(Environment* env, StartExecutionCallback cb) {
+@@ -377,6 +377,8 @@ MaybeLocal<Value> StartExecution(Environment* env, StartExecutionCallback cb) {
      return env->RunSnapshotDeserializeMain();
    }
  
@@ -327,7 +330,7 @@ index 3e4f1b5d73..754138b5b2 100644
    if (env->worker_context() != nullptr) {
      return StartExecution(env, "internal/main/worker_thread");
    }
-@@ -588,14 +590,6 @@ static void PlatformInit(ProcessInitializationFlags::Flags flags) {
+@@ -601,14 +603,6 @@ static void PlatformInit(ProcessInitializationFlags::Flags flags) {
    }
  
    if (!(flags & ProcessInitializationFlags::kNoDefaultSignalHandling)) {
@@ -343,7 +346,7 @@ index 3e4f1b5d73..754138b5b2 100644
    }
  
 diff --git node/src/node_contextify.cc node/src/node_contextify.cc
-index ca8575e9a2..c41a935453 100644
+index d873792ab9..588e53377d 100644
 --- node/src/node_contextify.cc
 +++ node/src/node_contextify.cc
 @@ -76,6 +76,7 @@ using v8::String;
@@ -527,10 +530,10 @@ index f66099a557..4048f6bd93 100644
 +  return adjacent(c, nargv);
 +}
 diff --git node/src/node_options.cc node/src/node_options.cc
-index 937ce44696..0319bbcfbf 100644
+index e94e4dbc95..097ba01185 100644
 --- node/src/node_options.cc
 +++ node/src/node_options.cc
-@@ -305,6 +305,7 @@ void Parse(
+@@ -307,6 +307,7 @@ void Parse(
  // TODO(addaleax): Make that unnecessary.
  
  DebugOptionsParser::DebugOptionsParser() {
