@@ -24,6 +24,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18
+      
+      - name: Check arch is x64
+        run: |
+          if [[ $(uname -m) != "x86_64" ]]; then
+            echo "This job should run on x64 architecture"
+            exit 1
+          fi
 
       - run: yarn install --ignore-engines
 
@@ -47,7 +54,7 @@ jobs:
           path: dist/*
 
   macos-arm64:
-    runs-on: macos-13
+    runs-on: macos-14 # macos-14 is arm64: https://github.com/actions/runner-images#available-images
 
     strategy:
       fail-fast: false
@@ -66,21 +73,33 @@ jobs:
         with:
           node-version: 18
 
-      - run: uname -a
+      - name: Check arch is arm64
+        run: |
+          if [[ $(uname -m) != "arm64" ]]; then
+            echo "This job should run on arm64 architecture"
+            exit 1
+          fi
 
       - run: yarn install --ignore-engines
 
-      # add missing distutils package to python 3.12
-      - name: Install distutils
+      # # add missing distutils package to python 3.12
+      # - name: Install distutils
+      #   run: |
+      #     pip install setuptools
+      
+      - name: Ensure python has distutils
         run: |
-          pip install setuptools
+          python3 -m ensurepip
+          python3 -m pip install --upgrade pip
+          python3 -m pip install setuptools
 
       - run: yarn start --node-range node${{ matrix.target-node }} --arch arm64 --output dist
-        env:
-          CC: clang -arch arm64
-          CXX: clang++ -arch arm64
-          CC_host: clang
-          CXX_host: clang++
+        # uncomment the following lines to build x64
+        # env: 
+        #   CC: clang -arch arm64
+        #   CXX: clang++ -arch arm64
+        #   CC_host: clang
+        #   CXX_host: clang++
 
       - name: Check if binary is compiled
         id: check_file
