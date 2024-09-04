@@ -82,16 +82,11 @@ jobs:
 
       - run: yarn install --ignore-engines
 
-      # # add missing distutils package to python 3.12
-      # - name: Install distutils
-      #   run: |
-      #     pip install setuptools
-      
-      - name: Ensure python has distutils
+      # add missing distutils package to python 3.12
+      - name: Install distutils
         run: |
-          python3 -m ensurepip
-          python3 -m pip install --upgrade pip
-          python3 -m pip install setuptools
+          # pip install setuptools
+          brew install python-setuptools
 
       - run: yarn start --node-range node${{ matrix.target-node }} --arch arm64 --output dist
         # uncomment the following lines to build x64
