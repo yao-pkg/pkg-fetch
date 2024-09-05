@@ -56,7 +56,7 @@ jobs:
           path: dist/*
 
   macos-arm64:
-    runs-on: macos-14 # macos-14 is arm64: https://github.com/actions/runner-images#available-images
+    runs-on: macos-13 # macos-14 is arm64: https://github.com/actions/runner-images#available-images but not working
 
     strategy:
       fail-fast: false
@@ -75,10 +75,10 @@ jobs:
         with:
           node-version: 18
 
-      - name: Check arch is arm64
+      - name: Check arch is x64 # arm64
         run: |
-          if [[ $(uname -m) != "arm64" ]]; then
-            echo "This job should run on arm64 architecture"
+          if [[ $(uname -m) != "x86_64" ]]; then
+            echo "This job should run on x64 architecture"
             exit 1
           fi
 
@@ -94,11 +94,10 @@ jobs:
         env:
           MAKE_JOB_COUNT: 2 # prevent to run out of memory
         # uncomment the following lines to build x64
-        # env: 
-        #   CC: clang -arch arm64
-        #   CXX: clang++ -arch arm64
-        #   CC_host: clang
-        #   CXX_host: clang++
+          CC: clang -arch arm64
+          CXX: clang++ -arch arm64
+          CC_host: clang
+          CXX_host: clang++
 
       - name: Check if binary is compiled
         id: check_file
