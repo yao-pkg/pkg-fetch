@@ -89,6 +89,8 @@ jobs:
           brew install python-setuptools
 
       - run: yarn start --node-range node${{ matrix.target-node }} --arch arm64 --output dist
+        env:
+          MAKE_JOB_COUNT: 2 # prevent to run out of memory
         # uncomment the following lines to build x64
         # env: 
         #   CC: clang -arch arm64
