@@ -40,6 +40,8 @@ jobs:
           pip install setuptools
 
       - run: yarn start --node-range node${{ matrix.target-node }} --output dist
+        env:
+          MAKE_JOB_COUNT: 2 # prevent to run out of memory
 
       - name: Check if binary is compiled, skip if download only
         id: check_file
