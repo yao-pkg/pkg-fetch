@@ -1,3 +1,27 @@
+## [3.5.10](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.9...v3.5.10) (2024-09-06)
+
+### Features
+
+- add v18.20.2 patch ([#35](https://github.com/yao-pkg/pkg-fetch/issues/35)) ([36e3726](https://github.com/yao-pkg/pkg-fetch/commit/36e37262893aa1a698a150d0e6f235cec972f41e))
+- add v18.20.4 patch ([#43](https://github.com/yao-pkg/pkg-fetch/issues/43)) ([2a45bc5](https://github.com/yao-pkg/pkg-fetch/commit/2a45bc5b3db6bcf37bf136175008eebaa23bf781))
+- add v20.12.1 patch ([#32](https://github.com/yao-pkg/pkg-fetch/issues/32)) ([9cb16d3](https://github.com/yao-pkg/pkg-fetch/commit/9cb16d361670b5bd5dfff6db27a20b003095f996))
+- node 20.14.0 ([#37](https://github.com/yao-pkg/pkg-fetch/issues/37)) ([f35e749](https://github.com/yao-pkg/pkg-fetch/commit/f35e749bcaff95d1262d6303fdfba564f32383be))
+- node 20.17.0 ([#44](https://github.com/yao-pkg/pkg-fetch/issues/44)) ([480ebec](https://github.com/yao-pkg/pkg-fetch/commit/480ebec19a69dc1d30dff01a880b206f8a7b68ef))
+
+### Bug Fixes
+
+- macos nodejs 18 build ([81e4e1b](https://github.com/yao-pkg/pkg-fetch/commit/81e4e1b6d68df3ce08049871b0b4134f1e028c91))
+- nodejs 18 patch `sys/random.h` not included ([1defa22](https://github.com/yao-pkg/pkg-fetch/commit/1defa22a8b1f5b70fa78cb870a09a69337b78621))
+- revert v20.12.1 patch ([#32](https://github.com/yao-pkg/pkg-fetch/issues/32)) ([f673feb](https://github.com/yao-pkg/pkg-fetch/commit/f673feb48bff7c5b7e8fd733337e09cebb369e31))
+- update shas ([9d496d0](https://github.com/yao-pkg/pkg-fetch/commit/9d496d0eb888283ddc722244315d116e5af80f3d))
+- use macos-13/14 runner ([#40](https://github.com/yao-pkg/pkg-fetch/issues/40)) ([f79b7a3](https://github.com/yao-pkg/pkg-fetch/commit/f79b7a3585146d5228734bc405cf3d1a0b744a34))
+
+### Chores
+
+- add test patch workflow ([2e14897](https://github.com/yao-pkg/pkg-fetch/commit/2e148971aa9f0c951097646548c53f898e209bfb))
+- correct package name ([5caf157](https://github.com/yao-pkg/pkg-fetch/commit/5caf157a9ea33383da8df8af4818b23afd0a3f4a))
+- remove shas.txt from ignore ([94482c7](https://github.com/yao-pkg/pkg-fetch/commit/94482c7c3a8d90f540a5ed3e39afb6e138955c9b))
+
 ## [3.5.9](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.8...v3.5.9) (2024-02-16)
 
 ### Features
