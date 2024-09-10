@@ -16,7 +16,9 @@ RUN dnf upgrade -y
 RUN dnf install -y \
     gcc-toolset-10 glibc-headers kernel-headers \
     make patch python2 \
-    python3
+    python3.12
+
+RUN alternatives --set python3 /usr/bin/python3.12
 
 # Install Node.js 20 and yarn
 RUN curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -

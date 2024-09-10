@@ -6,12 +6,12 @@ on:
 
 jobs:
   alpine:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     strategy:
       fail-fast: false
       matrix:
-        target-node: [14, 16, 18, 20]
+        target-node: [16, 18, 20, 22]
         target-arch: [x64, arm64]
         include:
           - target-arch: x64

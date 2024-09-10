@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target-node: [14, 16, 18, 20]
+        target-node: [16, 18, 20, 22]
 
     steps:
       - uses: actions/checkout@v4
@@ -43,12 +43,12 @@ jobs:
           path: dist/*
 
   linux-arm64:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     strategy:
       fail-fast: false
       matrix:
-        target-node: [14, 16, 18, 20]
+        target-node: [16, 18, 20, 22]
 
     steps:
       - uses: actions/checkout@v4
