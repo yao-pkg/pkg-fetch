@@ -1,3 +1,13 @@
+## [3.5.11](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.10...v3.5.11) (2024-09-10)
+
+### Features
+
+- add Node 22 patch ([#45](https://github.com/yao-pkg/pkg-fetch/issues/45)) (by [@faulpeltz](https://github.com/faulpeltz)) ([1703cd2](https://github.com/yao-pkg/pkg-fetch/commit/1703cd2f284455c4316a44496537915f532ebd29))
+
+### Bug Fixes
+
+- update expected shas ([bc5d8a5](https://github.com/yao-pkg/pkg-fetch/commit/bc5d8a545c4f8b09718754bd6f8cc5c9902b9e15))
+
 ## [3.5.10](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.9...v3.5.10) (2024-09-06)
 
 ### Features
