@@ -5,22 +5,22 @@ on:
   workflow_call:
 
 jobs:
-  windows-vs2019:
-    runs-on: windows-2019
+  windows-vs2022:
+    runs-on: windows-2022
 
     strategy:
       fail-fast: false
       matrix:
-        target-node: [14, 16, 18, 20]
+        target-node: [16, 18, 20, 22]
         target-arch: [x64, arm64]
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use Node.js 16
+      - name: Use Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 20
 
       - run: yarn install --ignore-engines
 

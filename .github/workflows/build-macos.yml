@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target-node: [14, 16, 18, 20]
+        target-node: [16, 18, 20, 22]
 
     steps:
       - uses: actions/checkout@v4
@@ -20,10 +20,10 @@ jobs:
         with:
           xcode-version: latest
 
-      - name: Use Node.js 18
+      - name: Use Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
       
       - name: Check arch is x64
         run: |
@@ -61,7 +61,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target-node: [14, 16, 18, 20]
+        target-node: [16, 18, 20] # disabled 22 for now because of resource issues with GH actions
 
     steps:
       - uses: actions/checkout@v4
@@ -70,10 +70,10 @@ jobs:
         with:
           xcode-version: latest
 
-      - name: Use Node.js 18
+      - name: Use Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       - name: Check arch is x64 # arm64
         run: |
