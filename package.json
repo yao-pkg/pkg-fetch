@@ -60,7 +60,9 @@
     "applyPatches": "node lib-es5/apply-patches.js",
     "printHashes": "node lib-es5/print-hashes.js",
     "updateExpected": "node lib-es5/generate-expected-shas.js",
-    "release": "read -p 'GITHUB_TOKEN: ' GITHUB_TOKEN && export GITHUB_TOKEN=$GITHUB_TOKEN && release-it"
+    "release": "read -p 'GITHUB_TOKEN: ' GITHUB_TOKEN && export GITHUB_TOKEN=$GITHUB_TOKEN && release-it",
+    "release:patch": "npm run release -- patch",
+    "release:minor": "npm run release -- minor"
   },
   "release-it": {
     "github": {
