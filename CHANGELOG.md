@@ -1,3 +1,14 @@
+## [3.5.12](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.11...v3.5.12) (2024-09-17)
+
+### Bug Fixes
+
+- switch to macos-14 runner and cleanup before build ([#46](https://github.com/yao-pkg/pkg-fetch/issues/46)) ([75d4ca0](https://github.com/yao-pkg/pkg-fetch/commit/75d4ca09c874b3c8785a966b8f5ba235c3c9fcd8))
+- update expected shas ([75e67b8](https://github.com/yao-pkg/pkg-fetch/commit/75e67b8214327dd0a24cf4c4bea8c93ddfd254b7))
+
+### Chores
+
+- add patch/minor release scripts to package.json ([9c57a56](https://github.com/yao-pkg/pkg-fetch/commit/9c57a567c55566d22b2aac281d0e51cda9000dfe))
+
 ## [3.5.11](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.10...v3.5.11) (2024-09-10)
 
 ### Features
