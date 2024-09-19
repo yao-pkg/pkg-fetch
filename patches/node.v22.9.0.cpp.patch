@@ -259,7 +259,7 @@ index ec69ad5123..1894032344 100644
        GetHeaderValue(kReadOnlySnapshotChecksumOffset);
    if (ro_snapshot_checksum != expected_ro_snapshot_checksum) {
 diff --git node/lib/child_process.js node/lib/child_process.js
-index 4e15255a01..987da265e6 100644
+index 580a441a80..bef63ab3e9 100644
 --- node/lib/child_process.js
 +++ node/lib/child_process.js
 @@ -168,7 +168,7 @@ function fork(modulePath, args = [], options) {
@@ -375,7 +375,7 @@ index 9a9dcebb79..9f00ec6a85 100644
  
  /**
 diff --git node/lib/internal/process/pre_execution.js node/lib/internal/process/pre_execution.js
-index ea420b84da..756c84ea18 100644
+index cb96fd1bc4..e6c5b11c0a 100644
 --- node/lib/internal/process/pre_execution.js
 +++ node/lib/internal/process/pre_execution.js
 @@ -49,7 +49,11 @@ const {
@@ -447,7 +447,7 @@ index bb39a0cb42..5fa6cb65cc 100644
      parent_env_->AddCleanupHook([](void* data) {
        Environment* env = static_cast<Environment*>(data);
 diff --git node/src/node.cc node/src/node.cc
-index e1614e60f5..c19041aab2 100644
+index ccc1085a84..882ab5f0c9 100644
 --- node/src/node.cc
 +++ node/src/node.cc
 @@ -394,6 +394,8 @@ MaybeLocal<Value> StartExecution(Environment* env, StartExecutionCallback cb) {
@@ -660,7 +660,7 @@ index f66099a557..4048f6bd93 100644
 +  return adjacent(c, nargv);
 +}
 diff --git node/src/node_options.cc node/src/node_options.cc
-index 545db1dbbc..183af9dbad 100644
+index cfc599ec9a..f4c7a56850 100644
 --- node/src/node_options.cc
 +++ node/src/node_options.cc
 @@ -307,6 +307,7 @@ void Parse(
@@ -672,7 +672,7 @@ index 545db1dbbc..183af9dbad 100644
    if (sea::IsSingleExecutable()) return;
  #endif
 diff --git node/tools/icu/icu-generic.gyp node/tools/icu/icu-generic.gyp
-index 2655b9e694..1d951571c7 100644
+index f007c65232..002a00a6ae 100644
 --- node/tools/icu/icu-generic.gyp
 +++ node/tools/icu/icu-generic.gyp
 @@ -52,7 +52,7 @@
