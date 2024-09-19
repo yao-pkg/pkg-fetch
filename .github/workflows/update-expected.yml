@@ -39,8 +39,8 @@ jobs:
                     echo "sha: $sha, patchName: $patchName"
                     # get node major, os and arch from patchName
                     major=$(echo $patchName | grep -oP 'node-v\K[0-9]+')
-                    os=$(echo $patchName | grep -oP 'node-v[0-9]+-(.*)-' | cut -d'-' -f2)
-                    arch=$(echo $patchName | grep -oP 'node-v[0-9]+-(.*)-(.*)' | cut -d'-' -f3)
+                    os=$(echo $patchName | grep -oP 'node-v[0-9.]+-(.*)-' | cut -d'-' -f3)
+                    arch=$(echo $patchName | grep -oP 'node-v[0-9.]+-(.*)-(.*)' | cut -d'-' -f4)
 
                     # replace in shas.txt file the sha matching the same major, os and arch
                     sed -i -E "/$major[0-9.]+.-$os-$arch/c $sha $patchName"
