@@ -38,8 +38,14 @@ jobs:
           fi
       
       - name: Create new patch
-        uses: ./.github/workflows/patch-node.yml
-        with:
-          nodeVersion: ${{ steps.compare.outputs.latest_version }}
-          patchFile: ${{ steps.compare.outputs.patch_version }}
-
+        if: steps.compare.outputs.outdated == 'true'
+        run: |
+          echo "Creating new patch for Node.js ${{ matrix.node-version }}"
+          echo "Latest Node.js version: ${{ steps.compare.outputs.latest_version }}"
+          echo "Latest patch version: ${{ steps.compare.outputs.patch_version }}"
+          # trigger the patch-node.yml workflow with the latest Node.js version
+          curl -X POST \
+          -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/${{ github.repository }}/actions/workflows/patch-node.yml/dispatches \
+          -d '{"ref":"main","inputs":{"nodeVersion":"${{ steps.compare.outputs.latest_version }}","patchFile":"${{ steps.compare.outputs.patch_version }}"}}'
