@@ -1,0 +1,64 @@
+name: Update expected sha256sums
+
+on:
+    workflow_dispatch:
+        inputs:
+            shas:
+                description: 'Expected sha256sums. Format is "<sha> node-v<version>-<os>-<arch>"'
+                required: true
+                type: string
+
+jobs:
+    update:
+        permissions:
+            contents: write
+            pull-requests: write
+        strategy:
+            fail-fast: false # prevent test to stop if one fails
+            matrix:
+                node-version: [20] 
+                os: [ubuntu-latest]
+
+        runs-on: ${{ matrix.os }}
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v4
+              with:
+                node-version: ${{ matrix.node-version }}
+                cache: "yarn"
+            
+            - name: Install deps
+              run: yarn install --ignore-engines
+
+            - name: Parses shas
+              id: parse-shas
+              run: |
+                echo "${{ inputs.shas }}" | while read -r sha patchName; do
+                    echo "sha: $sha, patchName: $patchName"
+                    # get node major, os and arch from patchName
+                    major=$(echo $patchName | grep -oP 'node-v\K[0-9]+')
+                    os=$(echo $patchName | grep -oP 'node-v[0-9]+-(.*)-' | cut -d'-' -f2)
+                    arch=$(echo $patchName | grep -oP 'node-v[0-9]+-(.*)-(.*)' | cut -d'-' -f3)
+
+                    # replace in shas.txt file the sha matching the same major, os and arch
+                    sed -i -E "/$major[0-9.]+.-$os-$arch/c $sha $patchName"
+                done
+            
+            - name: Update expected shas
+              run: |
+                yarn updateExpected
+            
+            - name: Create Pull Request
+              uses: peter-evans/create-pull-request@v4
+              with:
+                token: ${{ secrets.GITHUB_TOKEN }}
+                commit-message: "fix: update expected shas"
+                title: "fix: update expected shas"
+                body: "Update expected sha256sums for Node.js\n\n${{ inputs.shas }}"
+                branch: "update-expected-shas-${{ github.run_id }}"
+                base: "main"
+                delete-branch: true
+                labels: "chore, shas"
+                draft: false
