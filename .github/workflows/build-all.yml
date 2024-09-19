@@ -5,7 +5,7 @@ on:
     inputs:
       newRelease:
         description: 'Upload assets to new draft release?'
-        default: true
+        default: false
         type: boolean
 
 jobs:
