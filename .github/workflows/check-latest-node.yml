@@ -17,12 +17,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: "yarn"
-
       - name: Compare versions
         id: compare
         run: |
@@ -34,17 +28,16 @@ jobs:
           PATCH_VERSION=$(ls patches/node.v${{ matrix.node-version }}.*.patch | grep -oP 'node.v\K[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -n1)
           echo "Latest patch version for Node.js ${{ matrix.node-version }} is: $PATCH_VERSION"
 
-          echo "::set-output name=latest_version::$LATEST_VERSION"
-          echo "::set-output name=patch_version::$PATCH_VERSION"
+          echo "latest_version=$LATEST_VERSION" >> $GITHUB_OUTPUT
+          echo "patch_version=$PATCH_VERSION" >> $GITHUB_OUTPUT
           # compare the latest patch version with the latest Node.js version
           if [ "$PATCH_VERSION" != "$LATEST_VERSION" ]; then
             echo "Patch for Node.js ${{ matrix.node-version }} is outdated"
             # set the output variable to true
-            echo "::set-output name=outdated::true"
+            echo "outdated=true" >> $GITHUB_OUTPUT
           fi
       
       - name: Create new patch
-        if: steps.compare.outputs.outdated == 'true'
         run: |
           echo "Creating new patch for Node.js ${{ matrix.node-version }}"
           echo "Latest Node.js version: ${{ steps.compare.outputs.latest_version }}"
