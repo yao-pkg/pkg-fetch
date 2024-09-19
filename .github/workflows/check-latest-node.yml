@@ -38,6 +38,7 @@ jobs:
           fi
       
       - name: Create new patch
+        if: steps.compare.outputs.outdated == 'true'
         run: |
           echo "Creating new patch for Node.js ${{ matrix.node-version }}"
           echo "Latest Node.js version: ${{ steps.compare.outputs.latest_version }}"
