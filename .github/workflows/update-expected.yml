@@ -43,7 +43,7 @@ jobs:
                     arch=$(echo $patchName | grep -oP 'node-v[0-9.]+-(.*)-(.*)' | cut -d'-' -f4)
 
                     # replace in shas.txt file the sha matching the same major, os and arch
-                    sed -i -E "/$major[0-9.]+.-$os-$arch/c $sha $patchName"
+                    sed -i -E "/$major[0-9.]+.-$os-$arch/c $sha $patchName" shas.txt
                 done
             
             - name: Update expected shas
