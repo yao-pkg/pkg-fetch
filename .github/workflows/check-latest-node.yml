@@ -1,0 +1,57 @@
+name: Check Latest Node
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Run every day at midnight
+  workflow_dispatch:
+
+jobs:
+  check:
+    strategy:
+      fail-fast: false # prevent test to stop if one fails
+      matrix:
+        node-version: [18, 20, 22]
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "yarn"
+
+      - name: Compare versions
+        id: compare
+        run: |
+          # get the latest Node.js version with major version matching the matrix node version
+          LATEST_VERSION=$(curl -s https://nodejs.org/dist/latest-v${{ matrix.node-version }}.x/ | grep -oP 'node-v\K[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -n1)
+          echo "Latest Node.js ${{ matrix.node-version }} version is: $LATEST_VERSION"
+
+          # get the latest patch version
+          PATCH_VERSION=$(ls patches/node.v${{ matrix.node-version }}.*.patch | grep -oP 'node.v\K[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -n1)
+          echo "Latest patch version for Node.js ${{ matrix.node-version }} is: $PATCH_VERSION"
+
+          echo "::set-output name=latest_version::$LATEST_VERSION"
+          echo "::set-output name=patch_version::$PATCH_VERSION"
+          # compare the latest patch version with the latest Node.js version
+          if [ "$PATCH_VERSION" != "$LATEST_VERSION" ]; then
+            echo "Patch for Node.js ${{ matrix.node-version }} is outdated"
+            # set the output variable to true
+            echo "::set-output name=outdated::true"
+          fi
+      
+      - name: Create new patch
+        if: steps.compare.outputs.outdated == 'true'
+        run: |
+          echo "Creating new patch for Node.js ${{ matrix.node-version }}"
+          echo "Latest Node.js version: ${{ steps.compare.outputs.latest_version }}"
+          echo "Latest patch version: ${{ steps.compare.outputs.patch_version }}"
+          # trigger the patch-node.yml workflow with the latest Node.js version
+          curl -X POST \
+          -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/${{ github.repository }}/actions/workflows/patch-node.yml/dispatches \
+          -d '{"ref":"main","inputs":{"nodeVersion":"${{ steps.compare.outputs.latest_version }}","patchFile":"${{ steps.compare.outputs.patch_version }}"}}'
