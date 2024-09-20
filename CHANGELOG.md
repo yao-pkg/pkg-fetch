@@ -1,3 +1,27 @@
+## [3.5.13](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.12...v3.5.13) (2024-09-20)
+
+### Features
+
+- add v22.9.0 patch ([#47](https://github.com/yao-pkg/pkg-fetch/issues/47)) ([588dda6](https://github.com/yao-pkg/pkg-fetch/commit/588dda6744fc4416da753a235a502f58789c1570))
+
+### Bug Fixes
+
+- automatically trigger shas update workflow when building new patches ([721dac7](https://github.com/yao-pkg/pkg-fetch/commit/721dac7aba6199fc4aee2ebef162b91209916964))
+- update expected shas ([01f2951](https://github.com/yao-pkg/pkg-fetch/commit/01f295148440e13f733d8b576821c9bcfa34bc11))
+
+### Chores
+
+- add missing sed target ([7a53cce](https://github.com/yao-pkg/pkg-fetch/commit/7a53ccee9ead7fe44b8706e47134223f641e3efe))
+- change default `upload assets` to false ([cab8e80](https://github.com/yao-pkg/pkg-fetch/commit/cab8e805caf22daf0647331cea5a307e6b710371))
+- create update expected workflow ([0a5f961](https://github.com/yao-pkg/pkg-fetch/commit/0a5f9611a2ba22659f85251eae14a96585e9e441))
+- create workflow to automatically check new nodejs releases ([effe040](https://github.com/yao-pkg/pkg-fetch/commit/effe040902bbe51d555361c103893aba1173a194))
+- fix regex ([ce4d0f8](https://github.com/yao-pkg/pkg-fetch/commit/ce4d0f879795cbce095aef32124033145a77523b))
+- handle case where patch major doesn't exists ([fba9824](https://github.com/yao-pkg/pkg-fetch/commit/fba982472abffcdb99afafc5f5f05051ba377821))
+- restore `if` statement ([1a87466](https://github.com/yao-pkg/pkg-fetch/commit/1a87466d8ba574a83051024560a72f070f002dba))
+- restore working version ([385375d](https://github.com/yao-pkg/pkg-fetch/commit/385375d4873f7e0d0cb9f5f6826b2234bc713fc6))
+- test run ([7400fc9](https://github.com/yao-pkg/pkg-fetch/commit/7400fc9568ed37dc31407f01936010ac47291b4b))
+- try different approach ([267990e](https://github.com/yao-pkg/pkg-fetch/commit/267990e69b8c2da1c99143ff72b73501e7789ddf))
+
 ## [3.5.12](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.11...v3.5.12) (2024-09-17)
 
 ### Bug Fixes
