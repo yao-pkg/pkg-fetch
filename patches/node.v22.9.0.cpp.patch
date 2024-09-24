@@ -327,17 +327,23 @@ index 0000000000..a697294fdf
 +  }());
 +}());
 diff --git node/lib/internal/modules/cjs/loader.js node/lib/internal/modules/cjs/loader.js
-index 451b7c2195..203be65195 100644
+index 451b7c2195..7733dfb3d6 100644
 --- node/lib/internal/modules/cjs/loader.js
 +++ node/lib/internal/modules/cjs/loader.js
-@@ -234,7 +234,10 @@ function stat(filename) {
+@@ -229,12 +229,16 @@ function wrapModuleLoad(request, parent, isMain) {
+  * @param {string} filename Absolute path to the file
+  */
+ function stat(filename) {
++  const origFilename = filename;
+   filename = path.toNamespacedPath(filename);
+   if (statCache !== null) {
      const result = statCache.get(filename);
      if (result !== undefined) { return result; }
    }
 -  const result = internalFsBinding.internalModuleStat(filename);
 +  const fs = require('fs');
-+  const result = fs.existsSync(filename) ?
-+    (fs.statSync(filename).isDirectory() ? 1 : 0) : -1;
++  const result = fs.existsSync(origFilename) ?
++    (fs.statSync(origFilename).isDirectory() ? 1 : 0) : -1;
 +
    if (statCache !== null && result >= 0) {
      // Only set cache when `internalModuleStat(filename)` succeeds.
