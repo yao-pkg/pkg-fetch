@@ -62,9 +62,7 @@ export function satisfyingNodeVersion(nodeRange: string) {
   const nodeVersion = versions.pop();
 
   if (!nodeVersion) {
-    throw wasReported(
-      `No available node version satisfies '${nodeRange}'`
-    );
+    throw wasReported(`No available node version satisfies '${nodeRange}'`);
   }
 
   return nodeVersion;
@@ -84,7 +82,6 @@ export function getNodeVersion(nodeRange: string) {
   const nodeVersion = satisfyingNodeVersion(nodeRange);
   return nodeVersion;
 }
-
 
 export async function need(opts: NeedOptions) {
   // eslint-disable-line complexity
@@ -127,7 +124,10 @@ export async function need(opts: NeedOptions) {
       }
 
       // when node path is set, skip hash check
-      if (process.env.PKG_NODE_PATH === fetched && (await hash(fetched)) === EXPECTED_HASHES[remote.name]) {
+      if (
+        !!process.env.PKG_NODE_PATH ||
+        (await hash(fetched)) === EXPECTED_HASHES[remote.name]
+      ) {
         return fetched;
       }
 
