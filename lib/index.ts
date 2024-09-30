@@ -126,7 +126,8 @@ export async function need(opts: NeedOptions) {
         return 'exists';
       }
 
-      if ((await hash(fetched)) === EXPECTED_HASHES[remote.name]) {
+      // when node path is set, skip hash check
+      if (process.env.PKG_NODE_PATH === fetched && (await hash(fetched)) === EXPECTED_HASHES[remote.name]) {
         return fetched;
       }
 
