@@ -1,3 +1,14 @@
+## [3.5.14](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.13...v3.5.14) (2024-10-01)
+
+### Bug Fixes
+
+- node 22 module filename resolution in win32 ([#49](https://github.com/yao-pkg/pkg-fetch/issues/49)) by [@faulpeltz](https://github.com/faulpeltz) ([e436d74](https://github.com/yao-pkg/pkg-fetch/commit/e436d74e4cdfdd8cd4004b672c9d0c3d0e78abc0))
+- skip sha check when providing `PKG_NODE_PATH` ([#50](https://github.com/yao-pkg/pkg-fetch/issues/50)) ([76bc9d0](https://github.com/yao-pkg/pkg-fetch/commit/76bc9d0bbf77d03d4505bad289b2b640b7e5f40f))
+
+### Chores
+
+- add release workflow ([d1b15b3](https://github.com/yao-pkg/pkg-fetch/commit/d1b15b3f0f6f1a90ccb4c08c8f9f75ecd675250d))
+
 ## [3.5.13](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.12...v3.5.13) (2024-09-20)
 
 ### Features
