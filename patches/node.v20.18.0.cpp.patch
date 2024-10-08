@@ -1,16 +1,16 @@
 diff --git node/common.gypi node/common.gypi
-index 7c0b4a0851..064e453130 100644
+index 1ece4f5e49..5107053bec 100644
 --- node/common.gypi
 +++ node/common.gypi
 @@ -184,7 +184,7 @@
-               'MSVC_runtimeType': 2   # MultiThreadedDLL (/MD)
-             }],
-             ['llvm_version=="0.0"', {
+             ['clang==1', {
+               'lto': ' -flto ', # Clang
+             }, {
 -              'lto': ' -flto=4 -fuse-linker-plugin -ffat-lto-objects ', # GCC
 +              'lto': ' -flto=4 -ffat-lto-objects ', # GCC
-             }, {
-               'lto': ' -flto ', # Clang
              }],
+           ],
+         },
 diff --git node/deps/v8/include/v8-initialization.h node/deps/v8/include/v8-initialization.h
 index d3e35d6ec5..6e9bbe3849 100644
 --- node/deps/v8/include/v8-initialization.h
@@ -246,7 +246,7 @@ index 88c079d10d..a7eaca0574 100644
  const permission = require('internal/process/permission');
  const { kEmptyObject } = require('internal/util');
 diff --git node/lib/internal/process/pre_execution.js node/lib/internal/process/pre_execution.js
-index 59308ab817..35583f830a 100644
+index ea7afd52fa..ea70fecf5d 100644
 --- node/lib/internal/process/pre_execution.js
 +++ node/lib/internal/process/pre_execution.js
 @@ -51,7 +51,11 @@ const {
@@ -261,7 +261,7 @@ index 59308ab817..35583f830a 100644
    return prepareExecution({
      expandArgv1,
      initializeModules,
-@@ -243,7 +247,8 @@ function patchProcessObject(expandArgv1) {
+@@ -245,7 +249,8 @@ function patchProcessObject(expandArgv1) {
    // If requested, update process.argv[1] to replace whatever the user provided with the resolved absolute file path of
    // the entry point.
    if (expandArgv1 && process.argv[1] &&
@@ -271,7 +271,7 @@ index 59308ab817..35583f830a 100644
      // Expand process.argv[1] into a full path.
      const path = require('path');
      try {
-@@ -722,6 +727,7 @@ function loadPreloadModules() {
+@@ -741,6 +746,7 @@ function loadPreloadModules() {
    // For user code, we preload modules if `-r` is passed
    const preloadModules = getOptionValue('--require');
    if (preloadModules && preloadModules.length > 0) {
@@ -280,10 +280,10 @@ index 59308ab817..35583f830a 100644
        Module: {
          _preloadModules,
 diff --git node/lib/vm.js node/lib/vm.js
-index 34814c430d..db1f4779b6 100644
+index cb64404ef0..71209f89d3 100644
 --- node/lib/vm.js
 +++ node/lib/vm.js
-@@ -97,6 +97,7 @@ class Script extends ContextifyScript {
+@@ -98,6 +98,7 @@ class Script extends ContextifyScript {
        produceCachedData = false,
        importModuleDynamically,
        [kParsingContext]: parsingContext,
@@ -291,7 +291,7 @@ index 34814c430d..db1f4779b6 100644
      } = options;
  
      validateString(filename, 'options.filename');
-@@ -120,7 +121,8 @@ class Script extends ContextifyScript {
+@@ -121,7 +122,8 @@ class Script extends ContextifyScript {
              cachedData,
              produceCachedData,
              parsingContext,
@@ -302,10 +302,10 @@ index 34814c430d..db1f4779b6 100644
        throw e; /* node-do-not-add-exception-line */
      }
 diff --git node/src/inspector_agent.cc node/src/inspector_agent.cc
-index 4cab7dea04..a1f0d51ab5 100644
+index bb39a0cb42..5fa6cb65cc 100644
 --- node/src/inspector_agent.cc
 +++ node/src/inspector_agent.cc
-@@ -738,11 +738,6 @@ bool Agent::Start(const std::string& path,
+@@ -766,11 +766,6 @@ bool Agent::Start(const std::string& path,
                                StartIoThreadAsyncCallback));
      uv_unref(reinterpret_cast<uv_handle_t*>(&start_io_thread_async));
      start_io_thread_async.data = this;
@@ -346,7 +346,7 @@ index 9f6f8e53ab..ee8fa43f2f 100644
    }
  
 diff --git node/src/node_contextify.cc node/src/node_contextify.cc
-index d873792ab9..588e53377d 100644
+index 8951cd378a..746fb9939a 100644
 --- node/src/node_contextify.cc
 +++ node/src/node_contextify.cc
 @@ -76,6 +76,7 @@ using v8::String;
@@ -357,7 +357,7 @@ index d873792ab9..588e53377d 100644
  using v8::Value;
  using v8::WeakCallbackInfo;
  
-@@ -789,13 +790,14 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -816,13 +817,14 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
    Local<ArrayBufferView> cached_data_buf;
    bool produce_cached_data = false;
    Local<Context> parsing_context = context;
@@ -374,7 +374,7 @@ index d873792ab9..588e53377d 100644
      CHECK(args[2]->IsNumber());
      line_offset = args[2].As<Int32>()->Value();
      CHECK(args[3]->IsNumber());
-@@ -816,6 +818,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -843,6 +845,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
      }
      CHECK(args[7]->IsSymbol());
      id_symbol = args[7].As<Symbol>();
@@ -385,7 +385,7 @@ index d873792ab9..588e53377d 100644
    }
  
    ContextifyScript* contextify_script =
-@@ -864,6 +870,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -891,6 +897,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
    ShouldNotAbortOnUncaughtScope no_abort_scope(env);
    Context::Scope scope(parsing_context);
  
@@ -396,7 +396,7 @@ index d873792ab9..588e53377d 100644
    MaybeLocal<UnboundScript> maybe_v8_script =
        ScriptCompiler::CompileUnboundScript(isolate, &source, compile_options);
  
-@@ -878,6 +888,11 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -905,6 +915,11 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
      return;
    }
  
@@ -408,7 +408,7 @@ index d873792ab9..588e53377d 100644
    contextify_script->script_.Reset(isolate, v8_script);
    contextify_script->script_.SetWeak();
    contextify_script->object()->SetInternalFieldForNodeCore(kUnboundScriptSlot,
-@@ -911,6 +926,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -938,6 +953,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
            .IsNothing())
      return;
  
@@ -530,7 +530,7 @@ index f66099a557..4048f6bd93 100644
 +  return adjacent(c, nargv);
 +}
 diff --git node/src/node_options.cc node/src/node_options.cc
-index e94e4dbc95..097ba01185 100644
+index dba59c5560..cb661fc7c4 100644
 --- node/src/node_options.cc
 +++ node/src/node_options.cc
 @@ -307,6 +307,7 @@ void Parse(
