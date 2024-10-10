@@ -42,7 +42,7 @@ This project deploys multiple defense measures to ensure that the safe binaries 
 - GPG-signed hashes are available in [Releases](https://github.com/yao-pkg/pkg-fetch/releases)
   - Easy to spot a compromise.
 - `pkg-fetch` package on npm is strictly permission-controlled
-  - Only authorized Vercel employees can push new revisions to npm.
+  - Only @robertsLando can push new revisions to npm.
 
 ## Contributing Updates to Patches
 
@@ -111,6 +111,10 @@ review.
 For example:
 
 `yarn start --node-range node18 --arch x64 --output dist`
+
+## Small ICU
+
+Node.js binaries built by this project use the `small-icu` option to reduce the size of the binary. If you need a Node.js binary with full ICU support, you can build it yourself by setting the `--with-intl=full-icu` option. Small ICU is sufficient for most use cases, and it reduces the binary size by about 30 MB.
 
 ## Environment
 
