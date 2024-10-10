@@ -50,13 +50,13 @@ jobs:
           https://api.github.com/repos/${{ github.repository }}/actions/workflows/patch-node.yml/dispatches \
           -d '{"ref":"main","inputs":{"nodeVersion":"${{ steps.compare.outputs.latest_version }}","patchFile":"${{ steps.compare.outputs.patch_version }}"}}'
       
-      # create new issue if patch is outdated
-      - name: Create issue
+      # send a notification to the repository owner if the patch is outdated
+      - name: Notify
         if: steps.compare.outputs.outdated == 'true'
         run: |
-          echo "Creating issue for outdated patch for Node.js ${{ matrix.node-version }}"
+          echo "Sending notification to repository owner"
           curl -X POST \
           -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
           -H "Accept: application/vnd.github.v3+json" \
-          https://api.github.com/repos/${{ github.repository }}/issues \
-          -d '{"title":"Bump patch for Node.js from ${{ steps.compare.outputs.patch_version }} to ${{ steps.compare.outputs.latest_version }}","body":"The patch for Node.js ${{ matrix.node-version }} is outdated. Please create a new patch."}'
+          https://api.github.com/repos/${{ github.repository }}/dispatches \
+          -d '{"event_type":"notify","client_payload":{"message":"Patch for Node.js ${{ matrix.node-version }} is outdated"}}'
