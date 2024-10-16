@@ -1,6 +1,7 @@
 import { createGunzip } from 'zlib';
 import crypto from 'crypto';
-import fs from 'fs-extra';
+import { createReadStream, existsSync } from 'fs';
+import { cp, mkdir, readFile, rm, writeFile } from 'fs/promises';
 import os from 'os';
 import path from 'path';
 import { pipeline } from 'stream';
@@ -88,18 +89,20 @@ async function tarFetch(nodeVersion: string) {
   const archivePath = path.join(nodeArchivePath, tarName);
   const hashPath = path.join(nodeArchivePath, `${tarName}.sha256sum`);
 
-  if (fs.existsSync(hashPath) && fs.existsSync(archivePath)) {
+  if (existsSync(hashPath) && existsSync(archivePath)) {
     return;
   }
 
-  await fs.remove(hashPath).catch(() => undefined);
-  await fs.remove(archivePath).catch(() => undefined);
+  await rm(hashPath, { recursive: true, force: true }).catch(() => undefined);
+  await rm(archivePath, { recursive: true, force: true }).catch(
+    () => undefined
+  );
 
   await downloadUrl(`${distUrl}/SHASUMS256.txt`, hashPath);
 
-  await fs.writeFile(
+  await writeFile(
     hashPath,
-    (await fs.readFile(hashPath, 'utf8'))
+    (await readFile(hashPath, 'utf8'))
       .split('\n')
       .filter((l) => l.includes(tarName))[0]
   );
@@ -113,22 +116,25 @@ async function tarExtract(nodeVersion: string, suppressTarOutput: boolean) {
   const tarName = `node-${nodeVersion}.tar.gz`;
 
   const expectedHash = (
-    await fs.readFile(
-      path.join(nodeArchivePath, `${tarName}.sha256sum`),
-      'utf8'
-    )
+    await readFile(path.join(nodeArchivePath, `${tarName}.sha256sum`), 'utf8')
   ).split(' ')[0];
   const actualHash = await hash(path.join(nodeArchivePath, tarName));
 
   if (expectedHash !== actualHash) {
-    await fs.remove(path.join(nodeArchivePath, tarName));
-    await fs.remove(path.join(nodeArchivePath, `${tarName}.sha256sum`));
+    await rm(path.join(nodeArchivePath, tarName), {
+      recursive: true,
+      force: true,
+    });
+    await rm(path.join(nodeArchivePath, `${tarName}.sha256sum`), {
+      recursive: true,
+      force: true,
+    });
     throw wasReported(`Hash mismatch for ${tarName}`);
   }
 
   const pipe = promisify(pipeline);
 
-  const source = fs.createReadStream(path.join(nodeArchivePath, tarName));
+  const source = createReadStream(path.join(nodeArchivePath, tarName));
   const gunzip = createGunzip();
   const extract = tar.extract(nodePath, {
     strip: 1,
@@ -164,7 +170,10 @@ async function applyPatches(nodeVersion: string) {
   }
 }
 
-export async function fetchExtractApply(nodeVersion: string, quietExtraction: boolean) {
+export async function fetchExtractApply(
+  nodeVersion: string,
+  quietExtraction: boolean
+) {
   await tarFetch(nodeVersion);
   await tarExtract(nodeVersion, quietExtraction);
   await applyPatches(nodeVersion);
@@ -308,9 +317,9 @@ async function compile(
 }
 
 export async function prepBuildPath() {
-  await fs.remove(buildPath);
-  await fs.mkdirp(nodePath);
-  await fs.mkdirp(nodeArchivePath);
+  await rm(buildPath, { recursive: true, force: true });
+  await mkdir(nodePath, { recursive: true });
+  await mkdir(nodeArchivePath, { recursive: true });
 }
 
 export default async function build(
@@ -325,12 +334,12 @@ export default async function build(
   const output = await compile(nodeVersion, targetArch, targetPlatform);
   const outputHash = await hash(output);
 
-  await fs.mkdirp(path.dirname(local));
-  await fs.copy(output, local);
-  await fs.promises.writeFile(
+  await mkdir(path.dirname(local), { recursive: true });
+  await cp(output, local);
+  await writeFile(
     `${local}.sha256sum`,
     `${outputHash}  ${path.basename(local)}
 `
   );
-  await fs.remove(buildPath);
+  await rm(buildPath, { recursive: true, force: true });
 }
