@@ -1,6 +1,7 @@
 import fetch from 'node-fetch';
 import crypto from 'crypto';
-import fs from 'fs-extra';
+import { createReadStream, createWriteStream, mkdirSync, renameSync, rmSync } from 'fs';
+import { chmod, stat } from 'fs/promises';
 import httpsProxyAgent from 'https-proxy-agent';
 import path from 'path';
 import { spawnSync, SpawnSyncOptions } from 'child_process';
@@ -30,8 +31,8 @@ export async function downloadUrl(url: string, file: string): Promise<void> {
   }
 
   const tempFile = `${file}.downloading`;
-  fs.mkdirpSync(path.dirname(tempFile));
-  const ws = fs.createWriteStream(tempFile);
+  mkdirSync(path.dirname(tempFile), { recursive: true });
+  const ws = createWriteStream(tempFile);
 
   const totalSize = Number(res.headers.get('content-length'));
   let currentSize = 0;
@@ -48,12 +49,12 @@ export async function downloadUrl(url: string, file: string): Promise<void> {
     stream.finished(ws, (err) => {
       if (err) {
         log.disableProgress();
-        fs.rmSync(tempFile);
+        rmSync(tempFile);
         reject(wasReported(`${err.name}: ${err.message}`));
       } else {
         log.showProgress(100);
         log.disableProgress();
-        fs.moveSync(tempFile, file);
+        renameSync(tempFile, file);
         resolve();
       }
     });
@@ -63,7 +64,7 @@ export async function downloadUrl(url: string, file: string): Promise<void> {
 export async function hash(filePath: string): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     const resultHash = crypto.createHash('sha256');
-    const input = fs.createReadStream(filePath);
+    const input = createReadStream(filePath);
 
     input.on('error', (e) => {
       reject(e);
@@ -81,11 +82,11 @@ export async function hash(filePath: string): Promise<string> {
 }
 
 export async function plusx(file: string) {
-  const s = await fs.stat(file);
+  const s = await stat(file);
   const newMode = s.mode | 64 | 8 | 1;
   if (s.mode === newMode) return;
   const base8 = newMode.toString(8).slice(-3);
-  await fs.chmod(file, base8);
+  await chmod(file, base8);
 }
 
 export async function spawn(

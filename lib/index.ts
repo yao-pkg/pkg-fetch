@@ -1,4 +1,5 @@
-import fs from 'fs-extra';
+import { unlinkSync } from 'fs';
+import { stat } from 'fs/promises';
 import path from 'path';
 import semver from 'semver';
 
@@ -37,7 +38,7 @@ async function download(
 
 async function exists(file: string) {
   try {
-    await fs.stat(file);
+    await stat(file);
     return true;
   } catch (error) {
     return false;
@@ -132,7 +133,7 @@ export async function need(opts: NeedOptions) {
       }
 
       log.info('Binary hash does NOT match. Re-fetching...');
-      fs.unlinkSync(fetched);
+      unlinkSync(fetched);
     }
   }
 
@@ -153,7 +154,7 @@ export async function need(opts: NeedOptions) {
         return fetched;
       }
 
-      fs.unlinkSync(fetched);
+      unlinkSync(fetched);
       throw wasReported('Binary hash does NOT match.');
     }
 

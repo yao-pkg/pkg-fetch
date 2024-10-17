@@ -2,7 +2,12 @@
 
 import Progress from 'progress';
 import assert from 'assert';
-import chalk from 'chalk';
+import picocolors from 'picocolors';
+import { WriteStream } from 'tty';
+
+// workaround until picocolors improves its color detection
+// https://github.com/alexeyraspopov/picocolors/issues/85
+const pc = picocolors.createColors(WriteStream.prototype.hasColors());
 
 class Log {
   debugMode = false;
@@ -29,7 +34,7 @@ class Log {
       return;
     }
 
-    console.log(`> ${chalk.green('[debug]')} ${text}`);
+    console.log(`> ${pc.green('[debug]')} ${text}`);
     this.lines(lines);
   }
 
@@ -39,13 +44,13 @@ class Log {
   }
 
   warn(text: string, lines?: string[] | string) {
-    console.log(`> ${chalk.blue('Warning')} ${text}`);
+    console.log(`> ${pc.blue('Warning')} ${text}`);
     this.lines(lines);
   }
 
   error(text: Error | string, lines?: string[] | string) {
     const message = text instanceof Error ? text.stack : text;
-    console.log(`> ${chalk.red('Error!')} ${message}`);
+    console.log(`> ${pc.red('Error!')} ${message}`);
     this.lines(lines);
   }
 
