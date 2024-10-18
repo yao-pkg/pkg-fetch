@@ -11,6 +11,13 @@ USER root:root
 
 WORKDIR /root/pkg-fetch/
 
+# HAXX upgrade alpine here because the muslcc image
+# is built on an old image and no newer version is available
+RUN sed -i -e 's/v3\.14/v3\.20/g' /etc/apk/repositories && \
+    apk update && \
+    apk add --upgrade apk-tools && \
+    apk upgrade --available
+
 RUN apk add --no-cache build-base git linux-headers npm python3 yarn
 
 # https://gitlab.alpinelinux.org/alpine/aports/-/issues/8626
