@@ -1,5 +1,5 @@
 diff --git node/common.gypi node/common.gypi
-index a97e77860e..09444e795f 100644
+index de83a56672..840333d8eb 100644
 --- node/common.gypi
 +++ node/common.gypi
 @@ -187,7 +187,7 @@
@@ -12,14 +12,14 @@ index a97e77860e..09444e795f 100644
            ],
          },
 diff --git node/deps/ngtcp2/nghttp3/lib/nghttp3_ringbuf.c node/deps/ngtcp2/nghttp3/lib/nghttp3_ringbuf.c
-index 61a7d06cad..eeebf67796 100644
+index 38b5460837..eeebf67796 100644
 --- node/deps/ngtcp2/nghttp3/lib/nghttp3_ringbuf.c
 +++ node/deps/ngtcp2/nghttp3/lib/nghttp3_ringbuf.c
 @@ -33,17 +33,6 @@
  
  #include "nghttp3_macro.h"
  
--#if defined(_MSC_VER) && !defined(__clang__) &&                                \
+-#if defined(_MSC_VER) && _MSC_VER < 1941 && !defined(__clang__) &&                                \
 -    (defined(_M_ARM) || defined(_M_ARM64))
 -unsigned int __popcnt(unsigned int x) {
 -  unsigned int c = 0;
@@ -34,14 +34,14 @@ index 61a7d06cad..eeebf67796 100644
                           const nghttp3_mem *mem) {
    if (nmemb) {
 diff --git node/deps/ngtcp2/ngtcp2/lib/ngtcp2_ringbuf.c node/deps/ngtcp2/ngtcp2/lib/ngtcp2_ringbuf.c
-index c381c23127..6894bc2308 100644
+index ecfdeb63b3..6894bc2308 100644
 --- node/deps/ngtcp2/ngtcp2/lib/ngtcp2_ringbuf.c
 +++ node/deps/ngtcp2/ngtcp2/lib/ngtcp2_ringbuf.c
 @@ -31,17 +31,6 @@
  
  #include "ngtcp2_macro.h"
  
--#if defined(_MSC_VER) && !defined(__clang__) &&                                \
+-#if defined(_MSC_VER) && _MSC_VER < 1941 && !defined(__clang__) &&                                \
 -    (defined(_M_ARM) || defined(_M_ARM64))
 -static unsigned int __popcnt(unsigned int x) {
 -  unsigned int c = 0;
@@ -259,7 +259,7 @@ index ec69ad5123..1894032344 100644
        GetHeaderValue(kReadOnlySnapshotChecksumOffset);
    if (ro_snapshot_checksum != expected_ro_snapshot_checksum) {
 diff --git node/lib/child_process.js node/lib/child_process.js
-index 580a441a80..bef63ab3e9 100644
+index 51fc6fe995..ed019a4645 100644
 --- node/lib/child_process.js
 +++ node/lib/child_process.js
 @@ -168,7 +168,7 @@ function fork(modulePath, args = [], options) {
@@ -327,10 +327,10 @@ index 0000000000..a697294fdf
 +  }());
 +}());
 diff --git node/lib/internal/modules/cjs/loader.js node/lib/internal/modules/cjs/loader.js
-index 451b7c2195..7733dfb3d6 100644
+index b0210e4d96..fb1e265a1f 100644
 --- node/lib/internal/modules/cjs/loader.js
 +++ node/lib/internal/modules/cjs/loader.js
-@@ -229,12 +229,16 @@ function wrapModuleLoad(request, parent, isMain) {
+@@ -230,12 +230,16 @@ function wrapModuleLoad(request, parent, isMain) {
   * @param {string} filename Absolute path to the file
   */
  function stat(filename) {
@@ -340,13 +340,13 @@ index 451b7c2195..7733dfb3d6 100644
      const result = statCache.get(filename);
      if (result !== undefined) { return result; }
    }
--  const result = internalFsBinding.internalModuleStat(filename);
+-  const result = internalFsBinding.internalModuleStat(internalFsBinding, filename);
 +  const fs = require('fs');
 +  const result = fs.existsSync(origFilename) ?
 +    (fs.statSync(origFilename).isDirectory() ? 1 : 0) : -1;
 +
    if (statCache !== null && result >= 0) {
-     // Only set cache when `internalModuleStat(filename)` succeeds.
+     // Only set cache when `internalModuleStat(internalFsBinding, filename)` succeeds.
      statCache.set(filename, result);
 diff --git node/lib/internal/modules/package_json_reader.js node/lib/internal/modules/package_json_reader.js
 index 9a9dcebb79..9f00ec6a85 100644
@@ -381,11 +381,11 @@ index 9a9dcebb79..9f00ec6a85 100644
  
  /**
 diff --git node/lib/internal/process/pre_execution.js node/lib/internal/process/pre_execution.js
-index cb96fd1bc4..e6c5b11c0a 100644
+index 848ff7f142..9f8e125329 100644
 --- node/lib/internal/process/pre_execution.js
 +++ node/lib/internal/process/pre_execution.js
-@@ -49,7 +49,11 @@ const {
-   },
+@@ -51,7 +51,11 @@ const {
+   runDeserializeCallbacks,
  } = require('internal/v8/startup_snapshot');
  
 +let _alreadyPrepared = false;
@@ -396,7 +396,7 @@ index cb96fd1bc4..e6c5b11c0a 100644
    return prepareExecution({
      expandArgv1,
      initializeModules,
-@@ -241,7 +245,8 @@ function patchProcessObject(expandArgv1) {
+@@ -243,7 +247,8 @@ function patchProcessObject(expandArgv1) {
    // If requested, update process.argv[1] to replace whatever the user provided with the resolved absolute file path of
    // the entry point.
    if (expandArgv1 && process.argv[1] &&
@@ -406,7 +406,7 @@ index cb96fd1bc4..e6c5b11c0a 100644
      // Expand process.argv[1] into a full path.
      const path = require('path');
      try {
-@@ -722,6 +727,7 @@ function loadPreloadModules() {
+@@ -721,6 +726,7 @@ function loadPreloadModules() {
    // For user code, we preload modules if `-r` is passed
    const preloadModules = getOptionValue('--require');
    if (preloadModules && preloadModules.length > 0) {
@@ -453,7 +453,7 @@ index bb39a0cb42..5fa6cb65cc 100644
      parent_env_->AddCleanupHook([](void* data) {
        Environment* env = static_cast<Environment*>(data);
 diff --git node/src/node.cc node/src/node.cc
-index ccc1085a84..882ab5f0c9 100644
+index 1a2a43bdd3..76fd756438 100644
 --- node/src/node.cc
 +++ node/src/node.cc
 @@ -394,6 +394,8 @@ MaybeLocal<Value> StartExecution(Environment* env, StartExecutionCallback cb) {
@@ -481,7 +481,7 @@ index ccc1085a84..882ab5f0c9 100644
    }
  
 diff --git node/src/node_contextify.cc node/src/node_contextify.cc
-index fc137486f5..81388a8812 100644
+index 5f4529262a..4ecfaf0513 100644
 --- node/src/node_contextify.cc
 +++ node/src/node_contextify.cc
 @@ -85,6 +85,7 @@ using v8::Symbol;
@@ -666,7 +666,7 @@ index f66099a557..4048f6bd93 100644
 +  return adjacent(c, nargv);
 +}
 diff --git node/src/node_options.cc node/src/node_options.cc
-index cfc599ec9a..f4c7a56850 100644
+index d3b59690e9..23b52a6e00 100644
 --- node/src/node_options.cc
 +++ node/src/node_options.cc
 @@ -307,6 +307,7 @@ void Parse(

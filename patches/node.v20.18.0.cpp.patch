@@ -11,6 +11,48 @@ index 1ece4f5e49..5107053bec 100644
              }],
            ],
          },
+diff --git node/deps/ngtcp2/nghttp3/lib/nghttp3_ringbuf.c node/deps/ngtcp2/nghttp3/lib/nghttp3_ringbuf.c
+index 5e7775f1a5..eeebf67796 100644
+--- node/deps/ngtcp2/nghttp3/lib/nghttp3_ringbuf.c
++++ node/deps/ngtcp2/nghttp3/lib/nghttp3_ringbuf.c
+@@ -33,16 +33,6 @@
+ 
+ #include "nghttp3_macro.h"
+ 
+-#if defined(_MSC_VER) && !defined(__clang__) && (defined(_M_ARM) || defined(_M_ARM64))
+-unsigned int __popcnt(unsigned int x) {
+-  unsigned int c = 0;
+-  for (; x; ++c) {
+-    x &= x - 1;
+-  }
+-  return c;
+-}
+-#endif
+-
+ int nghttp3_ringbuf_init(nghttp3_ringbuf *rb, size_t nmemb, size_t size,
+                          const nghttp3_mem *mem) {
+   if (nmemb) {
+diff --git node/deps/ngtcp2/ngtcp2/lib/ngtcp2_ringbuf.c node/deps/ngtcp2/ngtcp2/lib/ngtcp2_ringbuf.c
+index 74e488bce7..36ca05e80e 100644
+--- node/deps/ngtcp2/ngtcp2/lib/ngtcp2_ringbuf.c
++++ node/deps/ngtcp2/ngtcp2/lib/ngtcp2_ringbuf.c
+@@ -31,16 +31,6 @@
+ 
+ #include "ngtcp2_macro.h"
+ 
+-#if defined(_MSC_VER) && !defined(__clang__) && (defined(_M_ARM) || defined(_M_ARM64))
+-unsigned int __popcnt(unsigned int x) {
+-  unsigned int c = 0;
+-  for (; x; ++c) {
+-    x &= x - 1;
+-  }
+-  return c;
+-}
+-#endif
+-
+ int ngtcp2_ringbuf_init(ngtcp2_ringbuf *rb, size_t nmemb, size_t size,
+                         const ngtcp2_mem *mem) {
+   uint8_t *buf = ngtcp2_mem_malloc(mem, nmemb * size);
 diff --git node/deps/v8/include/v8-initialization.h node/deps/v8/include/v8-initialization.h
 index d3e35d6ec5..6e9bbe3849 100644
 --- node/deps/v8/include/v8-initialization.h
