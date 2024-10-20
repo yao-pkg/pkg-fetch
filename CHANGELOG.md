@@ -1,3 +1,28 @@
+## [3.5.15](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.14...v3.5.15) (2024-10-20)
+
+### Features
+
+- node 22 and 20 patches and fix builds ([#55](https://github.com/yao-pkg/pkg-fetch/issues/55)) ([03f4da2](https://github.com/yao-pkg/pkg-fetch/commit/03f4da25c2919fca26788ee4818ee6206a48d05b))
+- patch for node 20.18.0 ([#51](https://github.com/yao-pkg/pkg-fetch/issues/51)) ([aabfc16](https://github.com/yao-pkg/pkg-fetch/commit/aabfc16f7ef3b17972d48c04e59b8f4fdd3e32b6))
+
+### Bug Fixes
+
+- update expected shas ([#56](https://github.com/yao-pkg/pkg-fetch/issues/56)) ([543aecc](https://github.com/yao-pkg/pkg-fetch/commit/543aecccb492b94f66a98cd562723cf88df7b29a))
+
+### Code refactoring
+
+- replace `chalk` and `fs-extra` ([#53](https://github.com/yao-pkg/pkg-fetch/issues/53)) ([253c0cc](https://github.com/yao-pkg/pkg-fetch/commit/253c0cc1edc5806d2e7ebacae955b8ea5d9461cd))
+
+### Chores
+
+- add missing premission to workflow ([8fc23c9](https://github.com/yao-pkg/pkg-fetch/commit/8fc23c907cd568d39c8473bd85dfb83a0b09fb81))
+- create issue when new patch is available ([9d28d72](https://github.com/yao-pkg/pkg-fetch/commit/9d28d72329078e3e11e47b9fab79668357898219))
+- create notifiation instead of creating an issue ([9b76b27](https://github.com/yao-pkg/pkg-fetch/commit/9b76b274a319b0e5534a858c9feb430ba9de9a0e))
+
+### Documentation
+
+- clarify small icu ([9bebb86](https://github.com/yao-pkg/pkg-fetch/commit/9bebb865a87d006eff50937e5572e32e551d4687))
+
 ## [3.5.14](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.13...v3.5.14) (2024-10-01)
 
 ### Bug Fixes
