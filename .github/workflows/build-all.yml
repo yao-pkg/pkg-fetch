@@ -23,6 +23,7 @@ jobs:
   collect-artifacts:
     permissions:
       contents: write
+      actions: write
     runs-on: ubuntu-latest
     needs: [build-alpine, build-linux, build-linuxstatic, build-macos, build-windows]
     steps:
