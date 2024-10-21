@@ -1,3 +1,13 @@
+## [3.5.16](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.15...v3.5.16) (2024-10-21)
+
+### Bug Fixes
+
+- wrong expected shas ([93bb9e9](https://github.com/yao-pkg/pkg-fetch/commit/93bb9e92832e54e1f0cc464afe9bace8f2398b7b))
+
+### Chores
+
+- fix update expected workflow ([181dd25](https://github.com/yao-pkg/pkg-fetch/commit/181dd259126d638f93bc43ea9153a48831530dc7))
+
 ## [3.5.15](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.14...v3.5.15) (2024-10-20)
 
 ### Features
