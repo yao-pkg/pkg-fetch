@@ -349,7 +349,7 @@ index b0210e4d96..fb1e265a1f 100644
      // Only set cache when `internalModuleStat(internalFsBinding, filename)` succeeds.
      statCache.set(filename, result);
 diff --git node/lib/internal/modules/package_json_reader.js node/lib/internal/modules/package_json_reader.js
-index 9a9dcebb79..9f00ec6a85 100644
+index 9a9dcebb79..01fceafc31 100644
 --- node/lib/internal/modules/package_json_reader.js
 +++ node/lib/internal/modules/package_json_reader.js
 @@ -80,14 +80,19 @@ function deserializePackageJSON(path, contents) {
@@ -371,8 +371,8 @@ index 9a9dcebb79..9f00ec6a85 100644
 +      json['name'],
 +      json['main'],
 +      json['type'],
-+      json['exports'],
 +      json['imports'],
++      json['exports'],
 +    ]);
 +  } else {
 +    return deserializePackageJSON(jsonPath, undefined);
