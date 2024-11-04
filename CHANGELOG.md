@@ -1,3 +1,18 @@
+## [3.5.17](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.16...v3.5.17) (2024-11-04)
+
+### Features
+
+- add v22.11.0 patch ([#59](https://github.com/yao-pkg/pkg-fetch/issues/59)) ([76803c6](https://github.com/yao-pkg/pkg-fetch/commit/76803c60542e131c4ed7b3ea97d51bd25f6be798))
+
+### Bug Fixes
+
+- node 22 package json loader ([#57](https://github.com/yao-pkg/pkg-fetch/issues/57)) [@faulpeltz](https://github.com/faulpeltz) ([ea8746d](https://github.com/yao-pkg/pkg-fetch/commit/ea8746dd3b66daa06f4adf6f342df86d6535e746))
+- update expected shas ([02c538a](https://github.com/yao-pkg/pkg-fetch/commit/02c538afaf0a3c8e1c46803d616bc5e9bf1623fe))
+
+### Documentation
+
+- update list of built versions and glibc requirement ([#58](https://github.com/yao-pkg/pkg-fetch/issues/58)) ([54ead12](https://github.com/yao-pkg/pkg-fetch/commit/54ead12331e43c4e4007cd2eab1c434882e51b6f))
+
 ## [3.5.16](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.15...v3.5.16) (2024-10-21)
 
 ### Bug Fixes
