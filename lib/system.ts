@@ -135,7 +135,7 @@ function getTargetArchs() {
 }
 
 function getKnownArchs() {
-  return ['x64', 'x86', 'armv7', 'arm64', 'ppc64', 's390x'];
+  return ['x64', 'x86', 'armv7', 'arm64', 'ppc64', 's390x', 'riscv64', 'loong64'];
 }
 
 export const hostAbi = getHostAbi();
