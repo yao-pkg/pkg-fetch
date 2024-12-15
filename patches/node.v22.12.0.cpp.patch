@@ -259,7 +259,7 @@ index ec69ad5123..1894032344 100644
        GetHeaderValue(kReadOnlySnapshotChecksumOffset);
    if (ro_snapshot_checksum != expected_ro_snapshot_checksum) {
 diff --git node/lib/child_process.js node/lib/child_process.js
-index 51fc6fe995..ed019a4645 100644
+index bb27670112..d175723c74 100644
 --- node/lib/child_process.js
 +++ node/lib/child_process.js
 @@ -168,7 +168,7 @@ function fork(modulePath, args = [], options) {
@@ -327,10 +327,10 @@ index 0000000000..a697294fdf
 +  }());
 +}());
 diff --git node/lib/internal/modules/cjs/loader.js node/lib/internal/modules/cjs/loader.js
-index b0210e4d96..fb1e265a1f 100644
+index d6897f84d2..48ae93e1ce 100644
 --- node/lib/internal/modules/cjs/loader.js
 +++ node/lib/internal/modules/cjs/loader.js
-@@ -230,12 +230,16 @@ function wrapModuleLoad(request, parent, isMain) {
+@@ -231,12 +231,16 @@ function wrapModuleLoad(request, parent, isMain) {
   * @param {string} filename Absolute path to the file
   */
  function stat(filename) {
@@ -381,10 +381,10 @@ index 9a9dcebb79..01fceafc31 100644
  
  /**
 diff --git node/lib/internal/process/pre_execution.js node/lib/internal/process/pre_execution.js
-index 848ff7f142..9f8e125329 100644
+index f46a621e52..ce0c2c5106 100644
 --- node/lib/internal/process/pre_execution.js
 +++ node/lib/internal/process/pre_execution.js
-@@ -51,7 +51,11 @@ const {
+@@ -50,7 +50,11 @@ const {
    runDeserializeCallbacks,
  } = require('internal/v8/startup_snapshot');
  
@@ -396,17 +396,17 @@ index 848ff7f142..9f8e125329 100644
    return prepareExecution({
      expandArgv1,
      initializeModules,
-@@ -243,7 +247,8 @@ function patchProcessObject(expandArgv1) {
+@@ -241,7 +245,8 @@ function patchProcessObject(expandArgv1) {
+   let mainEntry;
    // If requested, update process.argv[1] to replace whatever the user provided with the resolved absolute file path of
    // the entry point.
-   if (expandArgv1 && process.argv[1] &&
--      !StringPrototypeStartsWith(process.argv[1], '-')) {
-+    !StringPrototypeStartsWith(process.argv[1], '-') &&
+-  if (expandArgv1 && process.argv[1] && process.argv[1][0] !== '-') {
++  if (expandArgv1 && process.argv[1] && process.argv[1][0] !== '-' &&
 +    process.argv[1] !== 'PKG_DUMMY_ENTRYPOINT') {
      // Expand process.argv[1] into a full path.
      const path = require('path');
      try {
-@@ -721,6 +726,7 @@ function loadPreloadModules() {
+@@ -719,6 +724,7 @@ function loadPreloadModules() {
    // For user code, we preload modules if `-r` is passed
    const preloadModules = getOptionValue('--require');
    if (preloadModules && preloadModules.length > 0) {
@@ -666,7 +666,7 @@ index f66099a557..4048f6bd93 100644
 +  return adjacent(c, nargv);
 +}
 diff --git node/src/node_options.cc node/src/node_options.cc
-index d3b59690e9..23b52a6e00 100644
+index 7d1db6bcdc..9b3fb39811 100644
 --- node/src/node_options.cc
 +++ node/src/node_options.cc
 @@ -307,6 +307,7 @@ void Parse(
