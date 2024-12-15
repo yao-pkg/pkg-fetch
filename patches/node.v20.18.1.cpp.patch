@@ -194,7 +194,7 @@ index c83e8e4581..8cb451e147 100644
    uint32_t max_payload_length = this->size_ - kHeaderSize;
    if (payload_length > max_payload_length) {
 diff --git node/lib/child_process.js node/lib/child_process.js
-index 48870b35ad..d2aca054b2 100644
+index cc81cb373d..e06da1048a 100644
 --- node/lib/child_process.js
 +++ node/lib/child_process.js
 @@ -169,7 +169,7 @@ function fork(modulePath, args = [], options) {
@@ -288,7 +288,7 @@ index 88c079d10d..a7eaca0574 100644
  const permission = require('internal/process/permission');
  const { kEmptyObject } = require('internal/util');
 diff --git node/lib/internal/process/pre_execution.js node/lib/internal/process/pre_execution.js
-index ea7afd52fa..ea70fecf5d 100644
+index a05d284605..4186f13d60 100644
 --- node/lib/internal/process/pre_execution.js
 +++ node/lib/internal/process/pre_execution.js
 @@ -51,7 +51,11 @@ const {
@@ -572,7 +572,7 @@ index f66099a557..4048f6bd93 100644
 +  return adjacent(c, nargv);
 +}
 diff --git node/src/node_options.cc node/src/node_options.cc
-index dba59c5560..cb661fc7c4 100644
+index e325b082de..19b6782e29 100644
 --- node/src/node_options.cc
 +++ node/src/node_options.cc
 @@ -307,6 +307,7 @@ void Parse(
