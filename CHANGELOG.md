@@ -1,3 +1,14 @@
+## [3.5.18](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.17...v3.5.18) (2024-12-28)
+
+### Features
+
+- add `riscv64` and `loong64` to known archs ([#62](https://github.com/yao-pkg/pkg-fetch/issues/62)) ([361ac29](https://github.com/yao-pkg/pkg-fetch/commit/361ac29084daec85634c0cd04bda7d73c2869cfc))
+- add patches for Node v22.12.0 and v20.18.1 ([#63](https://github.com/yao-pkg/pkg-fetch/issues/63)) ([79afca1](https://github.com/yao-pkg/pkg-fetch/commit/79afca1c5cd16323c2b65460a0fcd081eb91fbb0))
+
+### Bug Fixes
+
+- update expected SHAs for Node versions ([#64](https://github.com/yao-pkg/pkg-fetch/issues/64)) ([4f223e1](https://github.com/yao-pkg/pkg-fetch/commit/4f223e10b88d3964d845d4027986ba8f2da66875))
+
 ## [3.5.17](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.16...v3.5.17) (2024-11-04)
 
 ### Features
