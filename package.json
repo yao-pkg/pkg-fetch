@@ -44,7 +44,7 @@
     "lint-staged": "^10.5.4",
     "prettier": "^2.4.1",
     "release-it": "^16.2.1",
-    "rimraf": "^3.0.2",
+    "rimraf": "^6.0.1",
     "simple-git-hooks": ">=2.7.0",
     "typescript": "^4.4.4"
   },
