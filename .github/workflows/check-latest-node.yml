@@ -21,7 +21,7 @@ jobs:
         id: compare
         run: |
           # get the latest Node.js version with major version matching the matrix node version
-          LATEST_VERSION=$(curl -s https://nodejs.org/dist/latest-v${{ matrix.node-version }}.x/ | grep -oP 'node-v\K[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -n1)
+          LATEST_VERSION=$(curl -s -L https://nodejs.org/dist/latest-v${{ matrix.node-version }}.x/ | grep -oP 'node-v\K[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -n1)
           echo "Latest Node.js ${{ matrix.node-version }} version is: $LATEST_VERSION"
 
           # get the latest patch version
