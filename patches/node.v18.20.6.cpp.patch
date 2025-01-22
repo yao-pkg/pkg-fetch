@@ -12,10 +12,10 @@ index ec92c9df4c..8c1e94fca2 100644
                'lto': ' -flto ', # Clang
              }],
 diff --git node/configure.py node/configure.py
-index 82916748fd..59575698b5 100755
+index 4a1359d79c..ce04b2912f 100755
 --- node/configure.py
 +++ node/configure.py
-@@ -1289,9 +1289,7 @@ def configure_node(o):
+@@ -1288,9 +1288,7 @@ def configure_node(o):
  
    o['variables']['want_separate_host_toolset'] = int(cross_compiling)
  
