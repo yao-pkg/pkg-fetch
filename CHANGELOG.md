@@ -1,3 +1,20 @@
+## [3.5.19](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.18...v3.5.19) (2025-01-30)
+
+### Features
+
+- add v18.20.6 patch ([#68](https://github.com/yao-pkg/pkg-fetch/issues/68)) ([da3e27b](https://github.com/yao-pkg/pkg-fetch/commit/da3e27b0691de9955ce3c749cda6c1765f187094))
+- add v20.18.2 patch ([#67](https://github.com/yao-pkg/pkg-fetch/issues/67)) ([cc8271a](https://github.com/yao-pkg/pkg-fetch/commit/cc8271ad36aa8fe57de6c241c62bb1473aa0ceee))
+- add v22.13.1 patch ([#70](https://github.com/yao-pkg/pkg-fetch/issues/70)) ([85f955e](https://github.com/yao-pkg/pkg-fetch/commit/85f955eec37ba71ab74a6fcd9a91206ddd5080a1))
+- update shas for v18.20.6, v20.18.2 and v22.13.1 ([7ed32e2](https://github.com/yao-pkg/pkg-fetch/commit/7ed32e271d3ef3f0c938aff773aa50bad5b4f8d2))
+
+### Bug Fixes
+
+- arm64 WIN patch for 18.20.6 ([#72](https://github.com/yao-pkg/pkg-fetch/issues/72)) ([78459a6](https://github.com/yao-pkg/pkg-fetch/commit/78459a684e68def3c69031bf01de30032436a009))
+
+### Chores
+
+- fix check patch ([689e00d](https://github.com/yao-pkg/pkg-fetch/commit/689e00d6d812160c91e9853e449579eaa9e3e31c))
+
 ## [3.5.18](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.17...v3.5.18) (2024-12-28)
 
 ### Features
