@@ -25,6 +25,50 @@ index 4a1359d79c..ce04b2912f 100755
      o['variables']['arm_fpu'] = options.arm_fpu or 'neon'
  
    if options.node_snapshot_main is not None:
+diff --git node/deps/ngtcp2/nghttp3/lib/nghttp3_ringbuf.c node/deps/ngtcp2/nghttp3/lib/nghttp3_ringbuf.c
+index 61a7d06cad..eeebf67796 100644
+--- node/deps/ngtcp2/nghttp3/lib/nghttp3_ringbuf.c
++++ node/deps/ngtcp2/nghttp3/lib/nghttp3_ringbuf.c
+@@ -33,17 +33,6 @@
+ 
+ #include "nghttp3_macro.h"
+ 
+-#if defined(_MSC_VER) && !defined(__clang__) &&                                \
+-    (defined(_M_ARM) || defined(_M_ARM64))
+-unsigned int __popcnt(unsigned int x) {
+-  unsigned int c = 0;
+-  for (; x; ++c) {
+-    x &= x - 1;
+-  }
+-  return c;
+-}
+-#endif
+-
+ int nghttp3_ringbuf_init(nghttp3_ringbuf *rb, size_t nmemb, size_t size,
+                          const nghttp3_mem *mem) {
+   if (nmemb) {
+diff --git node/deps/ngtcp2/ngtcp2/lib/ngtcp2_ringbuf.c node/deps/ngtcp2/ngtcp2/lib/ngtcp2_ringbuf.c
+index c381c23127..6894bc2308 100644
+--- node/deps/ngtcp2/ngtcp2/lib/ngtcp2_ringbuf.c
++++ node/deps/ngtcp2/ngtcp2/lib/ngtcp2_ringbuf.c
+@@ -31,17 +31,6 @@
+ 
+ #include "ngtcp2_macro.h"
+ 
+-#if defined(_MSC_VER) && !defined(__clang__) &&                                \
+-    (defined(_M_ARM) || defined(_M_ARM64))
+-static unsigned int __popcnt(unsigned int x) {
+-  unsigned int c = 0;
+-  for (; x; ++c) {
+-    x &= x - 1;
+-  }
+-  return c;
+-}
+-#endif
+-
+ int ngtcp2_ringbuf_init(ngtcp2_ringbuf *rb, size_t nmemb, size_t size,
+                         const ngtcp2_mem *mem) {
+   uint8_t *buf = ngtcp2_mem_malloc(mem, nmemb * size);
 diff --git node/deps/v8/include/v8-initialization.h node/deps/v8/include/v8-initialization.h
 index 3d59c73f7c..00b2de4524 100644
 --- node/deps/v8/include/v8-initialization.h
