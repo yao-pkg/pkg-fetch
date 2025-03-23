@@ -1,5 +1,5 @@
 {
-  "v22.13.1": ["node.v22.13.1.cpp.patch"],
+  "v22.14.0": ["node.v22.14.0.cpp.patch"],
   "v20.18.2": ["node.v20.18.2.cpp.patch"],
   "v18.20.7": ["node.v18.20.7.cpp.patch"],
   "v16.20.2": ["node.v16.20.2.cpp.patch"],
