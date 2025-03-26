@@ -315,10 +315,10 @@ index 0000000000..a697294fdf
 +  }());
 +}());
 diff --git node/lib/internal/modules/cjs/loader.js node/lib/internal/modules/cjs/loader.js
-index 236b248404..a506611d2f 100644
+index 62c33730ed..555911bf4c 100644
 --- node/lib/internal/modules/cjs/loader.js
 +++ node/lib/internal/modules/cjs/loader.js
-@@ -229,12 +229,16 @@ function wrapModuleLoad(request, parent, isMain) {
+@@ -232,12 +232,16 @@ function wrapModuleLoad(request, parent, isMain) {
   * @param {string} filename Absolute path to the file
   */
  function stat(filename) {
@@ -337,13 +337,15 @@ index 236b248404..a506611d2f 100644
      // Only set cache when `internalModuleStat(internalFsBinding, filename)` succeeds.
      statCache.set(filename, result);
 diff --git node/lib/internal/modules/package_json_reader.js node/lib/internal/modules/package_json_reader.js
-index 9a9dcebb79..01fceafc31 100644
+index 3c746fa0e7..c39ba93379 100644
 --- node/lib/internal/modules/package_json_reader.js
 +++ node/lib/internal/modules/package_json_reader.js
-@@ -80,14 +80,19 @@ function deserializePackageJSON(path, contents) {
+@@ -105,17 +105,20 @@ const requiresJSONParse = (value) => (value !== undefined && (value[0] === '[' |
+  * @returns {PackageConfig}
+  */
  function read(jsonPath, { base, specifier, isESM } = kEmptyObject) {
-   // This function will be called by both CJS and ESM, so we need to make sure
-   // non-null attributes are converted to strings.
+-  // This function will be called by both CJS and ESM, so we need to make sure
+-  // non-null attributes are converted to strings.
 -  const parsed = modulesBinding.readPackageJSON(
 -    jsonPath,
 -    isESM,
@@ -351,11 +353,13 @@ index 9a9dcebb79..01fceafc31 100644
 -    specifier == null ? undefined : `${specifier}`,
 -  );
 -
--  return deserializePackageJSON(jsonPath, parsed);
+-  const result = deserializePackageJSON(jsonPath, parsed);
+-
 +  const fs = require('fs');
++  let result;
 +  if (fs.existsSync(jsonPath)) {
 +    const json = JSONParse(fs.readFileSync(jsonPath, { encoding: "utf8" }).trim());
-+    return deserializePackageJSON(jsonPath, [
++    result = deserializePackageJSON(jsonPath, [
 +      json['name'],
 +      json['main'],
 +      json['type'],
@@ -363,13 +367,13 @@ index 9a9dcebb79..01fceafc31 100644
 +      json['exports'],
 +    ]);
 +  } else {
-+    return deserializePackageJSON(jsonPath, undefined);
++    result = deserializePackageJSON(jsonPath, undefined);
 +  }
- }
- 
- /**
+   return {
+     __proto__: null,
+     ...result.data,
 diff --git node/lib/internal/process/pre_execution.js node/lib/internal/process/pre_execution.js
-index 5d67892bb8..5c4183cd30 100644
+index d1c05d1717..c6c806f73c 100644
 --- node/lib/internal/process/pre_execution.js
 +++ node/lib/internal/process/pre_execution.js
 @@ -50,7 +50,11 @@ const {
@@ -394,7 +398,7 @@ index 5d67892bb8..5c4183cd30 100644
      // Expand process.argv[1] into a full path.
      const path = require('path');
      try {
-@@ -718,6 +723,7 @@ function loadPreloadModules() {
+@@ -726,6 +731,7 @@ function loadPreloadModules() {
    // For user code, we preload modules if `-r` is passed
    const preloadModules = getOptionValue('--require');
    if (preloadModules && preloadModules.length > 0) {
@@ -425,10 +429,10 @@ index ae71080620..b05638de75 100644
        throw e; /* node-do-not-add-exception-line */
      }
 diff --git node/src/inspector_agent.cc node/src/inspector_agent.cc
-index bb39a0cb42..5fa6cb65cc 100644
+index be767c1825..14478899c4 100644
 --- node/src/inspector_agent.cc
 +++ node/src/inspector_agent.cc
-@@ -766,11 +766,6 @@ bool Agent::Start(const std::string& path,
+@@ -796,11 +796,6 @@ bool Agent::Start(const std::string& path,
                                StartIoThreadAsyncCallback));
      uv_unref(reinterpret_cast<uv_handle_t*>(&start_io_thread_async));
      start_io_thread_async.data = this;
@@ -469,10 +473,10 @@ index f4365c0eda..f89c77fe44 100644
    }
  
 diff --git node/src/node_contextify.cc node/src/node_contextify.cc
-index 5f4529262a..4ecfaf0513 100644
+index e57880c5e9..32091f8798 100644
 --- node/src/node_contextify.cc
 +++ node/src/node_contextify.cc
-@@ -85,6 +85,7 @@ using v8::Symbol;
+@@ -86,6 +86,7 @@ using v8::Symbol;
  using v8::Uint32;
  using v8::UnboundScript;
  using v8::Value;
@@ -480,7 +484,7 @@ index 5f4529262a..4ecfaf0513 100644
  
  // The vm module executes code in a sandboxed environment with a different
  // global object than the rest of the code. This is achieved by applying
-@@ -981,13 +982,13 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -982,13 +983,13 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
    Local<ArrayBufferView> cached_data_buf;
    bool produce_cached_data = false;
    Local<Context> parsing_context = context;
@@ -497,7 +501,7 @@ index 5f4529262a..4ecfaf0513 100644
      CHECK(args[2]->IsNumber());
      line_offset = args[2].As<Int32>()->Value();
      CHECK(args[3]->IsNumber());
-@@ -1008,6 +1009,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1009,6 +1010,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
      }
      CHECK(args[7]->IsSymbol());
      id_symbol = args[7].As<Symbol>();
@@ -508,7 +512,7 @@ index 5f4529262a..4ecfaf0513 100644
    }
  
    ContextifyScript* contextify_script =
-@@ -1055,6 +1060,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1056,6 +1061,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
    ShouldNotAbortOnUncaughtScope no_abort_scope(env);
    Context::Scope scope(parsing_context);
  
@@ -519,7 +523,7 @@ index 5f4529262a..4ecfaf0513 100644
    MaybeLocal<UnboundScript> maybe_v8_script =
        ScriptCompiler::CompileUnboundScript(isolate, &source, compile_options);
  
-@@ -1069,6 +1078,12 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1070,6 +1079,12 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
      return;
    }
  
@@ -532,7 +536,7 @@ index 5f4529262a..4ecfaf0513 100644
    contextify_script->script_.Reset(isolate, v8_script);
    contextify_script->script_.SetWeak();
    contextify_script->object()->SetInternalField(kUnboundScriptSlot, v8_script);
-@@ -1101,6 +1116,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1102,6 +1117,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
            .IsNothing())
      return;
  
@@ -654,10 +658,10 @@ index f66099a557..4048f6bd93 100644
 +  return adjacent(c, nargv);
 +}
 diff --git node/src/node_options.cc node/src/node_options.cc
-index a03daec2bd..d979b764db 100644
+index 1d81079a9b..3579a610ef 100644
 --- node/src/node_options.cc
 +++ node/src/node_options.cc
-@@ -312,6 +312,7 @@ void Parse(
+@@ -317,6 +317,7 @@ void Parse(
  // TODO(addaleax): Make that unnecessary.
  
  DebugOptionsParser::DebugOptionsParser() {
