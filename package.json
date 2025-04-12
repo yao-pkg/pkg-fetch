@@ -4,6 +4,7 @@
   "description": "Compiles and stores base binaries for pkg",
   "main": "lib-es5/index.js",
   "license": "MIT",
+  "releaseUrl": "https://github.com/yao-pkg/pkg-fetch/releases/download/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/yao-pkg/pkg-fetch.git"

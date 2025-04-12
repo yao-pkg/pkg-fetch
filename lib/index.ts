@@ -18,13 +18,13 @@ import { log, wasReported } from './log';
 import build from './build';
 import { downloadUrl, hash, plusx } from './utils';
 import patchesJson from '../patches/patches.json';
-import { version } from '../package.json';
+import { version, releaseUrl } from '../package.json';
 
 async function download(
   { tag, name }: Remote,
   local: string
 ): Promise<boolean> {
-  const url = `https://github.com/yao-pkg/pkg-fetch/releases/download/${tag}/${name}`;
+  const url = `${releaseUrl}${tag}/${name}`;
 
   try {
     await downloadUrl(url, local);
