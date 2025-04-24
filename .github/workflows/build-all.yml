@@ -41,11 +41,15 @@ jobs:
         id: get_previous_release
         run: |
           PREV_RELEASE=$(gh release list --limit 1 --exclude-drafts --exclude-pre-releases | cut -f3)
-          echo "Using release ${PREV_RELEASE}"
-          echo "prev_release=${PREV_RELEASE}" >> $GITHUB_OUTPUT
+          if [ -z "$PREV_RELEASE" ]; then
+            echo "No Previous Release"
+          else
+            echo "Using release ${PREV_RELEASE}"
+            echo "prev_release=${PREV_RELEASE}" >> $GITHUB_OUTPUT
+          fi
 
       - name: Get previously released artifacts
-        if: ${{ inputs.newRelease }}
+        if: ${{ inputs.newRelease && steps.get_previous_release.outputs.prev_release != '' }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
@@ -55,7 +59,7 @@ jobs:
         run: mkdir artifact-binaries && mkdir artifact-shas
 
       - name: Copy previous release artifacts to artifact folders
-        if: ${{ inputs.newRelease }}
+        if: ${{ inputs.newRelease && steps.get_previous_release.outputs.prev_release != '' }}
         run: |
           pushd release-artifacts
           pwd
@@ -101,7 +105,7 @@ jobs:
 
       - name: Determine release tag to upload assets to and draft type
         run: |
-          if [[ "${{ inputs.newRelease }}" == "false" ]]; then
+          if [[ "${{ inputs.newRelease && steps.get_previous_release.outputs.prev_release != '' }} }}" == "false" ]]; then
             echo "use_release_tag=${{ steps.get_previous_release.outputs.prev_release }}" >> $GITHUB_ENV
             echo "create_draft=false" >> $GITHUB_ENV
           else
