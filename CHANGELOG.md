@@ -1,3 +1,15 @@
+## [3.5.22](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.21...v3.5.22) (2025-05-15)
+
+### Features
+
+- add shas for node v20.19.1 and v22.15.1 ([b8ab3ba](https://github.com/yao-pkg/pkg-fetch/commit/b8ab3ba0b8855f222bae1c88d1cacffb5413553a))
+- node 20.19.1 patch ([#83](https://github.com/yao-pkg/pkg-fetch/issues/83)) ([14e4559](https://github.com/yao-pkg/pkg-fetch/commit/14e455940b32b0f41e3298547a9b8db46c960722))
+- node 22.15.1 patch ([#82](https://github.com/yao-pkg/pkg-fetch/issues/82)) ([377c55d](https://github.com/yao-pkg/pkg-fetch/commit/377c55d1f9e8a2633c18f9b1470cdb87751a462e))
+
+### Chores
+
+- correct `newRelease` on different fork ([#79](https://github.com/yao-pkg/pkg-fetch/issues/79)) ([daf2054](https://github.com/yao-pkg/pkg-fetch/commit/daf205407f8d572ba58eeb231e480bc9a2da5a49))
+
 ## [3.5.21](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.20...v3.5.21) (2025-04-08)
 
 ### Features
