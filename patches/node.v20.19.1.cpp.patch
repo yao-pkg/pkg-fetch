@@ -1,5 +1,5 @@
 diff --git node/common.gypi node/common.gypi
-index 1ece4f5e49..5107053bec 100644
+index d3c17d47bc..7970af6ea4 100644
 --- node/common.gypi
 +++ node/common.gypi
 @@ -184,7 +184,7 @@
@@ -262,10 +262,10 @@ index 0000000000..a697294fdf
 +  }());
 +}());
 diff --git node/lib/internal/modules/cjs/loader.js node/lib/internal/modules/cjs/loader.js
-index c284b39b1a..ce38f028e4 100644
+index ebccdb2825..178299c752 100644
 --- node/lib/internal/modules/cjs/loader.js
 +++ node/lib/internal/modules/cjs/loader.js
-@@ -138,7 +138,7 @@ const {
+@@ -141,7 +141,7 @@ const {
  const assert = require('internal/assert');
  const fs = require('fs');
  const path = require('path');
@@ -288,10 +288,10 @@ index 88c079d10d..a7eaca0574 100644
  const permission = require('internal/process/permission');
  const { kEmptyObject } = require('internal/util');
 diff --git node/lib/internal/process/pre_execution.js node/lib/internal/process/pre_execution.js
-index a05d284605..4186f13d60 100644
+index 0bbabb80c2..5dd097b69e 100644
 --- node/lib/internal/process/pre_execution.js
 +++ node/lib/internal/process/pre_execution.js
-@@ -51,7 +51,11 @@ const {
+@@ -50,7 +50,11 @@ const {
    },
  } = require('internal/v8/startup_snapshot');
  
@@ -303,17 +303,21 @@ index a05d284605..4186f13d60 100644
    return prepareExecution({
      expandArgv1,
      initializeModules,
-@@ -245,7 +249,8 @@ function patchProcessObject(expandArgv1) {
+@@ -243,7 +247,12 @@ function patchProcessObject(expandArgv1) {
+   let mainEntry;
    // If requested, update process.argv[1] to replace whatever the user provided with the resolved absolute file path of
    // the entry point.
-   if (expandArgv1 && process.argv[1] &&
--      !StringPrototypeStartsWith(process.argv[1], '-')) {
-+    !StringPrototypeStartsWith(process.argv[1], '-') &&
-+    process.argv[1] !== 'PKG_DUMMY_ENTRYPOINT') {
+-  if (expandArgv1 && process.argv[1] && process.argv[1][0] !== '-') {
++  if (
++    expandArgv1 &&
++    process.argv[1] &&
++    process.argv[1][0] !== '-' &&
++    process.argv[1] !== 'PKG_DUMMY_ENTRYPOINT'
++  ) {
      // Expand process.argv[1] into a full path.
      const path = require('path');
      try {
-@@ -741,6 +746,7 @@ function loadPreloadModules() {
+@@ -739,6 +748,7 @@ function loadPreloadModules() {
    // For user code, we preload modules if `-r` is passed
    const preloadModules = getOptionValue('--require');
    if (preloadModules && preloadModules.length > 0) {
@@ -322,7 +326,7 @@ index a05d284605..4186f13d60 100644
        Module: {
          _preloadModules,
 diff --git node/lib/vm.js node/lib/vm.js
-index cb64404ef0..71209f89d3 100644
+index a12e932d8d..931a996330 100644
 --- node/lib/vm.js
 +++ node/lib/vm.js
 @@ -98,6 +98,7 @@ class Script extends ContextifyScript {
@@ -360,10 +364,10 @@ index bb39a0cb42..5fa6cb65cc 100644
      parent_env_->AddCleanupHook([](void* data) {
        Environment* env = static_cast<Environment*>(data);
 diff --git node/src/node.cc node/src/node.cc
-index 9f6f8e53ab..ee8fa43f2f 100644
+index 4ad2c8b804..ab6174fab6 100644
 --- node/src/node.cc
 +++ node/src/node.cc
-@@ -377,6 +377,8 @@ MaybeLocal<Value> StartExecution(Environment* env, StartExecutionCallback cb) {
+@@ -389,6 +389,8 @@ MaybeLocal<Value> StartExecution(Environment* env, StartExecutionCallback cb) {
      return env->RunSnapshotDeserializeMain();
    }
  
@@ -372,7 +376,7 @@ index 9f6f8e53ab..ee8fa43f2f 100644
    if (env->worker_context() != nullptr) {
      return StartExecution(env, "internal/main/worker_thread");
    }
-@@ -601,14 +603,6 @@ static void PlatformInit(ProcessInitializationFlags::Flags flags) {
+@@ -613,14 +615,6 @@ static void PlatformInit(ProcessInitializationFlags::Flags flags) {
    }
  
    if (!(flags & ProcessInitializationFlags::kNoDefaultSignalHandling)) {
@@ -388,10 +392,10 @@ index 9f6f8e53ab..ee8fa43f2f 100644
    }
  
 diff --git node/src/node_contextify.cc node/src/node_contextify.cc
-index 8951cd378a..746fb9939a 100644
+index 7f82bca746..62705f04c5 100644
 --- node/src/node_contextify.cc
 +++ node/src/node_contextify.cc
-@@ -76,6 +76,7 @@ using v8::String;
+@@ -79,6 +79,7 @@ using v8::String;
  using v8::Symbol;
  using v8::Uint32;
  using v8::UnboundScript;
@@ -399,7 +403,7 @@ index 8951cd378a..746fb9939a 100644
  using v8::Value;
  using v8::WeakCallbackInfo;
  
-@@ -816,13 +817,14 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -817,13 +818,14 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
    Local<ArrayBufferView> cached_data_buf;
    bool produce_cached_data = false;
    Local<Context> parsing_context = context;
@@ -416,7 +420,7 @@ index 8951cd378a..746fb9939a 100644
      CHECK(args[2]->IsNumber());
      line_offset = args[2].As<Int32>()->Value();
      CHECK(args[3]->IsNumber());
-@@ -843,6 +845,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -844,6 +846,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
      }
      CHECK(args[7]->IsSymbol());
      id_symbol = args[7].As<Symbol>();
@@ -427,7 +431,7 @@ index 8951cd378a..746fb9939a 100644
    }
  
    ContextifyScript* contextify_script =
-@@ -891,6 +897,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -892,6 +898,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
    ShouldNotAbortOnUncaughtScope no_abort_scope(env);
    Context::Scope scope(parsing_context);
  
@@ -438,7 +442,7 @@ index 8951cd378a..746fb9939a 100644
    MaybeLocal<UnboundScript> maybe_v8_script =
        ScriptCompiler::CompileUnboundScript(isolate, &source, compile_options);
  
-@@ -905,6 +915,11 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -906,6 +916,11 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
      return;
    }
  
@@ -450,7 +454,7 @@ index 8951cd378a..746fb9939a 100644
    contextify_script->script_.Reset(isolate, v8_script);
    contextify_script->script_.SetWeak();
    contextify_script->object()->SetInternalFieldForNodeCore(kUnboundScriptSlot,
-@@ -938,6 +953,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -939,6 +954,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
            .IsNothing())
      return;
  
@@ -572,10 +576,10 @@ index f66099a557..4048f6bd93 100644
 +  return adjacent(c, nargv);
 +}
 diff --git node/src/node_options.cc node/src/node_options.cc
-index e325b082de..19b6782e29 100644
+index 9d5accc3eb..8e3c304a13 100644
 --- node/src/node_options.cc
 +++ node/src/node_options.cc
-@@ -307,6 +307,7 @@ void Parse(
+@@ -316,6 +316,7 @@ void Parse(
  // TODO(addaleax): Make that unnecessary.
  
  DebugOptionsParser::DebugOptionsParser() {
