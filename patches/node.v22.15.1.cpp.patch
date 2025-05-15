@@ -1,8 +1,8 @@
 diff --git node/common.gypi node/common.gypi
-index 62f26bb07d..1b576a65f4 100644
+index 372409f4b0..5431580b6c 100644
 --- node/common.gypi
 +++ node/common.gypi
-@@ -187,7 +187,7 @@
+@@ -189,7 +189,7 @@
              ['clang==1', {
                'lto': ' -flto ', # Clang
              }, {
@@ -28,7 +28,7 @@ index 7d3ab39bf8..67a48dee53 100644
  #else  /* !((defined(_MSC_VER) && !defined(__clang__) && (defined(_M_ARM) ||   \
            (defined(_M_ARM64) && _MSC_VER < 1941))) || defined(WIN32)) */
 diff --git node/deps/ngtcp2/ngtcp2/lib/ngtcp2_ringbuf.c node/deps/ngtcp2/ngtcp2/lib/ngtcp2_ringbuf.c
-index 41446739bf..69c01b4f7f 100644
+index 353afca4d4..dea944aed5 100644
 --- node/deps/ngtcp2/ngtcp2/lib/ngtcp2_ringbuf.c
 +++ node/deps/ngtcp2/ngtcp2/lib/ngtcp2_ringbuf.c
 @@ -33,10 +33,7 @@
@@ -315,13 +315,13 @@ index 0000000000..a697294fdf
 +  }());
 +}());
 diff --git node/lib/internal/modules/cjs/loader.js node/lib/internal/modules/cjs/loader.js
-index 62c33730ed..555911bf4c 100644
+index 33385fa792..61cb88dc0f 100644
 --- node/lib/internal/modules/cjs/loader.js
 +++ node/lib/internal/modules/cjs/loader.js
-@@ -232,12 +232,16 @@ function wrapModuleLoad(request, parent, isMain) {
-  * @param {string} filename Absolute path to the file
-  */
- function stat(filename) {
+@@ -250,12 +250,16 @@ function stat(filename) {
+   // Guard against internal bugs where a non-string filename is passed in by mistake.
+   assert(typeof filename === 'string');
+ 
 +  const origFilename = filename;
    filename = path.toNamespacedPath(filename);
    if (statCache !== null) {
@@ -429,7 +429,7 @@ index ae71080620..b05638de75 100644
        throw e; /* node-do-not-add-exception-line */
      }
 diff --git node/src/inspector_agent.cc node/src/inspector_agent.cc
-index be767c1825..14478899c4 100644
+index 7c63c22112..830c8be5ca 100644
 --- node/src/inspector_agent.cc
 +++ node/src/inspector_agent.cc
 @@ -796,11 +796,6 @@ bool Agent::Start(const std::string& path,
@@ -445,7 +445,7 @@ index be767c1825..14478899c4 100644
      parent_env_->AddCleanupHook([](void* data) {
        Environment* env = static_cast<Environment*>(data);
 diff --git node/src/node.cc node/src/node.cc
-index f4365c0eda..f89c77fe44 100644
+index a0f1deadfc..b8e241a5b4 100644
 --- node/src/node.cc
 +++ node/src/node.cc
 @@ -398,6 +398,8 @@ MaybeLocal<Value> StartExecution(Environment* env, StartExecutionCallback cb) {
@@ -473,7 +473,7 @@ index f4365c0eda..f89c77fe44 100644
    }
  
 diff --git node/src/node_contextify.cc node/src/node_contextify.cc
-index e57880c5e9..32091f8798 100644
+index 187ba89290..dbed6342a9 100644
 --- node/src/node_contextify.cc
 +++ node/src/node_contextify.cc
 @@ -86,6 +86,7 @@ using v8::Symbol;
@@ -484,7 +484,7 @@ index e57880c5e9..32091f8798 100644
  
  // The vm module executes code in a sandboxed environment with a different
  // global object than the rest of the code. This is achieved by applying
-@@ -982,13 +983,13 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -996,13 +997,13 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
    Local<ArrayBufferView> cached_data_buf;
    bool produce_cached_data = false;
    Local<Context> parsing_context = context;
@@ -501,7 +501,7 @@ index e57880c5e9..32091f8798 100644
      CHECK(args[2]->IsNumber());
      line_offset = args[2].As<Int32>()->Value();
      CHECK(args[3]->IsNumber());
-@@ -1009,6 +1010,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1023,6 +1024,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
      }
      CHECK(args[7]->IsSymbol());
      id_symbol = args[7].As<Symbol>();
@@ -512,7 +512,7 @@ index e57880c5e9..32091f8798 100644
    }
  
    ContextifyScript* contextify_script =
-@@ -1056,6 +1061,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1070,6 +1075,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
    ShouldNotAbortOnUncaughtScope no_abort_scope(env);
    Context::Scope scope(parsing_context);
  
@@ -523,7 +523,7 @@ index e57880c5e9..32091f8798 100644
    MaybeLocal<UnboundScript> maybe_v8_script =
        ScriptCompiler::CompileUnboundScript(isolate, &source, compile_options);
  
-@@ -1070,6 +1079,12 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1084,6 +1093,12 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
      return;
    }
  
@@ -536,7 +536,7 @@ index e57880c5e9..32091f8798 100644
    contextify_script->script_.Reset(isolate, v8_script);
    contextify_script->script_.SetWeak();
    contextify_script->object()->SetInternalField(kUnboundScriptSlot, v8_script);
-@@ -1102,6 +1117,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1116,6 +1131,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
            .IsNothing())
      return;
  
@@ -658,7 +658,7 @@ index f66099a557..4048f6bd93 100644
 +  return adjacent(c, nargv);
 +}
 diff --git node/src/node_options.cc node/src/node_options.cc
-index 1d81079a9b..3579a610ef 100644
+index 1444acd59d..f2eec6b35f 100644
 --- node/src/node_options.cc
 +++ node/src/node_options.cc
 @@ -317,6 +317,7 @@ void Parse(
