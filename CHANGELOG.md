@@ -1,3 +1,10 @@
+## [3.5.23](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.22...v3.5.23) (2025-05-17)
+
+### Bug Fixes
+
+- correct syntax in release tag determination logic ([4218a96](https://github.com/yao-pkg/pkg-fetch/commit/4218a96a6b459750bc00bd18a3c3d859a6e41357))
+- update missing SHAS ([7275f0d](https://github.com/yao-pkg/pkg-fetch/commit/7275f0d28b3ea8792f2d3df4fde522aef63c76ff))
+
 ## [3.5.22](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.21...v3.5.22) (2025-05-15)
 
 ### Features
