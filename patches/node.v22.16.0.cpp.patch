@@ -1,5 +1,5 @@
 diff --git node/common.gypi node/common.gypi
-index 372409f4b0..5431580b6c 100644
+index 393fe32765..450c2c9bbc 100644
 --- node/common.gypi
 +++ node/common.gypi
 @@ -189,7 +189,7 @@
@@ -92,10 +92,10 @@ index 2dd476dda3..8a51f25b57 100644
  
  RegisteredExtension::RegisteredExtension(std::unique_ptr<Extension> extension)
 diff --git node/deps/v8/src/codegen/compiler.cc node/deps/v8/src/codegen/compiler.cc
-index 49afab11b6..4c81f9f90b 100644
+index 9048655363..ab81c326fc 100644
 --- node/deps/v8/src/codegen/compiler.cc
 +++ node/deps/v8/src/codegen/compiler.cc
-@@ -3627,7 +3627,7 @@ MaybeHandle<SharedFunctionInfo> GetSharedFunctionInfoForScriptImpl(
+@@ -3634,7 +3634,7 @@ MaybeHandle<SharedFunctionInfo> GetSharedFunctionInfoForScriptImpl(
      maybe_script = lookup_result.script();
      maybe_result = lookup_result.toplevel_sfi();
      is_compiled_scope = lookup_result.is_compiled_scope();
@@ -315,7 +315,7 @@ index 0000000000..a697294fdf
 +  }());
 +}());
 diff --git node/lib/internal/modules/cjs/loader.js node/lib/internal/modules/cjs/loader.js
-index 33385fa792..61cb88dc0f 100644
+index ccd2b4ced3..cdf7e22345 100644
 --- node/lib/internal/modules/cjs/loader.js
 +++ node/lib/internal/modules/cjs/loader.js
 @@ -250,12 +250,16 @@ function stat(filename) {
@@ -337,7 +337,7 @@ index 33385fa792..61cb88dc0f 100644
      // Only set cache when `internalModuleStat(internalFsBinding, filename)` succeeds.
      statCache.set(filename, result);
 diff --git node/lib/internal/modules/package_json_reader.js node/lib/internal/modules/package_json_reader.js
-index 3c746fa0e7..c39ba93379 100644
+index df23a30b1b..4a414c469c 100644
 --- node/lib/internal/modules/package_json_reader.js
 +++ node/lib/internal/modules/package_json_reader.js
 @@ -105,17 +105,20 @@ const requiresJSONParse = (value) => (value !== undefined && (value[0] === '[' |
@@ -373,7 +373,7 @@ index 3c746fa0e7..c39ba93379 100644
      __proto__: null,
      ...result.data,
 diff --git node/lib/internal/process/pre_execution.js node/lib/internal/process/pre_execution.js
-index d1c05d1717..c6c806f73c 100644
+index 4e7be0594c..09efa7b745 100644
 --- node/lib/internal/process/pre_execution.js
 +++ node/lib/internal/process/pre_execution.js
 @@ -50,7 +50,11 @@ const {
@@ -388,7 +388,7 @@ index d1c05d1717..c6c806f73c 100644
    return prepareExecution({
      expandArgv1,
      initializeModules,
-@@ -241,7 +245,8 @@ function patchProcessObject(expandArgv1) {
+@@ -243,7 +247,8 @@ function patchProcessObject(expandArgv1) {
    let mainEntry;
    // If requested, update process.argv[1] to replace whatever the user provided with the resolved absolute file path of
    // the entry point.
@@ -398,7 +398,7 @@ index d1c05d1717..c6c806f73c 100644
      // Expand process.argv[1] into a full path.
      const path = require('path');
      try {
-@@ -726,6 +731,7 @@ function loadPreloadModules() {
+@@ -735,6 +740,7 @@ function loadPreloadModules() {
    // For user code, we preload modules if `-r` is passed
    const preloadModules = getOptionValue('--require');
    if (preloadModules && preloadModules.length > 0) {
@@ -445,10 +445,10 @@ index 7c63c22112..830c8be5ca 100644
      parent_env_->AddCleanupHook([](void* data) {
        Environment* env = static_cast<Environment*>(data);
 diff --git node/src/node.cc node/src/node.cc
-index a0f1deadfc..b8e241a5b4 100644
+index 0fbcd55d67..f253225d5b 100644
 --- node/src/node.cc
 +++ node/src/node.cc
-@@ -398,6 +398,8 @@ MaybeLocal<Value> StartExecution(Environment* env, StartExecutionCallback cb) {
+@@ -404,6 +404,8 @@ MaybeLocal<Value> StartExecution(Environment* env, StartExecutionCallback cb) {
      return env->RunSnapshotDeserializeMain();
    }
  
@@ -457,7 +457,7 @@ index a0f1deadfc..b8e241a5b4 100644
    if (env->worker_context() != nullptr) {
      return StartExecution(env, "internal/main/worker_thread");
    }
-@@ -622,14 +624,6 @@ static void PlatformInit(ProcessInitializationFlags::Flags flags) {
+@@ -628,14 +630,6 @@ static void PlatformInit(ProcessInitializationFlags::Flags flags) {
    }
  
    if (!(flags & ProcessInitializationFlags::kNoDefaultSignalHandling)) {
@@ -473,7 +473,7 @@ index a0f1deadfc..b8e241a5b4 100644
    }
  
 diff --git node/src/node_contextify.cc node/src/node_contextify.cc
-index 187ba89290..dbed6342a9 100644
+index 5bd30f6e33..533e89c029 100644
 --- node/src/node_contextify.cc
 +++ node/src/node_contextify.cc
 @@ -86,6 +86,7 @@ using v8::Symbol;
@@ -658,10 +658,10 @@ index f66099a557..4048f6bd93 100644
 +  return adjacent(c, nargv);
 +}
 diff --git node/src/node_options.cc node/src/node_options.cc
-index 1444acd59d..f2eec6b35f 100644
+index 3fc8194475..9eb81c84e4 100644
 --- node/src/node_options.cc
 +++ node/src/node_options.cc
-@@ -317,6 +317,7 @@ void Parse(
+@@ -319,6 +319,7 @@ void Parse(
  // TODO(addaleax): Make that unnecessary.
  
  DebugOptionsParser::DebugOptionsParser() {
