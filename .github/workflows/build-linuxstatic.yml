@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target-node: [16, 18, 20, 22]
+        target-node: [16, 18, 20, 22,23,24]
         target-arch: [x64, arm64, armv7]
         include:
           - target-arch: x64
