@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false # prevent test to stop if one fails
       matrix:
-        node-version: [18, 20, 22]
+        node-version: [18, 20, 22,23,24]
 
     runs-on: ubuntu-latest
     steps:
