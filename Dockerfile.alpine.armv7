@@ -1,0 +1,49 @@
+ARG HOST_ARCH=x86_64
+ARG TARGET_TRIPLE=armv7-linux-musl
+
+FROM node:16.20.2-alpine as build
+
+ARG PKG_FETCH_OPTION_a
+ARG PKG_FETCH_OPTION_n
+ARG PKG_FETCH_OPTION_p
+
+USER root:root
+
+WORKDIR /root/pkg-fetch/
+
+# HAXX upgrade alpine here because the muslcc image
+# is built on an old image and no newer version is available
+RUN sed -i -e 's/v3\.14/v3\.20/g' /etc/apk/repositories && \
+    apk update && \
+    apk add --upgrade apk-tools && \
+    apk upgrade --available
+
+RUN apk add --no-cache build-base git linux-headers npm python3 yarn make g++ alsa-lib-dev patch
+
+# https://gitlab.alpinelinux.org/alpine/aports/-/issues/8626
+ENV CFLAGS=-U_FORTIFY_SOURCE
+ENV CFLAGS_host=-U_FORTIFY_SOURCE
+ENV CXXFLAGS=-U_FORTIFY_SOURCE
+ENV CXXFLAGS_host=-U_FORTIFY_SOURCE
+
+ENV CC=/usr/bin/gcc
+ENV CXX=/usr/bin/g++
+ENV AR=/usr/bin/ar
+ENV NM=/usr/bin/nm
+ENV READELF=/usr/bin/readelf
+ENV STRIP=/usr/bin/strip
+
+ENV CC_host=/usr/bin/gcc
+ENV CXX_host=/usr/bin/g++
+ENV AR_host=/usr/bin/ar
+ENV NM_host=/usr/bin/nm
+ENV READELF_host=/usr/bin/readelf
+
+COPY . ./
+
+RUN yarn install --ignore-engines
+
+RUN yarn start --arch $PKG_FETCH_OPTION_a --node-range $PKG_FETCH_OPTION_n --platform $PKG_FETCH_OPTION_p --output dist
+
+FROM scratch
+COPY --from=build /root/pkg-fetch/dist /
