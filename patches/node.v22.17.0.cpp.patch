@@ -1,8 +1,8 @@
 diff --git node/common.gypi node/common.gypi
-index 393fe32765..450c2c9bbc 100644
+index a73d4401f2..d5196dca18 100644
 --- node/common.gypi
 +++ node/common.gypi
-@@ -189,7 +189,7 @@
+@@ -191,7 +191,7 @@
              ['clang==1', {
                'lto': ' -flto ', # Clang
              }, {
@@ -247,10 +247,10 @@ index ec69ad5123..1894032344 100644
        GetHeaderValue(kReadOnlySnapshotChecksumOffset);
    if (ro_snapshot_checksum != expected_ro_snapshot_checksum) {
 diff --git node/lib/child_process.js node/lib/child_process.js
-index bb27670112..d175723c74 100644
+index e848b3d5ee..3e3ad3ec7c 100644
 --- node/lib/child_process.js
 +++ node/lib/child_process.js
-@@ -168,7 +168,7 @@ function fork(modulePath, args = [], options) {
+@@ -169,7 +169,7 @@ function fork(modulePath, args = [], options) {
      throw new ERR_CHILD_PROCESS_IPC_REQUIRED('options.stdio');
    }
  
@@ -315,7 +315,7 @@ index 0000000000..a697294fdf
 +  }());
 +}());
 diff --git node/lib/internal/modules/cjs/loader.js node/lib/internal/modules/cjs/loader.js
-index ccd2b4ced3..cdf7e22345 100644
+index d90476addb..8c87fa9019 100644
 --- node/lib/internal/modules/cjs/loader.js
 +++ node/lib/internal/modules/cjs/loader.js
 @@ -250,12 +250,16 @@ function stat(filename) {
@@ -429,10 +429,10 @@ index ae71080620..b05638de75 100644
        throw e; /* node-do-not-add-exception-line */
      }
 diff --git node/src/inspector_agent.cc node/src/inspector_agent.cc
-index 7c63c22112..830c8be5ca 100644
+index fa6eb29e6e..5d6dd23f6a 100644
 --- node/src/inspector_agent.cc
 +++ node/src/inspector_agent.cc
-@@ -796,11 +796,6 @@ bool Agent::Start(const std::string& path,
+@@ -819,11 +819,6 @@ bool Agent::Start(const std::string& path,
                                StartIoThreadAsyncCallback));
      uv_unref(reinterpret_cast<uv_handle_t*>(&start_io_thread_async));
      start_io_thread_async.data = this;
@@ -445,7 +445,7 @@ index 7c63c22112..830c8be5ca 100644
      parent_env_->AddCleanupHook([](void* data) {
        Environment* env = static_cast<Environment*>(data);
 diff --git node/src/node.cc node/src/node.cc
-index 0fbcd55d67..f253225d5b 100644
+index c0d0b734ed..58583892f9 100644
 --- node/src/node.cc
 +++ node/src/node.cc
 @@ -404,6 +404,8 @@ MaybeLocal<Value> StartExecution(Environment* env, StartExecutionCallback cb) {
@@ -473,7 +473,7 @@ index 0fbcd55d67..f253225d5b 100644
    }
  
 diff --git node/src/node_contextify.cc node/src/node_contextify.cc
-index 5bd30f6e33..533e89c029 100644
+index 7bfe42c593..836d98d6ed 100644
 --- node/src/node_contextify.cc
 +++ node/src/node_contextify.cc
 @@ -86,6 +86,7 @@ using v8::Symbol;
@@ -484,7 +484,7 @@ index 5bd30f6e33..533e89c029 100644
  
  // The vm module executes code in a sandboxed environment with a different
  // global object than the rest of the code. This is achieved by applying
-@@ -996,13 +997,13 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -994,13 +995,13 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
    Local<ArrayBufferView> cached_data_buf;
    bool produce_cached_data = false;
    Local<Context> parsing_context = context;
@@ -501,7 +501,7 @@ index 5bd30f6e33..533e89c029 100644
      CHECK(args[2]->IsNumber());
      line_offset = args[2].As<Int32>()->Value();
      CHECK(args[3]->IsNumber());
-@@ -1023,6 +1024,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1021,6 +1022,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
      }
      CHECK(args[7]->IsSymbol());
      id_symbol = args[7].As<Symbol>();
@@ -512,7 +512,7 @@ index 5bd30f6e33..533e89c029 100644
    }
  
    ContextifyScript* contextify_script =
-@@ -1070,6 +1075,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1068,6 +1073,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
    ShouldNotAbortOnUncaughtScope no_abort_scope(env);
    Context::Scope scope(parsing_context);
  
@@ -523,7 +523,7 @@ index 5bd30f6e33..533e89c029 100644
    MaybeLocal<UnboundScript> maybe_v8_script =
        ScriptCompiler::CompileUnboundScript(isolate, &source, compile_options);
  
-@@ -1084,6 +1093,12 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1082,6 +1091,12 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
      return;
    }
  
@@ -536,7 +536,7 @@ index 5bd30f6e33..533e89c029 100644
    contextify_script->script_.Reset(isolate, v8_script);
    contextify_script->script_.SetWeak();
    contextify_script->object()->SetInternalField(kUnboundScriptSlot, v8_script);
-@@ -1116,6 +1131,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1121,6 +1136,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
            .IsNothing())
      return;
  
@@ -658,7 +658,7 @@ index f66099a557..4048f6bd93 100644
 +  return adjacent(c, nargv);
 +}
 diff --git node/src/node_options.cc node/src/node_options.cc
-index 3fc8194475..9eb81c84e4 100644
+index da39abf79c..7f97afe7dc 100644
 --- node/src/node_options.cc
 +++ node/src/node_options.cc
 @@ -319,6 +319,7 @@ void Parse(
