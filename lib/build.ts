@@ -249,8 +249,8 @@ async function compileOnUnix(
 
   if (targetArch === 'armv7') {
     const { CFLAGS = '', CXXFLAGS = '' } = process.env;
-    process.env.CFLAGS = `${CFLAGS} -marm -mcpu=cortex-a7`;
-    process.env.CXXFLAGS = `${CXXFLAGS} -marm -mcpu=cortex-a7`;
+    process.env.CFLAGS = `${CFLAGS} -marm -mcpu=cortex-a7 -mfpu=vfpv3`;
+    process.env.CXXFLAGS = `${CXXFLAGS} -marm -mcpu=cortex-a7 -mfpu=vfpv3`;
 
     args.push('--with-arm-float-abi=hard');
     args.push('--with-arm-fpu=vfpv3');
