@@ -20,10 +20,16 @@ export async function downloadUrl(url: string, file: string): Promise<void> {
     process.env.HTTP_PROXY ??
     process.env.http_proxy;
 
-  const res = await fetch(
-    url,
-    proxy ? { agent: httpsProxyAgent(proxy) } : undefined
-  );
+  let res;
+  try {
+    res = await fetch(
+      url,
+      proxy ? { agent: httpsProxyAgent(proxy) } : undefined
+    );
+  } catch (err) {
+    log.disableProgress();
+    throw wasReported(`Network error during fetch: ${(err as Error).message}`);
+  }
 
   if (!res.ok) {
     log.disableProgress();
