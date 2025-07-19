@@ -1,3 +1,20 @@
+## [3.5.24](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.23...v3.5.24) (2025-07-19)
+
+### Features
+
+- add v20.19.2 patch ([#84](https://github.com/yao-pkg/pkg-fetch/issues/84)) ([95e9d04](https://github.com/yao-pkg/pkg-fetch/commit/95e9d044800443ff8fd5826bc14aefdf2cd825be))
+- add v20.19.3 patch ([#90](https://github.com/yao-pkg/pkg-fetch/issues/90)) ([65f9590](https://github.com/yao-pkg/pkg-fetch/commit/65f9590456409721281e9c7d3bd6de7e7a8c6a71))
+- add v20.19.4 patch ([#92](https://github.com/yao-pkg/pkg-fetch/issues/92)) ([e56a438](https://github.com/yao-pkg/pkg-fetch/commit/e56a438179676b69c0d8d67e01dd824ada14c88d))
+- add v22.16.0 patch ([#85](https://github.com/yao-pkg/pkg-fetch/issues/85)) ([772a7a9](https://github.com/yao-pkg/pkg-fetch/commit/772a7a98ae55cb77e5a7ba9aa4697a84bbadbcf3))
+- add v22.17.0 patch ([#91](https://github.com/yao-pkg/pkg-fetch/issues/91)) ([33afe2a](https://github.com/yao-pkg/pkg-fetch/commit/33afe2af5a5d49061836c08fe3bdf38c8923826d))
+- add v22.17.1 patch ([#93](https://github.com/yao-pkg/pkg-fetch/issues/93)) ([f82c20f](https://github.com/yao-pkg/pkg-fetch/commit/f82c20f02a3a13223be9c74a6ab6251194b3099f))
+- update expected SHAs for Node.js versions 20.19.4 and 22.17.1 ([a4535d1](https://github.com/yao-pkg/pkg-fetch/commit/a4535d1882e673a0b24f1c0d09863e5f6a6ff50b))
+
+### Bug Fixes
+
+- improved error when downloading from GitHub fails ([5baf78e](https://github.com/yao-pkg/pkg-fetch/commit/5baf78ede6aec120dd4fae2cf1aa9f95d5c35864))
+- update ARMv7 compilation flags for improved floating-point support ([#97](https://github.com/yao-pkg/pkg-fetch/issues/97)) ([6c56cdf](https://github.com/yao-pkg/pkg-fetch/commit/6c56cdf09826a7b768aaf9db9fb95b8abcb73d51)), closes [#96](https://github.com/yao-pkg/pkg-fetch/issues/96)
+
 ## [3.5.23](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.22...v3.5.23) (2025-05-17)
 
 ### Bug Fixes
