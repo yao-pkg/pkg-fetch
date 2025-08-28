@@ -119,7 +119,7 @@ Corrected code section:""",
         with urlopen(req) as response:
             result = json.loads(response.read().decode("utf-8"))
             if "output" in result and len(result["output"]) > 0:
-                response_text = result["output"][0]["content"]["text"].strip()
+                response_text = result["output"][0]["content"][0]["text"].strip()
                 # Clean up any potential formatting artifacts
                 response_text = response_text.replace("```", "").strip()
                 return response_text
