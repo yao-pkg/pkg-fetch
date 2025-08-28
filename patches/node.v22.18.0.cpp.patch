@@ -1,8 +1,8 @@
 diff --git node/common.gypi node/common.gypi
-index b88371ec13..343352b5c4 100644
+index 20135003dd..b173a74993 100644
 --- node/common.gypi
 +++ node/common.gypi
-@@ -191,7 +191,7 @@
+@@ -192,7 +192,7 @@
              ['clang==1', {
                'lto': ' -flto ', # Clang
              }, {
@@ -247,10 +247,10 @@ index ec69ad5123..1894032344 100644
        GetHeaderValue(kReadOnlySnapshotChecksumOffset);
    if (ro_snapshot_checksum != expected_ro_snapshot_checksum) {
 diff --git node/lib/child_process.js node/lib/child_process.js
-index e848b3d5ee..3e3ad3ec7c 100644
+index 655349b6fa..77092e0cd5 100644
 --- node/lib/child_process.js
 +++ node/lib/child_process.js
-@@ -169,7 +169,7 @@ function fork(modulePath, args = [], options) {
+@@ -171,7 +171,7 @@ function fork(modulePath, args = [], options) {
      throw new ERR_CHILD_PROCESS_IPC_REQUIRED('options.stdio');
    }
  
@@ -314,30 +314,33 @@ index 0000000000..a697294fdf
 +    }
 +  }());
 +}());
-diff --git node/lib/internal/modules/cjs/loader.js node/lib/internal/modules/cjs/loader.js
-index d90476addb..8c87fa9019 100644
---- node/lib/internal/modules/cjs/loader.js
-+++ node/lib/internal/modules/cjs/loader.js
-@@ -250,12 +250,16 @@ function stat(filename) {
-   // Guard against internal bugs where a non-string filename is passed in by mistake.
-   assert(typeof filename === 'string');
- 
-+  const origFilename = filename;
-   filename = path.toNamespacedPath(filename);
-   if (statCache !== null) {
-     const result = statCache.get(filename);
-     if (result !== undefined) { return result; }
-   }
--  const result = internalFsBinding.internalModuleStat(internalFsBinding, filename);
-+  const fs = require('fs');
-+  const result = fs.existsSync(origFilename) ?
-+    (fs.statSync(origFilename).isDirectory() ? 1 : 0) : -1;
-+
-   if (statCache !== null && result >= 0) {
-     // Only set cache when `internalModuleStat(internalFsBinding, filename)` succeeds.
-     statCache.set(filename, result);
+diff --git node/lib/internal/modules/cjs/loader.js.rej node/lib/internal/modules/cjs/loader.js.rej
+new file mode 100644
+index 0000000000..6431b210a7
+--- /dev/null
++++ node/lib/internal/modules/cjs/loader.js.rej
+@@ -0,0 +1,19 @@
++diff a/lib/internal/modules/cjs/loader.js b/lib/internal/modules/cjs/loader.js	(rejected hunks)
++@@ -250,12 +250,16 @@ function stat(filename) {
++   // Guard against internal bugs where a non-string filename is passed in by mistake.
++   assert(typeof filename === 'string');
++ 
+++  const origFilename = filename;
++   filename = path.toNamespacedPath(filename);
++   if (statCache !== null) {
++     const result = statCache.get(filename);
++     if (result !== undefined) { return result; }
++   }
++-  const result = internalFsBinding.internalModuleStat(internalFsBinding, filename);
+++  const fs = require('fs');
+++  const result = fs.existsSync(origFilename) ?
+++    (fs.statSync(origFilename).isDirectory() ? 1 : 0) : -1;
+++
++   if (statCache !== null && result >= 0) {
++     // Only set cache when `internalModuleStat(internalFsBinding, filename)` succeeds.
++     statCache.set(filename, result);
 diff --git node/lib/internal/modules/package_json_reader.js node/lib/internal/modules/package_json_reader.js
-index df23a30b1b..4a414c469c 100644
+index 47b248c2ae..0f0a5ceb9e 100644
 --- node/lib/internal/modules/package_json_reader.js
 +++ node/lib/internal/modules/package_json_reader.js
 @@ -105,17 +105,20 @@ const requiresJSONParse = (value) => (value !== undefined && (value[0] === '[' |
@@ -373,7 +376,7 @@ index df23a30b1b..4a414c469c 100644
      __proto__: null,
      ...result.data,
 diff --git node/lib/internal/process/pre_execution.js node/lib/internal/process/pre_execution.js
-index 4e7be0594c..09efa7b745 100644
+index 0cda54fd85..ce27ac878f 100644
 --- node/lib/internal/process/pre_execution.js
 +++ node/lib/internal/process/pre_execution.js
 @@ -50,7 +50,11 @@ const {
@@ -398,7 +401,7 @@ index 4e7be0594c..09efa7b745 100644
      // Expand process.argv[1] into a full path.
      const path = require('path');
      try {
-@@ -735,6 +740,7 @@ function loadPreloadModules() {
+@@ -728,6 +733,7 @@ function loadPreloadModules() {
    // For user code, we preload modules if `-r` is passed
    const preloadModules = getOptionValue('--require');
    if (preloadModules && preloadModules.length > 0) {
@@ -428,6 +431,43 @@ index ae71080620..b05638de75 100644
      } catch (e) {
        throw e; /* node-do-not-add-exception-line */
      }
+diff --git node/resolution_output.txt node/resolution_output.txt
+new file mode 100644
+index 0000000000..c5d964b543
+--- /dev/null
++++ node/resolution_output.txt
+@@ -0,0 +1,31 @@
++Calling OpenAI API to resolve ./lib/internal/modules/cjs/loader.js...
++Found 1 reject files to process
++Processing: ./lib/internal/modules/cjs/loader.js.rej -> ./lib/internal/modules/cjs/loader.js
++Traceback (most recent call last):
++  File "/home/runner/work/pkg-fetch/node/../pkg-fetch/.github/scripts/openai_resolver.py", line 133, in <module>
++    if resolve_conflict(reject_file, original_file, api_key):
++       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++  File "/home/runner/work/pkg-fetch/node/../pkg-fetch/.github/scripts/openai_resolver.py", line 80, in resolve_conflict
++    resolved_content = call_openai_api(prompt, api_key)
++                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++  File "/home/runner/work/pkg-fetch/node/../pkg-fetch/.github/scripts/openai_resolver.py", line 29, in call_openai_api
++    with urlopen(req) as response:
++         ^^^^^^^^^^^^
++  File "/usr/lib/python3.12/urllib/request.py", line 215, in urlopen
++    return opener.open(url, data, timeout)
++           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++  File "/usr/lib/python3.12/urllib/request.py", line 521, in open
++    response = meth(req, response)
++               ^^^^^^^^^^^^^^^^^^^
++  File "/usr/lib/python3.12/urllib/request.py", line 630, in http_response
++    response = self.parent.error(
++               ^^^^^^^^^^^^^^^^^^
++  File "/usr/lib/python3.12/urllib/request.py", line 559, in error
++    return self._call_chain(*args)
++           ^^^^^^^^^^^^^^^^^^^^^^^
++  File "/usr/lib/python3.12/urllib/request.py", line 492, in _call_chain
++    result = func(*args)
++             ^^^^^^^^^^^
++  File "/usr/lib/python3.12/urllib/request.py", line 639, in http_error_default
++    raise HTTPError(req.full_url, code, msg, hdrs, fp)
++urllib.error.HTTPError: HTTP Error 429: Too Many Requests
 diff --git node/src/inspector_agent.cc node/src/inspector_agent.cc
 index fa6eb29e6e..5d6dd23f6a 100644
 --- node/src/inspector_agent.cc
@@ -473,7 +513,7 @@ index c0d0b734ed..58583892f9 100644
    }
  
 diff --git node/src/node_contextify.cc node/src/node_contextify.cc
-index 7bfe42c593..836d98d6ed 100644
+index 386102dfe7..fa452538bf 100644
 --- node/src/node_contextify.cc
 +++ node/src/node_contextify.cc
 @@ -86,6 +86,7 @@ using v8::Symbol;
@@ -484,7 +524,7 @@ index 7bfe42c593..836d98d6ed 100644
  
  // The vm module executes code in a sandboxed environment with a different
  // global object than the rest of the code. This is achieved by applying
-@@ -994,13 +995,13 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -993,13 +994,13 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
    Local<ArrayBufferView> cached_data_buf;
    bool produce_cached_data = false;
    Local<Context> parsing_context = context;
@@ -501,7 +541,7 @@ index 7bfe42c593..836d98d6ed 100644
      CHECK(args[2]->IsNumber());
      line_offset = args[2].As<Int32>()->Value();
      CHECK(args[3]->IsNumber());
-@@ -1021,6 +1022,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1020,6 +1021,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
      }
      CHECK(args[7]->IsSymbol());
      id_symbol = args[7].As<Symbol>();
@@ -512,7 +552,7 @@ index 7bfe42c593..836d98d6ed 100644
    }
  
    ContextifyScript* contextify_script =
-@@ -1068,6 +1073,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1067,6 +1072,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
    ShouldNotAbortOnUncaughtScope no_abort_scope(env);
    Context::Scope scope(parsing_context);
  
@@ -523,7 +563,7 @@ index 7bfe42c593..836d98d6ed 100644
    MaybeLocal<UnboundScript> maybe_v8_script =
        ScriptCompiler::CompileUnboundScript(isolate, &source, compile_options);
  
-@@ -1082,6 +1091,12 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1081,6 +1090,12 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
      return;
    }
  
@@ -536,7 +576,7 @@ index 7bfe42c593..836d98d6ed 100644
    contextify_script->script_.Reset(isolate, v8_script);
    contextify_script->script_.SetWeak();
    contextify_script->object()->SetInternalField(kUnboundScriptSlot, v8_script);
-@@ -1121,6 +1136,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1120,6 +1135,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
            .IsNothing())
      return;
  
@@ -658,7 +698,7 @@ index f66099a557..4048f6bd93 100644
 +  return adjacent(c, nargv);
 +}
 diff --git node/src/node_options.cc node/src/node_options.cc
-index da39abf79c..7f97afe7dc 100644
+index 228fbe6455..2170419202 100644
 --- node/src/node_options.cc
 +++ node/src/node_options.cc
 @@ -319,6 +319,7 @@ void Parse(
