@@ -132,7 +132,7 @@ Corrected code section:""",
             else:
                 return None
     except Exception as e:
-        print(f"OpenAI API error: {e}", file=sys.stderr)
+        print(f"OpenAI API error: {e}")
         return None
 
 
