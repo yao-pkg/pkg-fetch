@@ -97,11 +97,10 @@ def call_openai_api(prompt, api_key, model="gpt-4.1-mini"):
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
 
     # Calculate dynamic max_tokens
-    max_tokens = 2000  # Default value
 
     data = {
         "model": model,
-        "prompt": f"""You are an expert developer helping to resolve Git patch conflicts.
+        "input": f"""You are an expert developer helping to resolve Git patch conflicts.
 
 {prompt}
 
@@ -112,20 +111,15 @@ Instructions:
 - Apply the changes from the rejected hunk to the current file section
 
 Corrected code section:""",
-        "temperature": 0.1,
-        "max_tokens": max_tokens,
-        "top_p": 1,
-        "frequency_penalty": 0,
-        "presence_penalty": 0,
-        "stop": ["```", "---", "###"],  # Stop tokens to prevent unwanted formatting
+        "temperature": 0,
     }
 
     try:
         req = Request(url, data=json.dumps(data).encode("utf-8"), headers=headers)
         with urlopen(req) as response:
             result = json.loads(response.read().decode("utf-8"))
-            if "choices" in result and len(result["choices"]) > 0:
-                response_text = result["choices"][0]["text"].strip()
+            if "output" in result and len(result["output"]) > 0:
+                response_text = result["output"][0]["content"]["text"].strip()
                 # Clean up any potential formatting artifacts
                 response_text = response_text.replace("```", "").strip()
                 return response_text
