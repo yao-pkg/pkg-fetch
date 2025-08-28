@@ -25,12 +25,16 @@ def call_openai_api(prompt, api_key, model="gpt-3.5-turbo"):
         "max_tokens": 4000,
     }
 
-    req = Request(url, data=json.dumps(data).encode("utf-8"), headers=headers)
-    with urlopen(req) as response:
-        result = json.loads(response.read().decode("utf-8"))
-        if "choices" in result and len(result["choices"]) > 0:
-            return result["choices"][0]["message"]["content"].strip()
-
+    try:
+        req = Request(url, data=json.dumps(data).encode("utf-8"), headers=headers)
+        with urlopen(req) as response:
+            result = json.loads(response.read().decode("utf-8"))
+            if "choices" in result and len(result["choices"]) > 0:
+                return result["choices"][0]["message"]["content"].strip()
+            else:
+                return None
+    except Exception as e:
+        print(f"OpenAI API error: {e}", file=sys.stderr)
         return None
 
 
@@ -77,6 +81,7 @@ Please analyze the rejected patch hunks and the current file content, then provi
 Return ONLY the complete corrected file content, no explanations."""
 
     print(f"Calling OpenAI API to resolve {original_file}...", file=sys.stderr)
+
     resolved_content = call_openai_api(prompt, api_key)
 
     if resolved_content:
@@ -129,11 +134,11 @@ if __name__ == "__main__":
         original_file = reject_file[:-4]  # Remove .rej extension
         print(f"Processing: {reject_file} -> {original_file}")
 
-        # Try to resolve with OpenAI
         if resolve_conflict(reject_file, original_file, api_key):
             conflicts_resolved += 1
         else:
             print(f"Failed to resolve {original_file}")
+            failed_files.append(original_file)
             break
 
         # Clean up reject file
