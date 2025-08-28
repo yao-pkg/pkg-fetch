@@ -106,7 +106,7 @@ def call_openai_api(prompt, api_key, model="gpt-3.5-turbo"):
             {"role": "user", "content": prompt},
         ],
         "temperature": 0.1,
-        "max_tokens": 4000,
+        "max_tokens": 1000,
     }
 
     try:
