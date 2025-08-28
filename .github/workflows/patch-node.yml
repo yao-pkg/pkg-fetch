@@ -129,6 +129,17 @@ jobs:
                 echo "PATCH_STATUS=${PATCH_STATUS:-clean}" >> $GITHUB_ENV
                 echo "HAS_UNRESOLVED=${HAS_UNRESOLVED:-false}" >> $GITHUB_ENV
                 echo "CREATE_PR=true" >> $GITHUB_ENV
+
+                cd ..
+                
+                # Store resolution output for PR body if it exists
+                if [ -f "../node/resolution_output.txt" ]; then
+                  echo "RESOLUTION_OUTPUT<<EOF" >> $GITHUB_ENV
+                  cat ../node/resolution_output.txt >> $GITHUB_ENV
+                  echo "EOF" >> $GITHUB_ENV
+                else
+                  echo "RESOLUTION_OUTPUT=" >> $GITHUB_ENV
+                fi
             
             - name: Create Pull Request
               if: env.CREATE_PR == 'true'
@@ -144,11 +155,20 @@ jobs:
                   
                   The workflow automatically attempts to resolve patch conflicts using AI when the OpenAI API key is available.
                   
+                  ### Patch Status: ${{ env.PATCH_STATUS }}
+                  
+                  ${{ env.PATCH_STATUS == 'conflicts' && format('**Conflicts resolved:** {0}/{1}', env.CONFLICTS_RESOLVED, env.TOTAL_CONFLICTS) || '' }}
+                  
                   ### Steps to verify:
                   1. Review the patch changes
                   2. Test the patched Node.js build  
                   3. Validate functionality
                   4. Merge if everything looks good
+                  
+                  ${{ env.RESOLUTION_OUTPUT && '### AI Resolution Details' || '' }}
+                  ${{ env.RESOLUTION_OUTPUT && '```' || '' }}
+                  ${{ env.RESOLUTION_OUTPUT }}
+                  ${{ env.RESOLUTION_OUTPUT && '```' || '' }}
                 branch: "nodejs-v${{ inputs.nodeVersion }}"
                 base: "main"
                 delete-branch: true
