@@ -118,7 +118,7 @@ def call_openai_api(prompt, api_key, model="gpt-3.5-turbo"):
             else:
                 return None
     except Exception as e:
-        print(f"OpenAI API error: {e}", file=sys.stderr)
+        print(f"OpenAI API error: {e}")
         return None
 
 
