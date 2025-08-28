@@ -91,20 +91,12 @@ jobs:
                     # Extract results from Python script output
                     CONFLICTS_RESOLVED=$(grep "CONFLICTS_RESOLVED=" resolution_output.txt | cut -d'=' -f2)
                     TOTAL_CONFLICTS=$(grep "TOTAL_CONFLICTS=" resolution_output.txt | cut -d'=' -f2)
-                    
+                    HAS_UNRESOLVED=$(grep "HAS_UNRESOLVED=" resolution_output.txt | cut -d'=' -f2)
+                    FAILED_FILES_LINE=$(grep "FAILED_FILES=" resolution_output.txt | cut -d'=' -f2)
+
                     echo "PATCH_STATUS=conflicts" >> $GITHUB_ENV
                     echo "CONFLICTS_RESOLVED=${CONFLICTS_RESOLVED:-0}" >> $GITHUB_ENV
                     echo "TOTAL_CONFLICTS=${TOTAL_CONFLICTS:-0}" >> $GITHUB_ENV
-                    
-                    # Extract failed files list
-                    if grep -q "FAILED_FILES<<EOF" resolution_output.txt; then
-                      echo "HAS_UNRESOLVED=true" >> $GITHUB_ENV
-                      echo "FAILED_FILES<<EOF" >> $GITHUB_ENV
-                      sed -n '/FAILED_FILES<<EOF/,/^EOF$/p' resolution_output.txt | grep "^- " >> $GITHUB_ENV
-                      echo "EOF" >> $GITHUB_ENV
-                    else
-                      echo "HAS_UNRESOLVED=false" >> $GITHUB_ENV
-                    fi
                     
                     # Show resolution summary
                     cat resolution_output.txt

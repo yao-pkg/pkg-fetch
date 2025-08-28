@@ -150,12 +150,10 @@ if __name__ == "__main__":
     # Output results for GitHub Actions
     print(f"CONFLICTS_RESOLVED={conflicts_resolved}")
     print(f"TOTAL_CONFLICTS={total_conflicts}")
+    print(f"HAS_UNRESOLVED={failed_files.__len__() > 0}")
 
     if failed_files:
-        print("FAILED_FILES<<EOF")
-        for file in failed_files:
-            print(f"- {file}")
-        print("EOF")
+        print("FAILED_FILES=", " ".join(failed_files))
 
     print(
         f"Resolution summary: {conflicts_resolved}/{total_conflicts} conflicts resolved"
