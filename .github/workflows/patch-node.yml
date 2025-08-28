@@ -102,7 +102,7 @@ jobs:
                     cat resolution_output.txt
                     
                     # Check if we have unresolved conflicts - if so, exit without creating PR
-                    if [ "${HAS_UNRESOLVED:-false}" = "true" ]; then
+                    if [ "${HAS_UNRESOLVED:-false}" = "True" ]; then
                       echo "❌ There are unresolved conflicts. Exiting without creating PR."
                       echo "Please resolve the conflicts manually and re-run the workflow."
                       exit 1
@@ -129,40 +129,6 @@ jobs:
                 echo "PATCH_STATUS=${PATCH_STATUS:-clean}" >> $GITHUB_ENV
                 echo "HAS_UNRESOLVED=${HAS_UNRESOLVED:-false}" >> $GITHUB_ENV
                 echo "CREATE_PR=true" >> $GITHUB_ENV
-            
-            - name: Summary
-              run: |
-                echo "=================================================="
-                echo "📋 WORKFLOW EXECUTION SUMMARY"
-                echo "=================================================="
-                echo "Node.js version: ${{ inputs.nodeVersion }}"
-                echo "Patch status: ${PATCH_STATUS:-unknown}"
-                
-                case "${PATCH_STATUS:-unknown}" in
-                  "clean")
-                    echo "✅ Patch applied cleanly without conflicts"
-                    ;;
-                  "partial") 
-                    echo "⚠️ Patch applied partially"
-                    ;;
-                  "conflicts")
-                    echo "🤖 AI-assisted conflict resolution used"
-                    echo "Total conflicts: ${TOTAL_CONFLICTS:-0}"
-                    echo "Resolved conflicts: ${CONFLICTS_RESOLVED:-0}"
-                    if [ "${HAS_UNRESOLVED:-false}" = "true" ]; then
-                      echo "❌ Some conflicts remain unresolved"
-                    else
-                      echo "✅ All conflicts successfully resolved"
-                    fi
-                    ;;
-                esac
-                
-                if [ "${CREATE_PR:-false}" = "true" ]; then
-                  echo "🚀 Pull request will be created"
-                else
-                  echo "⏹️ Pull request creation skipped due to unresolved issues"
-                fi
-                echo "=================================================="
             
             - name: Create Pull Request
               if: env.CREATE_PR == 'true'
