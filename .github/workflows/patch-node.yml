@@ -153,22 +153,10 @@ jobs:
                   
                   This PR updates the Node.js patch to version ${{ inputs.nodeVersion }}.
                   
-                  The workflow automatically attempts to resolve patch conflicts using AI when the OpenAI API key is available.
-                  
-                  ### Patch Status: ${{ env.PATCH_STATUS }}
-                  
-                  ${{ env.PATCH_STATUS == 'conflicts' && format('**Conflicts resolved:** {0}/{1}', env.CONFLICTS_RESOLVED, env.TOTAL_CONFLICTS) || '' }}
-                  
-                  ### Steps to verify:
-                  1. Review the patch changes
-                  2. Test the patched Node.js build  
-                  3. Validate functionality
-                  4. Merge if everything looks good
-                  
+                  The workflow automatically attempts to resolve patch conflicts using AI when the OpenAI API key is available.                 
+                                   
                   ${{ env.RESOLUTION_OUTPUT && '### AI Resolution Details' || '' }}
-                  ${{ env.RESOLUTION_OUTPUT && '```' || '' }}
                   ${{ env.RESOLUTION_OUTPUT }}
-                  ${{ env.RESOLUTION_OUTPUT && '```' || '' }}
                 branch: "nodejs-v${{ inputs.nodeVersion }}"
                 base: "main"
                 delete-branch: true
