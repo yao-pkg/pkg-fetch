@@ -90,23 +90,34 @@ def apply_fixed_sections(original_content, fixed_sections):
     return "\n".join(file_lines)
 
 
-def call_openai_api(prompt, api_key, model="gpt-3.5-turbo"):
-    """Call OpenAI API to resolve patch conflicts"""
-    url = "https://api.openai.com/v1/chat/completions"
+def call_openai_api(prompt, api_key, model="gpt-4.1-mini"):
+    """Call OpenAI Responses API to resolve patch conflicts"""
+    url = "https://api.openai.com/v1/responses"
 
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
 
+    # Calculate dynamic max_tokens
+    max_tokens = 2000  # Default value
+
     data = {
         "model": model,
-        "messages": [
-            {
-                "role": "system",
-                "content": "You are an expert C++/JS developer helping to resolve Git patch conflicts. Return only the corrected code section without explanations or markdown formatting. Preserve the exact number of lines and structure.",
-            },
-            {"role": "user", "content": prompt},
-        ],
+        "prompt": f"""You are an expert developer helping to resolve Git patch conflicts.
+
+{prompt}
+
+Instructions:
+- Return ONLY the corrected code section
+- Do not add explanations or markdown formatting
+- Preserve exact line structure and formatting
+- Apply the changes from the rejected hunk to the current file section
+
+Corrected code section:""",
         "temperature": 0.1,
-        "max_tokens": 1000,
+        "max_tokens": max_tokens,
+        "top_p": 1,
+        "frequency_penalty": 0,
+        "presence_penalty": 0,
+        "stop": ["```", "---", "###"],  # Stop tokens to prevent unwanted formatting
     }
 
     try:
@@ -114,11 +125,14 @@ def call_openai_api(prompt, api_key, model="gpt-3.5-turbo"):
         with urlopen(req) as response:
             result = json.loads(response.read().decode("utf-8"))
             if "choices" in result and len(result["choices"]) > 0:
-                return result["choices"][0]["message"]["content"].strip()
+                response_text = result["choices"][0]["text"].strip()
+                # Clean up any potential formatting artifacts
+                response_text = response_text.replace("```", "").strip()
+                return response_text
             else:
                 return None
     except Exception as e:
-        print(f"OpenAI API error: {e}")
+        print(f"OpenAI API error: {e}", file=sys.stderr)
         return None
 
 
