@@ -101,7 +101,7 @@ def call_openai_api(prompt, api_key, model="gpt-3.5-turbo"):
         "messages": [
             {
                 "role": "system",
-                "content": "You are an expert C++ developer helping to resolve Git patch conflicts. Return only the corrected code section without explanations or markdown formatting. Preserve the exact number of lines and structure.",
+                "content": "You are an expert C++/JS developer helping to resolve Git patch conflicts. Return only the corrected code section without explanations or markdown formatting. Preserve the exact number of lines and structure.",
             },
             {"role": "user", "content": prompt},
         ],
