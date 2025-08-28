@@ -82,6 +82,8 @@ Return ONLY the complete corrected file content, no explanations."""
 
     print(f"Calling OpenAI API to resolve {original_file}...", file=sys.stderr)
 
+    print(f"Prompt for OpenAI API:\n{prompt}")
+
     resolved_content = call_openai_api(prompt, api_key)
 
     if resolved_content:
