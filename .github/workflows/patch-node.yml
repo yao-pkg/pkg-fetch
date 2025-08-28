@@ -51,16 +51,74 @@ jobs:
                 git clone -b v${{ inputs.nodeVersion }} --single-branch https://github.com/nodejs/node.git
                 cd node
 
-                # apply the patch, if there are conflicts exit with error
+                # Try to apply the patch cleanly first
                 echo "Applying patch $PATCH_FILE"
                 git apply --check ../pkg-fetch/$PATCH_FILE
-                if [ $? -ne 0 ]; then
-                  echo "Patch $PATCH_FILE does not apply cleanly"
-                  exit 1
+                PATCH_CHECK_RESULT=$?
+                
+                if [ $PATCH_CHECK_RESULT -eq 0 ]; then
+                  echo "✅ Patch $PATCH_FILE applies cleanly"
+                  git apply ../pkg-fetch/$PATCH_FILE
+                  echo "PATCH_STATUS=clean" >> $GITHUB_ENV
+                else
+                  echo "⚠️ Patch $PATCH_FILE does not apply cleanly, attempting conflict resolution"
+                  
+                  # Apply patch with --reject to create .rej files
+                  git apply --reject ../pkg-fetch/$PATCH_FILE || true
+                  
+                  # Check if we have any .rej files
+                  REJECT_COUNT=$(find . -name "*.rej" -type f | wc -l)
+                  
+                  if [ $REJECT_COUNT -eq 0 ]; then
+                    echo "ℹ️ No reject files found, patch applied partially"
+                    echo "PATCH_STATUS=partial" >> $GITHUB_ENV
+                  else
+                    echo "🤖 Found $REJECT_COUNT reject files, using AI to resolve conflicts"
+                    
+                    # Use our Python script to resolve conflicts
+                    if [ -n "${{ secrets.OPENAI_KEY }}" ]; then
+                      echo "Using OpenAI API for conflict resolution"
+                      python3 ../pkg-fetch/.github/scripts/openai_resolver.py . "${{ secrets.OPENAI_KEY }}" > resolution_output.txt 2>&1
+                      RESOLUTION_RESULT=$?
+                    else
+                      echo "No OpenAI API key found, creating manual resolution files only"
+                      python3 ../pkg-fetch/.github/scripts/openai_resolver.py . "dummy" "create_manual_only" > resolution_output.txt 2>&1
+                      RESOLUTION_RESULT=1
+                    fi
+                    
+                    # Extract results from Python script output
+                    CONFLICTS_RESOLVED=$(grep "CONFLICTS_RESOLVED=" resolution_output.txt | cut -d'=' -f2)
+                    TOTAL_CONFLICTS=$(grep "TOTAL_CONFLICTS=" resolution_output.txt | cut -d'=' -f2)
+                    
+                    echo "PATCH_STATUS=conflicts" >> $GITHUB_ENV
+                    echo "CONFLICTS_RESOLVED=${CONFLICTS_RESOLVED:-0}" >> $GITHUB_ENV
+                    echo "TOTAL_CONFLICTS=${TOTAL_CONFLICTS:-0}" >> $GITHUB_ENV
+                    
+                    # Extract failed files list
+                    if grep -q "FAILED_FILES<<EOF" resolution_output.txt; then
+                      echo "HAS_UNRESOLVED=true" >> $GITHUB_ENV
+                      echo "FAILED_FILES<<EOF" >> $GITHUB_ENV
+                      sed -n '/FAILED_FILES<<EOF/,/^EOF$/p' resolution_output.txt | grep "^- " >> $GITHUB_ENV
+                      echo "EOF" >> $GITHUB_ENV
+                    else
+                      echo "HAS_UNRESOLVED=false" >> $GITHUB_ENV
+                    fi
+                    
+                    # Show resolution summary
+                    cat resolution_output.txt
+                    
+                    # Check if we have unresolved conflicts - if so, exit without creating PR
+                    if [ "${HAS_UNRESOLVED:-false}" = "true" ]; then
+                      echo "❌ There are unresolved conflicts. Exiting without creating PR."
+                      echo "Please resolve the conflicts manually and re-run the workflow."
+                      exit 1
+                    fi
+                  fi
                 fi
 
-                echo "Patch $PATCH_FILE applies cleanly, creating new patch file"
-                git apply ../pkg-fetch/$PATCH_FILE
+                # Only proceed with patch creation if we got here (no unresolved conflicts)
+                echo "✅ All conflicts resolved or patch applied successfully. Creating new patch file."
+
                 # delete old patch file and create new one
                 rm -rf ../pkg-fetch/$PATCH_FILE
                 
@@ -72,17 +130,68 @@ jobs:
                 cd ../pkg-fetch/patches
                 
                 sed -i "s/\"v$PATCH_VERSION\": \[\"node.v$PATCH_VERSION.cpp.patch\"\]/\"v${{ inputs.nodeVersion }}\": \[\"node.v${{ inputs.nodeVersion }}.cpp.patch\"\]/" patches.json
+                
+                # Set default values for environment variables if not already set
+                echo "PATCH_STATUS=${PATCH_STATUS:-clean}" >> $GITHUB_ENV
+                echo "HAS_UNRESOLVED=${HAS_UNRESOLVED:-false}" >> $GITHUB_ENV
+                echo "CREATE_PR=true" >> $GITHUB_ENV
+            
+            - name: Summary
+              run: |
+                echo "=================================================="
+                echo "📋 WORKFLOW EXECUTION SUMMARY"
+                echo "=================================================="
+                echo "Node.js version: ${{ inputs.nodeVersion }}"
+                echo "Patch status: ${PATCH_STATUS:-unknown}"
+                
+                case "${PATCH_STATUS:-unknown}" in
+                  "clean")
+                    echo "✅ Patch applied cleanly without conflicts"
+                    ;;
+                  "partial") 
+                    echo "⚠️ Patch applied partially"
+                    ;;
+                  "conflicts")
+                    echo "🤖 AI-assisted conflict resolution used"
+                    echo "Total conflicts: ${TOTAL_CONFLICTS:-0}"
+                    echo "Resolved conflicts: ${CONFLICTS_RESOLVED:-0}"
+                    if [ "${HAS_UNRESOLVED:-false}" = "true" ]; then
+                      echo "❌ Some conflicts remain unresolved"
+                    else
+                      echo "✅ All conflicts successfully resolved"
+                    fi
+                    ;;
+                esac
+                
+                if [ "${CREATE_PR:-false}" = "true" ]; then
+                  echo "🚀 Pull request will be created"
+                else
+                  echo "⏹️ Pull request creation skipped due to unresolved issues"
+                fi
+                echo "=================================================="
             
             - name: Create Pull Request
+              if: env.CREATE_PR == 'true'
               uses: peter-evans/create-pull-request@v4
               with:
                 token: ${{ secrets.GITHUB_TOKEN }}
                 commit-message: "feat: add v${{ inputs.nodeVersion }} patch"
                 title: "feat: add v${{ inputs.nodeVersion }} patch"
-                body: "This PR bumps the Node.js patch version to v${{ inputs.nodeVersion }}"
+                body: |
+                  ## Node.js Patch Update to v${{ inputs.nodeVersion }}
+                  
+                  This PR updates the Node.js patch to version ${{ inputs.nodeVersion }}.
+                  
+                  The workflow automatically attempts to resolve patch conflicts using AI when the OpenAI API key is available.
+                  
+                  ### Steps to verify:
+                  1. Review the patch changes
+                  2. Test the patched Node.js build  
+                  3. Validate functionality
+                  4. Merge if everything looks good
                 branch: "nodejs-v${{ inputs.nodeVersion }}"
                 base: "main"
                 delete-branch: true
-                labels: "enhancement, nodejs"
+                labels: "enhancement,nodejs"
                 draft: false
               
