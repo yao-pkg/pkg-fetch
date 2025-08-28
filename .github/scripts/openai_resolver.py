@@ -25,16 +25,12 @@ def call_openai_api(prompt, api_key, model="gpt-3.5-turbo"):
         "max_tokens": 4000,
     }
 
-    try:
-        req = Request(url, data=json.dumps(data).encode("utf-8"), headers=headers)
-        with urlopen(req) as response:
-            result = json.loads(response.read().decode("utf-8"))
-            if "choices" in result and len(result["choices"]) > 0:
-                return result["choices"][0]["message"]["content"].strip()
-            else:
-                return None
-    except Exception as e:
-        print(f"OpenAI API error: {e}", file=sys.stderr)
+    req = Request(url, data=json.dumps(data).encode("utf-8"), headers=headers)
+    with urlopen(req) as response:
+        result = json.loads(response.read().decode("utf-8"))
+        if "choices" in result and len(result["choices"]) > 0:
+            return result["choices"][0]["message"]["content"].strip()
+
         return None
 
 
@@ -101,47 +97,16 @@ Return ONLY the complete corrected file content, no explanations."""
         return False
 
 
-def create_manual_resolution_file(reject_file, original_file):
-    """Create a manual resolution file for conflicts that couldn't be auto-resolved"""
-    try:
-        with open(reject_file, "r", encoding="utf-8", errors="ignore") as f:
-            reject_content = f.read()
-    except:
-        reject_content = "Could not read reject file"
-
-    current_content = ""
-    if os.path.exists(original_file):
-        try:
-            with open(original_file, "r", encoding="utf-8", errors="ignore") as f:
-                current_content = f.read()
-        except:
-            current_content = "Could not read current file"
-
-    conflict_file = f"{original_file}.conflict"
-    with open(conflict_file, "w", encoding="utf-8") as f:
-        f.write(f"# MANUAL RESOLUTION REQUIRED FOR: {original_file}\n")
-        f.write("# Original reject content:\n")
-        f.write("#\n")
-        f.write(f"{reject_content}\n")
-        f.write("#\n")
-        f.write("# Current file content:\n")
-        f.write("#\n")
-        f.write(f"{current_content}\n")
-
-    print(f"Created manual resolution file: {conflict_file}")
-
-
 if __name__ == "__main__":
     if len(sys.argv) < 3:
         print(
-            "Usage: openai_resolver.py <reject_files_dir> <api_key> [create_manual_only]",
+            "Usage: openai_resolver.py <reject_files_dir> <api_key>",
             file=sys.stderr,
         )
         sys.exit(1)
 
     reject_dir = sys.argv[1]
     api_key = sys.argv[2]
-    create_manual_only = len(sys.argv) > 3 and sys.argv[3] == "create_manual_only"
 
     # Find all .rej files
     reject_files = []
@@ -164,16 +129,12 @@ if __name__ == "__main__":
         original_file = reject_file[:-4]  # Remove .rej extension
         print(f"Processing: {reject_file} -> {original_file}")
 
-        if create_manual_only:
-            create_manual_resolution_file(reject_file, original_file)
-            failed_files.append(os.path.basename(original_file))
+        # Try to resolve with OpenAI
+        if resolve_conflict(reject_file, original_file, api_key):
+            conflicts_resolved += 1
         else:
-            # Try to resolve with OpenAI
-            if resolve_conflict(reject_file, original_file, api_key):
-                conflicts_resolved += 1
-            else:
-                failed_files.append(os.path.basename(original_file))
-                create_manual_resolution_file(reject_file, original_file)
+            print(f"Failed to resolve {original_file}")
+            break
 
         # Clean up reject file
         try:
