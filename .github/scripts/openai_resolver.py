@@ -122,6 +122,7 @@ Corrected code section:""",
                 response_text = result["output"][0]["content"][0]["text"].strip()
                 # Clean up any potential formatting artifacts
                 response_text = response_text.replace("```", "").strip()
+                print(f"Resolved content for {original_file}:\n{response_text}")
                 return response_text
             else:
                 return None
