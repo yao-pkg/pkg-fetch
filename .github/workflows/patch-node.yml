@@ -25,6 +25,8 @@ jobs:
             
             - name: Checkout nodejs and create new patch
               run: |
+                set +e  # Don't exit on errors, we want to handle them ourselves
+                
                 # find the patch file by checking the patch file matching major version input node version
                 MAJOR_VERSION=$(echo ${{ inputs.nodeVersion }} | cut -d'.' -f1)
                 echo "Node.js major version: $MAJOR_VERSION"
