@@ -1,24 +1,22 @@
-ARG HOST_ARCH=x86_64
-ARG TARGET_TRIPLE=aarch64-linux-musl
-
-FROM muslcc/$HOST_ARCH:$TARGET_TRIPLE AS build
+FROM alpine:3.22 AS build
 
 ARG PKG_FETCH_OPTION_a
 ARG PKG_FETCH_OPTION_n
 ARG PKG_FETCH_OPTION_p
 
-USER root:root
-
 WORKDIR /root/pkg-fetch/
 
-# HAXX upgrade alpine here because the muslcc image
-# is built on an old image and no newer version is available
-RUN sed -i -e 's/v3\.14/v3\.20/g' /etc/apk/repositories && \
-    apk update && \
-    apk add --upgrade apk-tools && \
-    apk upgrade --available
-
-RUN apk add --no-cache build-base git linux-headers npm python3 yarn
+RUN apk add --no-cache \
+    build-base \
+    git \
+    linux-headers \
+    npm \
+    python3 \
+    python3-dev \
+    yarn \
+    pkgconfig \
+    zlib-dev \
+    openssl-dev
 
 # https://gitlab.alpinelinux.org/alpine/aports/-/issues/8626
 ENV CFLAGS=-U_FORTIFY_SOURCE
@@ -26,18 +24,18 @@ ENV CFLAGS_host=-U_FORTIFY_SOURCE
 ENV CXXFLAGS=-U_FORTIFY_SOURCE
 ENV CXXFLAGS_host=-U_FORTIFY_SOURCE
 
-ENV CC=/bin/gcc
-ENV CXX=/bin/g++
-ENV AR=/bin/ar
-ENV NM=/bin/nm
-ENV READELF=/bin/readelf
-ENV STRIP=/bin/strip
+ENV CC=gcc
+ENV CXX=g++
+ENV AR=ar
+ENV NM=nm
+ENV READELF=readelf
+ENV STRIP=strip
 
-ENV CC_host=/usr/bin/gcc
-ENV CXX_host=/usr/bin/g++
-ENV AR_host=/usr/bin/ar
-ENV NM_host=/usr/bin/nm
-ENV READELF_host=/usr/bin/readelf
+ENV CC_host=gcc
+ENV CXX_host=g++
+ENV AR_host=ar
+ENV NM_host=nm
+ENV READELF_host=readelf
 
 COPY . ./
 
