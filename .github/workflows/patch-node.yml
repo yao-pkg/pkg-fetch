@@ -113,6 +113,18 @@ jobs:
                 # Only proceed with patch creation if we got here (no unresolved conflicts)
                 echo "✅ All conflicts resolved or patch applied successfully. Creating new patch file."
 
+                # Store resolution output for PR body if it exists
+                if [ -f "../node/resolution_output.txt" ]; then
+                  echo "RESOLUTION_OUTPUT<<EOF" >> $GITHUB_ENV
+                  cat ../node/resolution_output.txt >> $GITHUB_ENV
+                  echo "EOF" >> $GITHUB_ENV
+
+                  # delete resolution output file
+                  rm -f ../node/resolution_output.txt
+                else
+                  echo "RESOLUTION_OUTPUT=" >> $GITHUB_ENV
+                fi
+
                 # delete old patch file and create new one
                 rm -rf ../pkg-fetch/$PATCH_FILE
                 
@@ -132,14 +144,7 @@ jobs:
 
                 cd ..
                 
-                # Store resolution output for PR body if it exists
-                if [ -f "../node/resolution_output.txt" ]; then
-                  echo "RESOLUTION_OUTPUT<<EOF" >> $GITHUB_ENV
-                  cat ../node/resolution_output.txt >> $GITHUB_ENV
-                  echo "EOF" >> $GITHUB_ENV
-                else
-                  echo "RESOLUTION_OUTPUT=" >> $GITHUB_ENV
-                fi
+                
             
             - name: Create Pull Request
               if: env.CREATE_PR == 'true'
