@@ -70,7 +70,7 @@ function getConfigureArgs(major: number, targetPlatform: string, targetArch: str
 
   // Small ICU
   if (hostPlatform !== 'win' || major < 24) {
-  args.push('--with-intl=small-icu');
+    args.push('--with-intl=small-icu');
   }
 
   // Workaround for nodejs/node#39313
@@ -148,7 +148,8 @@ async function tarExtract(nodeVersion: string, suppressTarOutput: boolean) {
     strip: 1,
     map: (header) => {
       if (!suppressTarOutput) {
-        log.info(header.name);
+        // disabled for now - can't get cmdline flag to work with all builds
+        // log.info(header.name);
       }
       return header;
     },
