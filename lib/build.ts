@@ -69,7 +69,9 @@ function getConfigureArgs(major: number, targetPlatform: string, targetArch: str
   args.push('--without-npm');
 
   // Small ICU
+  if (hostPlatform !== 'win' || major < 24) {
   args.push('--with-intl=small-icu');
+  }
 
   // Workaround for nodejs/node#39313
   // All supported macOS versions have zlib as a system library
@@ -210,8 +212,16 @@ async function compileOnWindows(
     args.push('ltcg');
   }
 
+  // Node24 builds on Windows crash with small-icu at icudat codegen
+  // workaround for now is to enable full-icu
+  // TODO check with newer node/tooling/gh-image versions
+  if (major >= 24) {
+    args.push('full-icu');
+  }
+
   // Can't cross compile for arm64 with small-icu
   if (
+    major < 24 &&
     hostArch !== targetArch &&
     !config_flags.includes('--with-intl=full-icu')
   ) {
