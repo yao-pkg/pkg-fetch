@@ -5,21 +5,52 @@ on:
   workflow_call:
 
 jobs:
-  alpine:
+  alpine-x64:
     runs-on: ubuntu-22.04
 
     strategy:
       fail-fast: false
       matrix:
-        target-node: [16, 18, 20, 22]
-        target-arch: [x64, arm64]
-        include:
-          - target-arch: x64
-            target-triple: x86_64-linux-musl
-            host-arch: x86_64
-          - target-arch: arm64
-            target-triple: aarch64-linux-musl
-            host-arch: x86_64
+        target-node: [20, 22, 24]
+        target-arch: [x64]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build
+        uses: docker/build-push-action@v5
+        with:
+          build-args: |
+            PKG_FETCH_OPTION_a=${{ matrix.target-arch }}
+            PKG_FETCH_OPTION_n=node${{ matrix.target-node }}
+            PKG_FETCH_OPTION_p=alpine
+          context: .
+          file: ./Dockerfile.alpine
+          platforms: linux/amd64
+          outputs: type=local, dest=dist
+
+      - name: Check if binary is compiled, skip if download only
+        id: check_file
+        run: |
+          ls -l dist
+          (test -f dist/*.sha256sum && echo "EXISTS=true" >> $GITHUB_OUTPUT) || echo "EXISTS=false" >> $GITHUB_OUTPUT
+
+      - uses: actions/upload-artifact@v4
+        if: steps.check_file.outputs.EXISTS == 'true'
+        with:
+          name: node${{ matrix.target-node }}-alpine-${{ matrix.target-arch }}
+          path: dist/*
+
+  alpine-arm64:
+    runs-on: ubuntu-22.04-arm
+
+    strategy:
+      fail-fast: false
+      matrix:
+        target-node: [20, 22, 24]
+        target-arch: [arm64]
 
     steps:
       - uses: actions/checkout@v4
@@ -31,14 +62,12 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           build-args: |
-            HOST_ARCH=${{ matrix.host-arch }}
-            TARGET_TRIPLE=${{ matrix.target-triple }}
             PKG_FETCH_OPTION_a=${{ matrix.target-arch }}
             PKG_FETCH_OPTION_n=node${{ matrix.target-node }}
             PKG_FETCH_OPTION_p=alpine
           context: .
           file: ./Dockerfile.alpine
-          platforms: linux/amd64
+          platforms: linux/arm64
           outputs: type=local, dest=dist
 
       - name: Check if binary is compiled, skip if download only

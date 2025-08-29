@@ -6,12 +6,12 @@ on:
 
 jobs:
   macos-x64:
-    runs-on: macos-13
+    runs-on: macos-14
 
     strategy:
       fail-fast: false
       matrix:
-        target-node: [16, 18, 20, 22]
+        target-node: [20, 22, 24]
 
     steps:
       - uses: actions/checkout@v4
@@ -24,13 +24,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      
-      - name: Check arch is x64
-        run: |
-          if [[ $(uname -m) != "x86_64" ]]; then
-            echo "This job should run on x64 architecture"
-            exit 1
-          fi
 
       - run: yarn install --ignore-engines
 
@@ -39,7 +32,16 @@ jobs:
         run: |
           pip install setuptools
 
-      - run: yarn start --node-range node${{ matrix.target-node }} --output dist
+      # Remove unneeded stuff to free up build space (from Node https://github.com/nodejs/build/issues/3878)
+      - name: Cleanup before build
+        run: |
+          sudo rm -rf /Users/runner/Library/Android/sdk
+          sudo rm -rf /Users/runner/Library/Developer/CoreSimulator/Caches
+          echo "::group::Free space after cleanup"
+          df -h
+          echo "::endgroup::"
+
+      - run: yarn start --node-range node${{ matrix.target-node }} --arch x64 --output dist
         env:
           MAKE_JOB_COUNT: 2 # prevent to run out of memory
 
@@ -61,7 +63,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target-node: [18, 20, 22]
+        target-node: [20, 22, 24]
 
     steps:
       - uses: actions/checkout@v4
@@ -83,7 +85,6 @@ jobs:
           fi
 
       - run: yarn install --ignore-engines
-
 
       # add missing distutils package to python 3.12
       - name: Install distutils
