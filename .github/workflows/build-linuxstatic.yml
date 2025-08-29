@@ -5,13 +5,13 @@ on:
   workflow_call:
 
 jobs:
-  linuxstatic:
+  linuxstatic-legacy:
     runs-on: ubuntu-22.04
 
     strategy:
       fail-fast: false
       matrix:
-        target-node: [16, 18, 20, 22]
+        target-node: [20, 22]
         target-arch: [x64, arm64, armv7]
         include:
           - target-arch: x64
@@ -40,8 +40,84 @@ jobs:
             PKG_FETCH_OPTION_n=node${{ matrix.target-node }}
             PKG_FETCH_OPTION_p=linuxstatic
           context: .
-          file: ./Dockerfile.alpine
+          file: ./Dockerfile.alpine-muslcc
           platforms: linux/amd64
+          outputs: type=local, dest=dist
+
+      - name: Check if binary is compiled, skip if download only
+        id: check_file
+        run: |
+          ls -l dist
+          (test -f dist/*.sha256sum && echo "EXISTS=true" >> $GITHUB_OUTPUT) || echo "EXISTS=false" >> $GITHUB_OUTPUT
+
+      - uses: actions/upload-artifact@v4
+        if: steps.check_file.outputs.EXISTS == 'true'
+        with:
+          name: node${{ matrix.target-node }}-linuxstatic-${{ matrix.target-arch }}
+          path: dist/*
+
+  linuxstatic-x64:
+    runs-on: ubuntu-22.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        target-node: [24]
+        target-arch: [x64]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build
+        uses: docker/build-push-action@v5
+        with:
+          build-args: |
+            PKG_FETCH_OPTION_a=${{ matrix.target-arch }}
+            PKG_FETCH_OPTION_n=node${{ matrix.target-node }}
+            PKG_FETCH_OPTION_p=linuxstatic
+          context: .
+          file: ./Dockerfile.alpine
+          outputs: type=local, dest=dist
+
+      - name: Check if binary is compiled, skip if download only
+        id: check_file
+        run: |
+          ls -l dist
+          (test -f dist/*.sha256sum && echo "EXISTS=true" >> $GITHUB_OUTPUT) || echo "EXISTS=false" >> $GITHUB_OUTPUT
+
+      - uses: actions/upload-artifact@v4
+        if: steps.check_file.outputs.EXISTS == 'true'
+        with:
+          name: node${{ matrix.target-node }}-linuxstatic-${{ matrix.target-arch }}
+          path: dist/*
+
+  linuxstatic-arm64:
+    runs-on: ubuntu-22.04-arm
+
+    strategy:
+      fail-fast: false
+      matrix:
+        target-node: [24]
+        target-arch: [arm64]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build
+        uses: docker/build-push-action@v5
+        with:
+          build-args: |
+            PKG_FETCH_OPTION_a=${{ matrix.target-arch }}
+            PKG_FETCH_OPTION_n=node${{ matrix.target-node }}
+            PKG_FETCH_OPTION_p=linuxstatic
+          context: .
+          file: ./Dockerfile.alpine
           outputs: type=local, dest=dist
 
       - name: Check if binary is compiled, skip if download only
