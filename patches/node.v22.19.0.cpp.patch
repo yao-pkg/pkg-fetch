@@ -1,8 +1,8 @@
 diff --git node/common.gypi node/common.gypi
-index b88371ec13..343352b5c4 100644
+index 7780ae106b..584d3756ee 100644
 --- node/common.gypi
 +++ node/common.gypi
-@@ -191,7 +191,7 @@
+@@ -192,7 +192,7 @@
              ['clang==1', {
                'lto': ' -flto ', # Clang
              }, {
@@ -247,10 +247,10 @@ index ec69ad5123..1894032344 100644
        GetHeaderValue(kReadOnlySnapshotChecksumOffset);
    if (ro_snapshot_checksum != expected_ro_snapshot_checksum) {
 diff --git node/lib/child_process.js node/lib/child_process.js
-index e848b3d5ee..3e3ad3ec7c 100644
+index 655349b6fa..77092e0cd5 100644
 --- node/lib/child_process.js
 +++ node/lib/child_process.js
-@@ -169,7 +169,7 @@ function fork(modulePath, args = [], options) {
+@@ -171,7 +171,7 @@ function fork(modulePath, args = [], options) {
      throw new ERR_CHILD_PROCESS_IPC_REQUIRED('options.stdio');
    }
  
@@ -315,10 +315,10 @@ index 0000000000..a697294fdf
 +  }());
 +}());
 diff --git node/lib/internal/modules/cjs/loader.js node/lib/internal/modules/cjs/loader.js
-index d90476addb..8c87fa9019 100644
+index a7d8fa1139..bffe5a8a53 100644
 --- node/lib/internal/modules/cjs/loader.js
 +++ node/lib/internal/modules/cjs/loader.js
-@@ -250,12 +250,16 @@ function stat(filename) {
+@@ -252,14 +252,18 @@ function stat(filename) {
    // Guard against internal bugs where a non-string filename is passed in by mistake.
    assert(typeof filename === 'string');
  
@@ -328,19 +328,22 @@ index d90476addb..8c87fa9019 100644
      const result = statCache.get(filename);
      if (result !== undefined) { return result; }
    }
--  const result = internalFsBinding.internalModuleStat(internalFsBinding, filename);
+-  const result = internalFsBinding.internalModuleStat(filename);
 +  const fs = require('fs');
 +  const result = fs.existsSync(origFilename) ?
 +    (fs.statSync(origFilename).isDirectory() ? 1 : 0) : -1;
 +
    if (statCache !== null && result >= 0) {
-     // Only set cache when `internalModuleStat(internalFsBinding, filename)` succeeds.
+-    // Only set cache when `internalModuleStat(filename)` succeeds.
++    // Only set cache when `internalModuleStat(internalFsBinding, filename)` succeeds.
      statCache.set(filename, result);
+   }
+   return result;
 diff --git node/lib/internal/modules/package_json_reader.js node/lib/internal/modules/package_json_reader.js
-index df23a30b1b..4a414c469c 100644
+index fb669ea12e..6ad993581b 100644
 --- node/lib/internal/modules/package_json_reader.js
 +++ node/lib/internal/modules/package_json_reader.js
-@@ -105,17 +105,20 @@ const requiresJSONParse = (value) => (value !== undefined && (value[0] === '[' |
+@@ -108,17 +108,20 @@ const requiresJSONParse = (value) => (value !== undefined && (value[0] === '[' |
   * @returns {PackageConfig}
   */
  function read(jsonPath, { base, specifier, isESM } = kEmptyObject) {
@@ -373,7 +376,7 @@ index df23a30b1b..4a414c469c 100644
      __proto__: null,
      ...result.data,
 diff --git node/lib/internal/process/pre_execution.js node/lib/internal/process/pre_execution.js
-index 4e7be0594c..09efa7b745 100644
+index 98ed40e307..f9da878ea0 100644
 --- node/lib/internal/process/pre_execution.js
 +++ node/lib/internal/process/pre_execution.js
 @@ -50,7 +50,11 @@ const {
@@ -398,7 +401,7 @@ index 4e7be0594c..09efa7b745 100644
      // Expand process.argv[1] into a full path.
      const path = require('path');
      try {
-@@ -735,6 +740,7 @@ function loadPreloadModules() {
+@@ -725,6 +730,7 @@ function loadPreloadModules() {
    // For user code, we preload modules if `-r` is passed
    const preloadModules = getOptionValue('--require');
    if (preloadModules && preloadModules.length > 0) {
@@ -428,11 +431,106 @@ index ae71080620..b05638de75 100644
      } catch (e) {
        throw e; /* node-do-not-add-exception-line */
      }
+diff --git node/resolution_output.txt node/resolution_output.txt
+new file mode 100644
+index 0000000000..9958402cd4
+--- /dev/null
++++ node/resolution_output.txt
+@@ -0,0 +1,89 @@
++Processing section 1/1 for ./lib/internal/modules/cjs/loader.js...
++Found 1 reject files to process
++Processing: ./lib/internal/modules/cjs/loader.js.rej -> ./lib/internal/modules/cjs/loader.js
++Prompt for OpenAI API:
++I have a Git patch that failed to apply. Here's the specific section that needs to be fixed:
++
++REJECTED PATCH HUNK:
++```
++@@ -250,12 +250,16 @@
++   // Guard against internal bugs where a non-string filename is passed in by mistake.
++   assert(typeof filename === 'string');
++ 
+++  const origFilename = filename;
++   filename = path.toNamespacedPath(filename);
++   if (statCache !== null) {
++     const result = statCache.get(filename);
++     if (result !== undefined) { return result; }
++   }
++-  const result = internalFsBinding.internalModuleStat(internalFsBinding, filename);
+++  const fs = require('fs');
+++  const result = fs.existsSync(origFilename) ?
+++    (fs.statSync(origFilename).isDirectory() ? 1 : 0) : -1;
+++
++   if (statCache !== null && result >= 0) {
++     // Only set cache when `internalModuleStat(internalFsBinding, filename)` succeeds.
++     statCache.set(filename, result);
++```
++
++CURRENT FILE SECTION (lines 245-266):
++```
++}
++
++/**
++ * Get a path's properties, using an in-memory cache to minimize lookups.
++ * @param {string} filename Absolute path to the file
++ */
++function stat(filename) {
++  // Guard against internal bugs where a non-string filename is passed in by mistake.
++  assert(typeof filename === 'string');
++
++  filename = path.toNamespacedPath(filename);
++  if (statCache !== null) {
++    const result = statCache.get(filename);
++    if (result !== undefined) { return result; }
++  }
++  const result = internalFsBinding.internalModuleStat(filename);
++  if (statCache !== null && result >= 0) {
++    // Only set cache when `internalModuleStat(filename)` succeeds.
++    statCache.set(filename, result);
++  }
++  return result;
++}
++```
++
++Please apply the intended changes from the rejected hunk to this file section. Return ONLY the corrected file section content, preserving the exact line structure and formatting. Do not add explanations or markdown formatting.
++RESOLVED CONTENT for ./lib/internal/modules/cjs/loader.js:
++```
++}
++
++/**
++ * Get a path's properties, using an in-memory cache to minimize lookups.
++ * @param {string} filename Absolute path to the file
++ */
++function stat(filename) {
++  // Guard against internal bugs where a non-string filename is passed in by mistake.
++  assert(typeof filename === 'string');
++
++  const origFilename = filename;
++  filename = path.toNamespacedPath(filename);
++  if (statCache !== null) {
++    const result = statCache.get(filename);
++    if (result !== undefined) { return result; }
++  }
++  const fs = require('fs');
++  const result = fs.existsSync(origFilename) ?
++    (fs.statSync(origFilename).isDirectory() ? 1 : 0) : -1;
++
++  if (statCache !== null && result >= 0) {
++    // Only set cache when `internalModuleStat(internalFsBinding, filename)` succeeds.
++    statCache.set(filename, result);
++  }
++  return result;
++}
++```
++✅ Successfully resolved ./lib/internal/modules/cjs/loader.js
++CONFLICTS_RESOLVED=1
++TOTAL_CONFLICTS=1
++HAS_UNRESOLVED=False
++Resolution summary: 1/1 conflicts resolved
 diff --git node/src/inspector_agent.cc node/src/inspector_agent.cc
-index fa6eb29e6e..5d6dd23f6a 100644
+index aca49fddce..ddc54909ea 100644
 --- node/src/inspector_agent.cc
 +++ node/src/inspector_agent.cc
-@@ -819,11 +819,6 @@ bool Agent::Start(const std::string& path,
+@@ -832,11 +832,6 @@ bool Agent::Start(const std::string& path,
                                StartIoThreadAsyncCallback));
      uv_unref(reinterpret_cast<uv_handle_t*>(&start_io_thread_async));
      start_io_thread_async.data = this;
@@ -445,7 +543,7 @@ index fa6eb29e6e..5d6dd23f6a 100644
      parent_env_->AddCleanupHook([](void* data) {
        Environment* env = static_cast<Environment*>(data);
 diff --git node/src/node.cc node/src/node.cc
-index c0d0b734ed..58583892f9 100644
+index 1b5e989e54..20f49ba2f2 100644
 --- node/src/node.cc
 +++ node/src/node.cc
 @@ -404,6 +404,8 @@ MaybeLocal<Value> StartExecution(Environment* env, StartExecutionCallback cb) {
@@ -473,7 +571,7 @@ index c0d0b734ed..58583892f9 100644
    }
  
 diff --git node/src/node_contextify.cc node/src/node_contextify.cc
-index 7bfe42c593..836d98d6ed 100644
+index 386102dfe7..fa452538bf 100644
 --- node/src/node_contextify.cc
 +++ node/src/node_contextify.cc
 @@ -86,6 +86,7 @@ using v8::Symbol;
@@ -484,7 +582,7 @@ index 7bfe42c593..836d98d6ed 100644
  
  // The vm module executes code in a sandboxed environment with a different
  // global object than the rest of the code. This is achieved by applying
-@@ -994,13 +995,13 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -993,13 +994,13 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
    Local<ArrayBufferView> cached_data_buf;
    bool produce_cached_data = false;
    Local<Context> parsing_context = context;
@@ -501,7 +599,7 @@ index 7bfe42c593..836d98d6ed 100644
      CHECK(args[2]->IsNumber());
      line_offset = args[2].As<Int32>()->Value();
      CHECK(args[3]->IsNumber());
-@@ -1021,6 +1022,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1020,6 +1021,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
      }
      CHECK(args[7]->IsSymbol());
      id_symbol = args[7].As<Symbol>();
@@ -512,7 +610,7 @@ index 7bfe42c593..836d98d6ed 100644
    }
  
    ContextifyScript* contextify_script =
-@@ -1068,6 +1073,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1067,6 +1072,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
    ShouldNotAbortOnUncaughtScope no_abort_scope(env);
    Context::Scope scope(parsing_context);
  
@@ -523,7 +621,7 @@ index 7bfe42c593..836d98d6ed 100644
    MaybeLocal<UnboundScript> maybe_v8_script =
        ScriptCompiler::CompileUnboundScript(isolate, &source, compile_options);
  
-@@ -1082,6 +1091,12 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1081,6 +1090,12 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
      return;
    }
  
@@ -536,7 +634,7 @@ index 7bfe42c593..836d98d6ed 100644
    contextify_script->script_.Reset(isolate, v8_script);
    contextify_script->script_.SetWeak();
    contextify_script->object()->SetInternalField(kUnboundScriptSlot, v8_script);
-@@ -1121,6 +1136,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1120,6 +1135,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
            .IsNothing())
      return;
  
@@ -658,7 +756,7 @@ index f66099a557..4048f6bd93 100644
 +  return adjacent(c, nargv);
 +}
 diff --git node/src/node_options.cc node/src/node_options.cc
-index da39abf79c..7f97afe7dc 100644
+index 249361e351..ef61e29dfb 100644
 --- node/src/node_options.cc
 +++ node/src/node_options.cc
 @@ -319,6 +319,7 @@ void Parse(
