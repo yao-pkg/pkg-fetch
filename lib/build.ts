@@ -29,7 +29,7 @@ function getMajor(nodeVersion: string) {
   return Number(version) | 0;
 }
 
-function getConfigureArgs(major: number, targetPlatform: string): string[] {
+function getConfigureArgs(major: number, targetPlatform: string, targetArch: string): string[] {
   const args: string[] = [];
 
   // first of all v8_inspector introduces the use
@@ -75,6 +75,12 @@ function getConfigureArgs(major: number, targetPlatform: string): string[] {
   // All supported macOS versions have zlib as a system library
   if (targetPlatform === 'macos') {
     args.push('--shared-zlib');
+  }
+  
+  // macos cross-build from arm64 to x64
+  if (targetPlatform === 'macos' && hostArch === 'arm64' && targetArch === 'x64') {
+    args.push('--dest-os=mac');
+    args.push('--dest-cpu=x64');
   }
 
   return args;
@@ -186,7 +192,7 @@ async function compileOnWindows(
 ) {
   const args = ['/c', 'vcbuild.bat', targetArch];
   const major = getMajor(nodeVersion);
-  const config_flags = getConfigureArgs(major, targetPlatform);
+  const config_flags = getConfigureArgs(major, targetPlatform, targetArch);
 
   // The dtrace and etw support was removed in https://github.com/nodejs/node/commit/aa3a572e6bee116cde69508dc29478b40f40551a
   if (major <= 18) {
@@ -255,6 +261,13 @@ async function compileOnUnix(
     args.push('--with-arm-float-abi=hard');
     args.push('--with-arm-fpu=vfpv3');
   }
+  // macos cross-build from arm64 to x64
+  if (targetPlatform === "macos" && hostArch === 'arm64' && targetArch === 'x64') {
+    const { CFLAGS = '', CXXFLAGS = '', LDFLAGS='' } = process.env;
+    process.env.CFLAGS = `${CFLAGS} -arch x86_64`;
+    process.env.CXXFLAGS = `${CXXFLAGS} -arch x86_64`;
+    process.env.LDFLAGS = `${LDFLAGS} -arch x86_64`;
+  }
 
   if (hostArch !== targetArch) {
     log.warn('Cross compiling!');
@@ -262,7 +275,7 @@ async function compileOnUnix(
     args.push('--cross-compiling');
   }
 
-  args.push(...getConfigureArgs(getMajor(nodeVersion), targetPlatform));
+  args.push(...getConfigureArgs(getMajor(nodeVersion), targetPlatform, targetArch));
 
   // TODO same for windows?
   await spawn('/bin/sh', ['./configure', ...args], {
