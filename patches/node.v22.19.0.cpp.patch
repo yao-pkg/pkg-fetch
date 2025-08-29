@@ -1,5 +1,5 @@
 diff --git node/common.gypi node/common.gypi
-index 7780ae106b..584d3756ee 100644
+index 7780ae106b4..584d3756ee5 100644
 --- node/common.gypi
 +++ node/common.gypi
 @@ -192,7 +192,7 @@
@@ -12,7 +12,7 @@ index 7780ae106b..584d3756ee 100644
            ],
          },
 diff --git node/deps/ngtcp2/nghttp3/lib/nghttp3_ringbuf.c node/deps/ngtcp2/nghttp3/lib/nghttp3_ringbuf.c
-index 7d3ab39bf8..67a48dee53 100644
+index 7d3ab39bf82..67a48dee53a 100644
 --- node/deps/ngtcp2/nghttp3/lib/nghttp3_ringbuf.c
 +++ node/deps/ngtcp2/nghttp3/lib/nghttp3_ringbuf.c
 @@ -34,10 +34,7 @@
@@ -28,7 +28,7 @@ index 7d3ab39bf8..67a48dee53 100644
  #else  /* !((defined(_MSC_VER) && !defined(__clang__) && (defined(_M_ARM) ||   \
            (defined(_M_ARM64) && _MSC_VER < 1941))) || defined(WIN32)) */
 diff --git node/deps/ngtcp2/ngtcp2/lib/ngtcp2_ringbuf.c node/deps/ngtcp2/ngtcp2/lib/ngtcp2_ringbuf.c
-index 353afca4d4..dea944aed5 100644
+index 353afca4d48..dea944aed5a 100644
 --- node/deps/ngtcp2/ngtcp2/lib/ngtcp2_ringbuf.c
 +++ node/deps/ngtcp2/ngtcp2/lib/ngtcp2_ringbuf.c
 @@ -33,10 +33,7 @@
@@ -44,7 +44,7 @@ index 353afca4d4..dea944aed5 100644
  #  else  /* !((defined(_MSC_VER) && !defined(__clang__) && (defined(_M_ARM) || \
              (defined(_M_ARM64) && _MSC_VER < 1941))) || defined(WIN32)) */
 diff --git node/deps/v8/include/v8-initialization.h node/deps/v8/include/v8-initialization.h
-index d3e35d6ec5..6e9bbe3849 100644
+index d3e35d6ec5f..6e9bbe38491 100644
 --- node/deps/v8/include/v8-initialization.h
 +++ node/deps/v8/include/v8-initialization.h
 @@ -89,6 +89,10 @@ class V8_EXPORT V8 {
@@ -59,7 +59,7 @@ index d3e35d6ec5..6e9bbe3849 100644
    static const char* GetVersion();
  
 diff --git node/deps/v8/src/api/api.cc node/deps/v8/src/api/api.cc
-index 2dd476dda3..8a51f25b57 100644
+index 2dd476dda34..8a51f25b572 100644
 --- node/deps/v8/src/api/api.cc
 +++ node/deps/v8/src/api/api.cc
 @@ -624,6 +624,28 @@ void V8::SetFlagsFromCommandLine(int* argc, char** argv, bool remove_flags) {
@@ -91,8 +91,22 @@ index 2dd476dda3..8a51f25b57 100644
  RegisteredExtension* RegisteredExtension::first_extension_ = nullptr;
  
  RegisteredExtension::RegisteredExtension(std::unique_ptr<Extension> extension)
+diff --git node/deps/v8/src/codegen/code-stub-assembler.h node/deps/v8/src/codegen/code-stub-assembler.h
+index b082bb8dc7b..285683ecdc8 100644
+--- node/deps/v8/src/codegen/code-stub-assembler.h
++++ node/deps/v8/src/codegen/code-stub-assembler.h
+@@ -286,7 +286,8 @@ enum class PrimitiveType { kBoolean, kNumber, kString, kSymbol };
+ 
+ // This is a check that always calls into the runtime if it aborts.
+ // This also exits silently when --hole-fuzzing is enabled.
+-#define CSA_HOLE_SECURITY_CHECK(csa, x) CSA_CHECK_WITH_ABORT(csa, x)
++#define CSA_HOLE_SECURITY_CHECK(csa, x) \
++  (csa)->Check([&]() -> TNode<BoolT> { return x; }, #x, "placeholder", 1)
+ 
+ #ifdef DEBUG
+ // CSA_DCHECK_ARGS generates an
 diff --git node/deps/v8/src/codegen/compiler.cc node/deps/v8/src/codegen/compiler.cc
-index 9048655363..ab81c326fc 100644
+index 9048655363c..ab81c326fc4 100644
 --- node/deps/v8/src/codegen/compiler.cc
 +++ node/deps/v8/src/codegen/compiler.cc
 @@ -3634,7 +3634,7 @@ MaybeHandle<SharedFunctionInfo> GetSharedFunctionInfoForScriptImpl(
@@ -105,7 +119,7 @@ index 9048655363..ab81c326fc 100644
      } else if (can_consume_code_cache) {
        compile_timer.set_consuming_code_cache();
 diff --git node/deps/v8/src/compiler/wasm-compiler.cc node/deps/v8/src/compiler/wasm-compiler.cc
-index 16f1f1470b..4bfeca49e6 100644
+index 16f1f1470b7..4bfeca49e64 100644
 --- node/deps/v8/src/compiler/wasm-compiler.cc
 +++ node/deps/v8/src/compiler/wasm-compiler.cc
 @@ -8613,12 +8613,13 @@ wasm::WasmCompilationResult CompileWasmImportCallWrapper(
@@ -149,7 +163,7 @@ index 16f1f1470b..4bfeca49e6 100644
      // Compile the wrapper
      if (job->ExecuteJob(isolate->counters()->runtime_call_stats()) ==
 diff --git node/deps/v8/src/heap/marking-visitor-inl.h node/deps/v8/src/heap/marking-visitor-inl.h
-index 39a5bbd22c..4b860f55d5 100644
+index 39a5bbd22c2..4b860f55d5e 100644
 --- node/deps/v8/src/heap/marking-visitor-inl.h
 +++ node/deps/v8/src/heap/marking-visitor-inl.h
 @@ -329,6 +329,13 @@ bool MarkingVisitorBase<ConcreteVisitor>::HasBytecodeArrayForFlushing(
@@ -167,7 +181,7 @@ index 39a5bbd22c..4b860f55d5 100644
  }
  
 diff --git node/deps/v8/src/objects/js-function.cc node/deps/v8/src/objects/js-function.cc
-index 529e283bbf..c997c53a18 100644
+index 529e283bbf0..c997c53a18c 100644
 --- node/deps/v8/src/objects/js-function.cc
 +++ node/deps/v8/src/objects/js-function.cc
 @@ -1308,6 +1308,10 @@ Handle<String> JSFunction::ToString(Handle<JSFunction> function) {
@@ -182,7 +196,7 @@ index 529e283bbf..c997c53a18 100644
            ClassPositions::cast(*maybe_class_positions);
        int start_position = class_positions->start();
 diff --git node/deps/v8/src/objects/objects.cc node/deps/v8/src/objects/objects.cc
-index 8e013c2544..7ac03149d8 100644
+index 8e013c2544e..7ac03149d86 100644
 --- node/deps/v8/src/objects/objects.cc
 +++ node/deps/v8/src/objects/objects.cc
 @@ -4263,7 +4263,12 @@ void Script::InitLineEndsInternal(IsolateT* isolate, Handle<Script> script) {
@@ -200,7 +214,7 @@ index 8e013c2544..7ac03149d8 100644
  }
  
 diff --git node/deps/v8/src/parsing/parsing.cc node/deps/v8/src/parsing/parsing.cc
-index f160b27ea4..748452ba45 100644
+index f160b27ea4d..748452ba451 100644
 --- node/deps/v8/src/parsing/parsing.cc
 +++ node/deps/v8/src/parsing/parsing.cc
 @@ -42,6 +42,7 @@ bool ParseProgram(ParseInfo* info, Handle<Script> script,
@@ -221,7 +235,7 @@ index f160b27ea4..748452ba45 100644
    std::unique_ptr<Utf16CharacterStream> stream(
        ScannerStream::For(isolate, source, shared_info->StartPosition(),
 diff --git node/deps/v8/src/snapshot/code-serializer.cc node/deps/v8/src/snapshot/code-serializer.cc
-index ec69ad5123..1894032344 100644
+index ec69ad51239..5bc92af5aad 100644
 --- node/deps/v8/src/snapshot/code-serializer.cc
 +++ node/deps/v8/src/snapshot/code-serializer.cc
 @@ -703,10 +703,6 @@ SerializedCodeSanityCheckResult SerializedCodeData::SanityCheck(
@@ -235,7 +249,7 @@ index ec69ad5123..1894032344 100644
    return SerializedCodeSanityCheckResult::kSuccess;
  }
  
-@@ -723,10 +719,6 @@ SerializedCodeSanityCheckResult SerializedCodeData::SanityCheckWithoutSource(
+@@ -723,13 +719,12 @@ SerializedCodeSanityCheckResult SerializedCodeData::SanityCheckWithoutSource(
    if (version_hash != Version::Hash()) {
      return SerializedCodeSanityCheckResult::kVersionMismatch;
    }
@@ -246,8 +260,28 @@ index ec69ad5123..1894032344 100644
    uint32_t ro_snapshot_checksum =
        GetHeaderValue(kReadOnlySnapshotChecksumOffset);
    if (ro_snapshot_checksum != expected_ro_snapshot_checksum) {
++    // for debugging snapshot checkum issues
++    // PrintF("[pkg] ReadOnlySnapshotChecksum mismatch: code=%08x built=%08x\n",
++    //  ro_snapshot_checksum, expected_ro_snapshot_checksum);
+     return SerializedCodeSanityCheckResult::kReadOnlySnapshotChecksumMismatch;
+   }
+   uint32_t payload_length = GetHeaderValue(kPayloadLengthOffset);
+diff --git node/deps/v8/src/snapshot/read-only-serializer.cc node/deps/v8/src/snapshot/read-only-serializer.cc
+index 29c69a782ef..4431cd14ac8 100644
+--- node/deps/v8/src/snapshot/read-only-serializer.cc
++++ node/deps/v8/src/snapshot/read-only-serializer.cc
+@@ -237,6 +237,9 @@ class EncodeRelocationsVisitor final : public ObjectVisitor {
+ 
+     // Encode:
+     ro::EncodedTagged encoded = Encode(isolate_, o.GetHeapObject());
++    #ifndef V8_COMPRESS_POINTERS
++    memset(segment_->contents.get() + slot_offset, 0, kTaggedSize);
++    #endif
+     memcpy(segment_->contents.get() + slot_offset, &encoded,
+            ro::EncodedTagged::kSize);
+ 
 diff --git node/lib/child_process.js node/lib/child_process.js
-index 655349b6fa..77092e0cd5 100644
+index 655349b6fa1..77092e0cd5b 100644
 --- node/lib/child_process.js
 +++ node/lib/child_process.js
 @@ -171,7 +171,7 @@ function fork(modulePath, args = [], options) {
@@ -261,7 +295,7 @@ index 655349b6fa..77092e0cd5 100644
  function _forkChild(fd, serializationMode) {
 diff --git node/lib/internal/bootstrap/pkg.js node/lib/internal/bootstrap/pkg.js
 new file mode 100644
-index 0000000000..a697294fdf
+index 00000000000..a697294fdfe
 --- /dev/null
 +++ node/lib/internal/bootstrap/pkg.js
 @@ -0,0 +1,49 @@
@@ -315,7 +349,7 @@ index 0000000000..a697294fdf
 +  }());
 +}());
 diff --git node/lib/internal/modules/cjs/loader.js node/lib/internal/modules/cjs/loader.js
-index a7d8fa1139..bffe5a8a53 100644
+index a7d8fa1139c..bffe5a8a538 100644
 --- node/lib/internal/modules/cjs/loader.js
 +++ node/lib/internal/modules/cjs/loader.js
 @@ -252,14 +252,18 @@ function stat(filename) {
@@ -340,7 +374,7 @@ index a7d8fa1139..bffe5a8a53 100644
    }
    return result;
 diff --git node/lib/internal/modules/package_json_reader.js node/lib/internal/modules/package_json_reader.js
-index fb669ea12e..6ad993581b 100644
+index fb669ea12ee..6ad993581bb 100644
 --- node/lib/internal/modules/package_json_reader.js
 +++ node/lib/internal/modules/package_json_reader.js
 @@ -108,17 +108,20 @@ const requiresJSONParse = (value) => (value !== undefined && (value[0] === '[' |
@@ -376,7 +410,7 @@ index fb669ea12e..6ad993581b 100644
      __proto__: null,
      ...result.data,
 diff --git node/lib/internal/process/pre_execution.js node/lib/internal/process/pre_execution.js
-index 98ed40e307..f9da878ea0 100644
+index 98ed40e3076..f9da878ea06 100644
 --- node/lib/internal/process/pre_execution.js
 +++ node/lib/internal/process/pre_execution.js
 @@ -50,7 +50,11 @@ const {
@@ -410,7 +444,7 @@ index 98ed40e307..f9da878ea0 100644
        Module: {
          _preloadModules,
 diff --git node/lib/vm.js node/lib/vm.js
-index ae71080620..b05638de75 100644
+index ae710806201..b05638de759 100644
 --- node/lib/vm.js
 +++ node/lib/vm.js
 @@ -98,6 +98,7 @@ class Script extends ContextifyScript {
@@ -432,7 +466,7 @@ index ae71080620..b05638de75 100644
        throw e; /* node-do-not-add-exception-line */
      }
 diff --git node/src/inspector_agent.cc node/src/inspector_agent.cc
-index aca49fddce..ddc54909ea 100644
+index aca49fddce0..ddc54909ea7 100644
 --- node/src/inspector_agent.cc
 +++ node/src/inspector_agent.cc
 @@ -832,11 +832,6 @@ bool Agent::Start(const std::string& path,
@@ -448,7 +482,7 @@ index aca49fddce..ddc54909ea 100644
      parent_env_->AddCleanupHook([](void* data) {
        Environment* env = static_cast<Environment*>(data);
 diff --git node/src/node.cc node/src/node.cc
-index 1b5e989e54..20f49ba2f2 100644
+index 1b5e989e545..20f49ba2f26 100644
 --- node/src/node.cc
 +++ node/src/node.cc
 @@ -404,6 +404,8 @@ MaybeLocal<Value> StartExecution(Environment* env, StartExecutionCallback cb) {
@@ -476,7 +510,7 @@ index 1b5e989e54..20f49ba2f2 100644
    }
  
 diff --git node/src/node_contextify.cc node/src/node_contextify.cc
-index 386102dfe7..fa452538bf 100644
+index 386102dfe7e..fa452538bf1 100644
 --- node/src/node_contextify.cc
 +++ node/src/node_contextify.cc
 @@ -86,6 +86,7 @@ using v8::Symbol;
@@ -551,7 +585,7 @@ index 386102dfe7..fa452538bf 100644
  }
  
 diff --git node/src/node_main.cc node/src/node_main.cc
-index f66099a557..4048f6bd93 100644
+index f66099a5570..4048f6bd937 100644
 --- node/src/node_main.cc
 +++ node/src/node_main.cc
 @@ -22,6 +22,8 @@
@@ -661,7 +695,7 @@ index f66099a557..4048f6bd93 100644
 +  return adjacent(c, nargv);
 +}
 diff --git node/src/node_options.cc node/src/node_options.cc
-index 249361e351..ef61e29dfb 100644
+index 249361e3519..ef61e29dfb3 100644
 --- node/src/node_options.cc
 +++ node/src/node_options.cc
 @@ -319,6 +319,7 @@ void Parse(
@@ -673,7 +707,7 @@ index 249361e351..ef61e29dfb 100644
    if (sea::IsSingleExecutable()) return;
  #endif
 diff --git node/tools/icu/icu-generic.gyp node/tools/icu/icu-generic.gyp
-index f007c65232..002a00a6ae 100644
+index f007c65232c..002a00a6aee 100644
 --- node/tools/icu/icu-generic.gyp
 +++ node/tools/icu/icu-generic.gyp
 @@ -52,7 +52,7 @@
