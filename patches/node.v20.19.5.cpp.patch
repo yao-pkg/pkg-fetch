@@ -1,8 +1,8 @@
 diff --git node/common.gypi node/common.gypi
-index 888b8b94ca..fb8a14f928 100644
+index 20e81dea95..3580f7f2e4 100644
 --- node/common.gypi
 +++ node/common.gypi
-@@ -184,7 +184,7 @@
+@@ -187,7 +187,7 @@
              ['clang==1', {
                'lto': ' -flto ', # Clang
              }, {
@@ -262,10 +262,10 @@ index 0000000000..a697294fdf
 +  }());
 +}());
 diff --git node/lib/internal/modules/cjs/loader.js node/lib/internal/modules/cjs/loader.js
-index ebccdb2825..178299c752 100644
+index b12594cc36..bc0361d8aa 100644
 --- node/lib/internal/modules/cjs/loader.js
 +++ node/lib/internal/modules/cjs/loader.js
-@@ -141,7 +141,7 @@ const {
+@@ -144,7 +144,7 @@ const {
  const assert = require('internal/assert');
  const fs = require('fs');
  const path = require('path');
@@ -364,7 +364,7 @@ index bb39a0cb42..5fa6cb65cc 100644
      parent_env_->AddCleanupHook([](void* data) {
        Environment* env = static_cast<Environment*>(data);
 diff --git node/src/node.cc node/src/node.cc
-index 4ad2c8b804..ab6174fab6 100644
+index 1137dcafcd..482feb65b5 100644
 --- node/src/node.cc
 +++ node/src/node.cc
 @@ -389,6 +389,8 @@ MaybeLocal<Value> StartExecution(Environment* env, StartExecutionCallback cb) {
@@ -392,7 +392,7 @@ index 4ad2c8b804..ab6174fab6 100644
    }
  
 diff --git node/src/node_contextify.cc node/src/node_contextify.cc
-index 7f82bca746..62705f04c5 100644
+index 2b93926a73..9f68232bd4 100644
 --- node/src/node_contextify.cc
 +++ node/src/node_contextify.cc
 @@ -79,6 +79,7 @@ using v8::String;
