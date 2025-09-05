@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target-node: [16, 18, 20, 22]
+        target-node: [20, 22, 24]
         target-arch: [x64, arm64]
 
     steps:
@@ -21,6 +21,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          check-latest: true
 
       - run: yarn install --ignore-engines
 
