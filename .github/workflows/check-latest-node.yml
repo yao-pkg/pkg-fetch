@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false # prevent test to stop if one fails
       matrix:
-        node-version: [18, 20, 22]
+        node-version: [20, 22, 24]
 
     runs-on: ubuntu-latest
     steps:
@@ -36,7 +36,7 @@ jobs:
             # set the output variable to true
             echo "outdated=true" >> $GITHUB_OUTPUT
           fi
-      
+
       - name: Create new patch
         if: steps.compare.outputs.outdated == 'true'
         run: |
@@ -49,7 +49,7 @@ jobs:
           -H "Accept: application/vnd.github.v3+json" \
           https://api.github.com/repos/${{ github.repository }}/actions/workflows/patch-node.yml/dispatches \
           -d '{"ref":"main","inputs":{"nodeVersion":"${{ steps.compare.outputs.latest_version }}","patchFile":"${{ steps.compare.outputs.patch_version }}"}}'
-      
+
       # send a notification to the repository owner if the patch is outdated
       - name: Notify
         if: steps.compare.outputs.outdated == 'true'

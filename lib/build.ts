@@ -29,7 +29,7 @@ function getMajor(nodeVersion: string) {
   return Number(version) | 0;
 }
 
-function getConfigureArgs(major: number, targetPlatform: string): string[] {
+function getConfigureArgs(major: number, targetPlatform: string, targetArch: string): string[] {
   const args: string[] = [];
 
   // first of all v8_inspector introduces the use
@@ -69,12 +69,20 @@ function getConfigureArgs(major: number, targetPlatform: string): string[] {
   args.push('--without-npm');
 
   // Small ICU
-  args.push('--with-intl=small-icu');
+  if (hostPlatform !== 'win' || major < 24) {
+    args.push('--with-intl=small-icu');
+  }
 
   // Workaround for nodejs/node#39313
   // All supported macOS versions have zlib as a system library
   if (targetPlatform === 'macos') {
     args.push('--shared-zlib');
+  }
+  
+  // macos cross-build from arm64 to x64
+  if (targetPlatform === 'macos' && hostArch === 'arm64' && targetArch === 'x64') {
+    args.push('--dest-os=mac');
+    args.push('--dest-cpu=x64');
   }
 
   return args;
@@ -140,7 +148,8 @@ async function tarExtract(nodeVersion: string, suppressTarOutput: boolean) {
     strip: 1,
     map: (header) => {
       if (!suppressTarOutput) {
-        log.info(header.name);
+        // disabled for now - can't get cmdline flag to work with all builds
+        // log.info(header.name);
       }
       return header;
     },
@@ -186,7 +195,7 @@ async function compileOnWindows(
 ) {
   const args = ['/c', 'vcbuild.bat', targetArch];
   const major = getMajor(nodeVersion);
-  const config_flags = getConfigureArgs(major, targetPlatform);
+  const config_flags = getConfigureArgs(major, targetPlatform, targetArch);
 
   // The dtrace and etw support was removed in https://github.com/nodejs/node/commit/aa3a572e6bee116cde69508dc29478b40f40551a
   if (major <= 18) {
@@ -204,8 +213,16 @@ async function compileOnWindows(
     args.push('ltcg');
   }
 
+  // Node24 builds on Windows crash with small-icu at icudat codegen
+  // workaround for now is to enable full-icu
+  // TODO check with newer node/tooling/gh-image versions
+  if (major >= 24) {
+    args.push('full-icu');
+  }
+
   // Can't cross compile for arm64 with small-icu
   if (
+    major < 24 &&
     hostArch !== targetArch &&
     !config_flags.includes('--with-intl=full-icu')
   ) {
@@ -255,6 +272,13 @@ async function compileOnUnix(
     args.push('--with-arm-float-abi=hard');
     args.push('--with-arm-fpu=vfpv3');
   }
+  // macos cross-build from arm64 to x64
+  if (targetPlatform === "macos" && hostArch === 'arm64' && targetArch === 'x64') {
+    const { CFLAGS = '', CXXFLAGS = '', LDFLAGS='' } = process.env;
+    process.env.CFLAGS = `${CFLAGS} -arch x86_64`;
+    process.env.CXXFLAGS = `${CXXFLAGS} -arch x86_64`;
+    process.env.LDFLAGS = `${LDFLAGS} -arch x86_64`;
+  }
 
   if (hostArch !== targetArch) {
     log.warn('Cross compiling!');
@@ -262,8 +286,9 @@ async function compileOnUnix(
     args.push('--cross-compiling');
   }
 
-  args.push(...getConfigureArgs(getMajor(nodeVersion), targetPlatform));
+  args.push(...getConfigureArgs(getMajor(nodeVersion), targetPlatform, targetArch));
 
+  log.info("Running configure with: ", args.join(" "));
   // TODO same for windows?
   await spawn('/bin/sh', ['./configure', ...args], {
     cwd: nodePath,

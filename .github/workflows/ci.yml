@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false # prevent test to stop if one fails
       matrix:
-        node-version: [16, 18, 20, 22] # match patched node versions
+        node-version: [20, 22, 24] # match patched node versions
         os: [ubuntu-latest] # Skip macos-latest, windows-latest for now
 
     runs-on: ${{ matrix.os }}
@@ -23,7 +23,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "yarn"
+          cache: 'yarn'
 
       - name: Install deps
         run: yarn install --ignore-engines
