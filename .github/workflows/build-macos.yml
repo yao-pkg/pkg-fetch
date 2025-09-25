@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target-node: [24]
+        target-node: [20, 22, 24]
 
     steps:
       - uses: actions/checkout@v4
@@ -37,33 +37,13 @@ jobs:
         run: |
           sudo rm -rf /Users/runner/Library/Android/sdk
           sudo rm -rf /Users/runner/Library/Developer/CoreSimulator/Caches
-          # Additional cleanup for more space
-          sudo rm -rf /Users/runner/.dotnet
-          sudo rm -rf /Users/runner/Library/Caches/Homebrew/*
           echo "::group::Free space after cleanup"
           df -h
           echo "::endgroup::"
 
-      # Show system info for debugging
-      - name: System information
-        run: |
-          echo "CPU info:"
-          sysctl -n machdep.cpu.brand_string
-          sysctl -n hw.ncpu
-          sysctl -n hw.physicalcpu
-          sysctl -n hw.logicalcpu
-          echo "Memory info:"
-          sysctl -n hw.memsize | awk '{print $0/1024/1024/1024 " GB"}'
-
-      - name: Build Node.js binary
-        run: yarn start --node-range node${{ matrix.target-node }} --arch x64 --output dist
+      - run: yarn start --node-range node${{ matrix.target-node }} --arch x64 --output dist
         env:
-          MAKE_JOB_COUNT: 4 # Match CPU count for Intel runners (4 CPUs)
-          CC_host: clang
-          CXX_host: clang++
-          CC: clang
-          CXX: clang++
-          GYP_DEFINES: "mac_deployment_target=13.0"
+          MAKE_JOB_COUNT: 4 # prevent to run out of memory
 
       - name: Check if binary is compiled, skip if download only
         id: check_file
