@@ -1,3 +1,38 @@
+## [3.5.25](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.24...v3.5.25) (2025-09-26)
+
+### Features
+
+- add support for Node.js versions 20.19.5, 22.19.0, and 24.8.0 in expected SHAs ([65f6dea](https://github.com/yao-pkg/pkg-fetch/commit/65f6deaf0025364e471ce7a350991cf102d94840))
+- add v20.19.5 patch ([#109](https://github.com/yao-pkg/pkg-fetch/issues/109)) ([78d158c](https://github.com/yao-pkg/pkg-fetch/commit/78d158cdcb54003b7de4649ad93b6efe70ff6420))
+- add v22.19.0 patch ([#106](https://github.com/yao-pkg/pkg-fetch/issues/106)) ([03677a1](https://github.com/yao-pkg/pkg-fetch/commit/03677a1f151583f8a74969a153642e11bc3f2758))
+- enhance patch application process with AI conflict resolution ([3fb4350](https://github.com/yao-pkg/pkg-fetch/commit/3fb43504682239f1f14b968a200a0b5eb1788faa))
+- node 24 support and attempt some Node 22 fixes (by [@faulpeltz](https://github.com/faulpeltz)) ([#107](https://github.com/yao-pkg/pkg-fetch/issues/107)) ([a4bdb16](https://github.com/yao-pkg/pkg-fetch/commit/a4bdb1649a4da6e9060df62189d14e49fa586c9a))
+
+### Bug Fixes
+
+- add logging for resolved content in OpenAI API response ([c41ab07](https://github.com/yao-pkg/pkg-fetch/commit/c41ab07b0ec5f3187afe720af240078f21b92884))
+- add prompt logging for OpenAI API call in conflict resolution ([3c378db](https://github.com/yao-pkg/pkg-fetch/commit/3c378db428c2843d96d01759a7668f6563f60e56))
+- add resolution output handling for patch conflicts in Node.js workflow ([e7241d0](https://github.com/yao-pkg/pkg-fetch/commit/e7241d02a4dca4d98d6a9abd61d75f17e48664e5))
+- enhance conflict resolution by improving hunk parsing and context extraction in OpenAI API integration ([5b53026](https://github.com/yao-pkg/pkg-fetch/commit/5b530263953179cd67fc5be0aac8c4162f90d959))
+- enhance logging format for resolved content in OpenAI API response ([45e2576](https://github.com/yao-pkg/pkg-fetch/commit/45e2576f2f013f05e744c764d0ab5ad6f4dc7344))
+- ensure error handling in patch creation step ([9f7460c](https://github.com/yao-pkg/pkg-fetch/commit/9f7460ca6cd8753a86ab68c18b06cdac84fa7ddc))
+- improve error handling in OpenAI API call and ensure proper response handling ([2651325](https://github.com/yao-pkg/pkg-fetch/commit/2651325af6b19cfc8ff12c4d319c90601763a569))
+- improve error logging for OpenAI API call by removing redundant stderr redirection ([fd0e2f4](https://github.com/yao-pkg/pkg-fetch/commit/fd0e2f489e7dc36fc3617dd97f58f78272f154e7))
+- improve error logging for OpenAI API call by removing stderr redirection ([4f720b5](https://github.com/yao-pkg/pkg-fetch/commit/4f720b57f1d39fc96a10c3deb23dd90885f70624))
+- reduce max_tokens for OpenAI API call to optimize response size ([11940cd](https://github.com/yao-pkg/pkg-fetch/commit/11940cd3368364e26b79403f8142dc288a0aabca))
+- remove unnecessary markdown formatting for resolution output in PR creation ([206ea93](https://github.com/yao-pkg/pkg-fetch/commit/206ea938f902d843250c74ceafbf2f3aa9bb5c15))
+- streamline output handling for conflict resolution in GitHub Actions ([9650436](https://github.com/yao-pkg/pkg-fetch/commit/96504367fcde9af7e5957789a8964b52322a0eac))
+- streamline PR creation message by removing redundant patch status details ([7f35fce](https://github.com/yao-pkg/pkg-fetch/commit/7f35fce06c4ed1fa8693f75268993f6179330c60))
+- streamline resolution output handling for PR creation ([7898d82](https://github.com/yao-pkg/pkg-fetch/commit/7898d82a59147647bf9dda3f42340fce22c9f401))
+- update OpenAI API call to use new endpoint and model, enhance prompt structure, and improve response handling ([2080163](https://github.com/yao-pkg/pkg-fetch/commit/208016362b21335170cc44a69bbe221beb5fb5ea))
+- update OpenAI API call to use responses API ([799fbc1](https://github.com/yao-pkg/pkg-fetch/commit/799fbc1abec591e6e75fc2e690e52bd1c8af9c2a))
+- update response handling in OpenAI API call to correctly access content structure ([23ba5a2](https://github.com/yao-pkg/pkg-fetch/commit/23ba5a2bcc48a9ee87e4c3fabb52813b3d410a2b))
+- update system message to include JS expertise for OpenAI API conflict resolution ([f88b149](https://github.com/yao-pkg/pkg-fetch/commit/f88b149a26ce1037ef8a893d813ffe2386e77253))
+
+### Code refactoring
+
+- streamline OpenAI API call and remove manual resolution file creation ([081dc1a](https://github.com/yao-pkg/pkg-fetch/commit/081dc1ac7fa8cf65c4a5b949e028d4bbde2cc122))
+
 ## [3.5.24](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.23...v3.5.24) (2025-07-19)
 
 ### Features
