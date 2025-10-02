@@ -23,7 +23,7 @@
     "picocolors": "^1.1.0",
     "progress": "^2.0.3",
     "semver": "^7.3.5",
-    "tar-fs": "^2.1.1",
+    "tar-fs": "^3.1.1",
     "yargs": "^16.2.0"
   },
   "devDependencies": {
