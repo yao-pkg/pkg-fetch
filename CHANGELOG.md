@@ -1,3 +1,13 @@
+## [3.5.26](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.25...v3.5.26) (2025-10-03)
+
+### Features
+
+- add v24.9.0 patch ([#115](https://github.com/yao-pkg/pkg-fetch/issues/115)) ([39131f5](https://github.com/yao-pkg/pkg-fetch/commit/39131f5b189da2cadd0b4f42955f1a8455e1b657))
+
+### Bug Fixes
+
+- bump tar-fs from 2.1.1 to 3.1.1 to fix security vulnerabilities ([#117](https://github.com/yao-pkg/pkg-fetch/issues/117)) ([08d19cd](https://github.com/yao-pkg/pkg-fetch/commit/08d19cd04990520434ced508bdb90bc3713813a1)), closes [yao-pkg/pkg-fetch#116](https://github.com/yao-pkg/pkg-fetch/issues/116)
+
 ## [3.5.25](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.24...v3.5.25) (2025-09-26)
 
 ### Features
