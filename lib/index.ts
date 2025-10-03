@@ -173,7 +173,7 @@ export async function need(opts: NeedOptions) {
   }
 
   if (hostPlatform !== platform) {
-    if (hostPlatform !== 'alpine' || platform !== 'linuxstatic') {
+    if ((hostPlatform !== 'alpine' || platform !== 'linuxstatic') && arch !== 'ppc64') {
       throw wasReported(
         `Not able to build for '${opts.platform}' here, only for '${hostPlatform}'`
       );
