@@ -1,3 +1,9 @@
+## [3.5.28](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.26...v3.5.28) (2025-10-06)
+
+### Features
+
+- allow linuxstatic builds for ppc64 architecture ([#118](https://github.com/yao-pkg/pkg-fetch/issues/118)) ([d3d6a81](https://github.com/yao-pkg/pkg-fetch/commit/d3d6a81ffc13f05dea5106d55869fcf5317cb411))
+
 ## [3.5.26](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.25...v3.5.26) (2025-10-03)
 
 ### Features
