@@ -62,53 +62,6 @@
     "release:patch": "npm run release -- patch",
     "release:minor": "npm run release -- minor"
   },
-  "release-it": {
-    "github": {
-      "release": false
-    },
-    "hooks": {
-      "before:init": [
-        "yarn lint"
-      ]
-    },
-    "npm": {
-      "publish": true
-    },
-    "plugins": {
-      "@release-it/conventional-changelog": {
-        "infile": "CHANGELOG.md",
-        "preset": {
-          "name": "conventionalcommits",
-          "types": [
-            {
-              "type": "feat",
-              "section": "Features"
-            },
-            {
-              "type": "fix",
-              "section": "Bug Fixes"
-            },
-            {
-              "type": "test",
-              "section": "Test added"
-            },
-            {
-              "type": "refactor",
-              "section": "Code refactoring"
-            },
-            {
-              "type": "chore",
-              "section": "Chores"
-            },
-            {
-              "type": "docs",
-              "section": "Documentation"
-            }
-          ]
-        }
-      }
-    }
-  },
   "prettier": {
     "singleQuote": true
   },
