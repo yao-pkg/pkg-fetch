@@ -1,5 +1,5 @@
 diff --git node/common.gypi node/common.gypi
-index 0d2fe4d9d6..7dc6890ba0 100644
+index 7727dfc4c6..3ab611dc48 100644
 --- node/common.gypi
 +++ node/common.gypi
 @@ -192,7 +192,7 @@
@@ -643,10 +643,10 @@ index c70bec82a2..4f807cd526 100644
    }
  
 diff --git node/src/node_contextify.cc node/src/node_contextify.cc
-index 92c7ba0249..701c3fecda 100644
+index 3c234205e8..5d2152be2e 100644
 --- node/src/node_contextify.cc
 +++ node/src/node_contextify.cc
-@@ -87,6 +87,7 @@ using v8::Symbol;
+@@ -88,6 +88,7 @@ using v8::Symbol;
  using v8::Uint32;
  using v8::UnboundScript;
  using v8::Value;
@@ -654,7 +654,7 @@ index 92c7ba0249..701c3fecda 100644
  
  // The vm module executes code in a sandboxed environment with a different
  // global object than the rest of the code. This is achieved by applying
-@@ -994,13 +995,13 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -995,13 +996,13 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
    Local<ArrayBufferView> cached_data_buf;
    bool produce_cached_data = false;
    Local<Context> parsing_context = context;
@@ -671,7 +671,7 @@ index 92c7ba0249..701c3fecda 100644
      CHECK(args[2]->IsNumber());
      line_offset = args[2].As<Int32>()->Value();
      CHECK(args[3]->IsNumber());
-@@ -1021,6 +1022,11 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1022,6 +1023,11 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
      }
      CHECK(args[7]->IsSymbol());
      id_symbol = args[7].As<Symbol>();
@@ -683,7 +683,7 @@ index 92c7ba0249..701c3fecda 100644
    }
  
    ContextifyScript* contextify_script = New(env, args.This());
-@@ -1067,6 +1073,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1068,6 +1074,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
    ShouldNotAbortOnUncaughtScope no_abort_scope(env);
    Context::Scope scope(parsing_context);
  
@@ -694,7 +694,7 @@ index 92c7ba0249..701c3fecda 100644
    MaybeLocal<UnboundScript> maybe_v8_script =
        ScriptCompiler::CompileUnboundScript(isolate, &source, compile_options);
  
-@@ -1081,6 +1091,12 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1082,6 +1092,12 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
      return;
    }
  
@@ -707,17 +707,25 @@ index 92c7ba0249..701c3fecda 100644
    contextify_script->set_unbound_script(v8_script);
  
    std::unique_ptr<ScriptCompiler::CachedData> new_cached_data;
-@@ -1118,6 +1134,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
-           .IsNothing())
+@@ -1094,7 +1110,7 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+   if (contextify_script->object()
+           ->SetPrivate(context, env->host_defined_option_symbol(), id_symbol)
+           .IsNothing()) {
+-    return;
++return;
+   }
+   if (StoreCodeCacheResult(env,
+                            self,
+@@ -1105,6 +1121,9 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+           .IsNothing()) {
      return;
- 
+   }
 +  if (sourceless && produce_cached_data) {
 +    V8::DisableCompilationForSourcelessUse();
 +  }
-+
-   TRACE_EVENT_END0(TRACING_CATEGORY_NODE2(vm, script), "ContextifyScript::New");
- }
- 
+   if (self->Set(env->context(),
+                 env->source_url_string(),
+                 v8_script->GetSourceURL())
 diff --git node/src/node_main.cc node/src/node_main.cc
 index 3295121b87..bfe838b8c1 100644
 --- node/src/node_main.cc
