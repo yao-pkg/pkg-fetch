@@ -1,3 +1,15 @@
+## [3.5.29](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.28...v3.5.29) (2025-10-15)
+
+### Features
+
+- add v22.20.0 patch ([#114](https://github.com/yao-pkg/pkg-fetch/issues/114)) ([fc9d107](https://github.com/yao-pkg/pkg-fetch/commit/fc9d107fd298c7b679ec46f3d9a23524844085d6))
+- add v24.10.0 patch ([#120](https://github.com/yao-pkg/pkg-fetch/issues/120)) ([4ae27c5](https://github.com/yao-pkg/pkg-fetch/commit/4ae27c5c2af9b63f816529aa17b19f47c9d4de9d))
+- update expected SHAs for Node.js versions 22.20.0 and 24.10.0 ([358c7b3](https://github.com/yao-pkg/pkg-fetch/commit/358c7b3ddd31677d48511f8749f822a60c220187))
+
+### Chores
+
+- switch to .release-it.json configuration ([#119](https://github.com/yao-pkg/pkg-fetch/issues/119)) ([2f66258](https://github.com/yao-pkg/pkg-fetch/commit/2f662589490219912c3768b188d4a5e22151da07))
+
 ## [3.5.28](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.26...v3.5.28) (2025-10-06)
 
 ### Features
