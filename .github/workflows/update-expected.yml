@@ -32,33 +32,16 @@ jobs:
             - name: Install deps
               run: yarn install --ignore-engines
 
-            - name: Parses shas
-              id: parse-shas
+            - name: Parse and update shas.txt
               run: |
-                echo "${{ inputs.shas }}\n" | while read -r sha patchName; do
-                    # ensure sha and patchName are set
-                    if [ -z "$sha" ] || [ -z "$patchName" ]; then
-                        echo "Done"
-                        continue
-                    fi
-
-                    echo "sha: $sha, patchName: $patchName"
-                    # get node major, os and arch from patchName
-                    major=$(echo $patchName | grep -oP 'node-v\K[0-9]+')
-                    os=$(echo $patchName | grep -oP 'node-v[0-9.]+-(.*)-' | cut -d'-' -f3)
-                    arch=$(echo $patchName | grep -oP 'node-v[0-9.]+-(.*)-(.*)' | cut -d'-' -f4)
-
-                    if grep -E -q "$major\.([0-9.]+){2}-$os-$arch" shas.txt; then
-                        sed -i -E "/$major\.([0-9.]+){2}-$os-$arch/c $sha  $patchName" shas.txt
-                    else
-                        # if file doesn't end with a newline, add it
-                        if [ "$(tail -c 1 shas.txt)" != "" ]; then
-                            echo "" >> shas.txt
-                        fi
-                        echo "$sha  $patchName" >> shas.txt
-                    fi
-                done
-            
+                # Write the shas input to a temporary file outside the repo
+                tmp_file="/tmp/new-shas-${GITHUB_RUN_ID}.txt"
+                echo "${{ inputs.shas }}" > "$tmp_file"
+                # Build and run the TypeScript script
+                yarn build
+                node lib-es5/parse-update-shas.js "$tmp_file"
+                # Clean up the temporary file
+                rm "$tmp_file"
             - name: Update expected shas
               run: |
                 yarn updateExpected
