@@ -374,10 +374,10 @@ index a7d8fa1139..bffe5a8a53 100644
    }
    return result;
 diff --git node/lib/internal/modules/package_json_reader.js node/lib/internal/modules/package_json_reader.js
-index fb669ea12e..6ad993581b 100644
+index 0f9442ea7a..e30582b3cc 100644
 --- node/lib/internal/modules/package_json_reader.js
 +++ node/lib/internal/modules/package_json_reader.js
-@@ -108,17 +108,20 @@ const requiresJSONParse = (value) => (value !== undefined && (value[0] === '[' |
+@@ -111,17 +111,20 @@ const requiresJSONParse = (value) => (value !== undefined && (value[0] === '[' |
   * @returns {PackageConfig}
   */
  function read(jsonPath, { base, specifier, isESM } = kEmptyObject) {
@@ -410,7 +410,7 @@ index fb669ea12e..6ad993581b 100644
      __proto__: null,
      ...result.data,
 diff --git node/lib/internal/process/pre_execution.js node/lib/internal/process/pre_execution.js
-index 98ed40e307..f9da878ea0 100644
+index d12d21905c..cf8a5c9096 100644
 --- node/lib/internal/process/pre_execution.js
 +++ node/lib/internal/process/pre_execution.js
 @@ -50,7 +50,11 @@ const {
@@ -425,7 +425,7 @@ index 98ed40e307..f9da878ea0 100644
    return prepareExecution({
      expandArgv1,
      initializeModules,
-@@ -243,7 +247,8 @@ function patchProcessObject(expandArgv1) {
+@@ -265,7 +269,8 @@ function patchProcessObject(expandArgv1) {
    let mainEntry;
    // If requested, update process.argv[1] to replace whatever the user provided with the resolved absolute file path of
    // the entry point.
@@ -435,7 +435,7 @@ index 98ed40e307..f9da878ea0 100644
      // Expand process.argv[1] into a full path.
      const path = require('path');
      try {
-@@ -725,6 +730,7 @@ function loadPreloadModules() {
+@@ -747,6 +752,7 @@ function loadPreloadModules() {
    // For user code, we preload modules if `-r` is passed
    const preloadModules = getOptionValue('--require');
    if (preloadModules && preloadModules.length > 0) {
@@ -482,7 +482,7 @@ index 2318c4e0df..fb998531a7 100644
      parent_env_->AddCleanupHook([](void* data) {
        Environment* env = static_cast<Environment*>(data);
 diff --git node/src/node.cc node/src/node.cc
-index 07684482f8..0262de1cd8 100644
+index 2d8d0000d5..178fdaede0 100644
 --- node/src/node.cc
 +++ node/src/node.cc
 @@ -404,6 +404,8 @@ MaybeLocal<Value> StartExecution(Environment* env, StartExecutionCallback cb) {
@@ -695,10 +695,10 @@ index f66099a557..4048f6bd93 100644
 +  return adjacent(c, nargv);
 +}
 diff --git node/src/node_options.cc node/src/node_options.cc
-index ed85bf11f6..e5208d5821 100644
+index 31fc23fdbf..8458d7796e 100644
 --- node/src/node_options.cc
 +++ node/src/node_options.cc
-@@ -311,7 +311,7 @@ void Parse(
+@@ -359,7 +359,7 @@ void Parse(
    PerProcessOptions* const options,
    OptionEnvvarSettings required_env_settings, StringVector* const errors) {
    _ppop_instance.Parse(
@@ -707,7 +707,7 @@ index ed85bf11f6..e5208d5821 100644
  }
  
  // XXX: If you add an option here, please also add it to doc/node.1 and
-@@ -319,6 +319,7 @@ void Parse(
+@@ -367,6 +367,7 @@ void Parse(
  // TODO(addaleax): Make that unnecessary.
  
  DebugOptionsParser::DebugOptionsParser() {
