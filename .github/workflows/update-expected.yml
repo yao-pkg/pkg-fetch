@@ -7,6 +7,12 @@ on:
                 description: 'Expected sha256sums. Format is "<sha> node-v<version>-<os>-<arch>"'
                 required: true
                 type: string
+    workflow_call:
+        inputs:
+            shas:
+                description: 'Expected sha256sums. Format is "<sha> node-v<version>-<os>-<arch>"'
+                required: true
+                type: string
 
 jobs:
     update:
