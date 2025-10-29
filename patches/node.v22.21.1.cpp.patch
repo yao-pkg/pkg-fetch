@@ -510,7 +510,7 @@ index 2d8d0000d5..178fdaede0 100644
    }
  
 diff --git node/src/node_contextify.cc node/src/node_contextify.cc
-index 21a08a738e..ba529c2737 100644
+index d52388717e..4d478e77be 100644
 --- node/src/node_contextify.cc
 +++ node/src/node_contextify.cc
 @@ -86,6 +86,7 @@ using v8::Symbol;
