@@ -1,3 +1,17 @@
+## [3.5.30](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.29...v3.5.30) (2025-10-29)
+
+### Features
+
+- add v22.21.0 patch ([#125](https://github.com/yao-pkg/pkg-fetch/issues/125)) ([79fd995](https://github.com/yao-pkg/pkg-fetch/commit/79fd995c74fff6891c79db7a4e8343a45daedf67))
+- add v22.21.1 patch ([#126](https://github.com/yao-pkg/pkg-fetch/issues/126)) ([61f032f](https://github.com/yao-pkg/pkg-fetch/commit/61f032fd3c23438c02320d5fb28dbb982b153c44))
+- add v24.11.0 patch ([#127](https://github.com/yao-pkg/pkg-fetch/issues/127)) ([6f8ffd2](https://github.com/yao-pkg/pkg-fetch/commit/6f8ffd2434e677a7398b67b1721f4589d6f94277))
+- add workflow_call inputs for expected sha256sums ([54188cb](https://github.com/yao-pkg/pkg-fetch/commit/54188cbe05d9af62b404dce928a7048b8d8b96b9))
+- enhance shas parsing logic in update workflow ([cda5244](https://github.com/yao-pkg/pkg-fetch/commit/cda5244d2a482ce43ab2e1dab3a633c64a87190b))
+
+### Bug Fixes
+
+- update expected shas ([#128](https://github.com/yao-pkg/pkg-fetch/issues/128)) ([ba6149d](https://github.com/yao-pkg/pkg-fetch/commit/ba6149de39f347103dea23a5b538aad87457c219))
+
 ## [3.5.29](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.28...v3.5.29) (2025-10-15)
 
 ### Features
