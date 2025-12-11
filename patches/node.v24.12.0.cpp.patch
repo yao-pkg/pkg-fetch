@@ -1,5 +1,5 @@
 diff --git node/common.gypi node/common.gypi
-index 60585d136f..7e182d8b7c 100644
+index db16253786..3a381990a3 100644
 --- node/common.gypi
 +++ node/common.gypi
 @@ -192,7 +192,7 @@
@@ -242,7 +242,7 @@ index 11ced93c08..1f4b534415 100644
    }
    uint32_t payload_length = GetHeaderValue(kPayloadLengthOffset);
 diff --git node/deps/v8/src/snapshot/read-only-serializer.cc node/deps/v8/src/snapshot/read-only-serializer.cc
-index fa60b3d07e..a4f06a25c4 100644
+index 0178607289..88c8c2b852 100644
 --- node/deps/v8/src/snapshot/read-only-serializer.cc
 +++ node/deps/v8/src/snapshot/read-only-serializer.cc
 @@ -12,6 +12,9 @@
@@ -486,7 +486,7 @@ index 0000000000..a697294fdf
 +  }());
 +}());
 diff --git node/lib/internal/modules/cjs/loader.js node/lib/internal/modules/cjs/loader.js
-index 02c9ba1585..0c4315561e 100644
+index 414e450ee3..356cbbaa94 100644
 --- node/lib/internal/modules/cjs/loader.js
 +++ node/lib/internal/modules/cjs/loader.js
 @@ -261,12 +261,15 @@ function stat(filename) {
@@ -543,7 +543,7 @@ index 43a131f57c..6fe7afd784 100644
      __proto__: null,
      ...result.data,
 diff --git node/lib/internal/process/pre_execution.js node/lib/internal/process/pre_execution.js
-index 6585c52e4b..c4a0db0508 100644
+index 8ed8802adc..8152188eb7 100644
 --- node/lib/internal/process/pre_execution.js
 +++ node/lib/internal/process/pre_execution.js
 @@ -42,7 +42,11 @@ const {
@@ -568,7 +568,7 @@ index 6585c52e4b..c4a0db0508 100644
      // Expand process.argv[1] into a full path.
      const path = require('path');
      try {
-@@ -689,6 +694,7 @@ function loadPreloadModules() {
+@@ -690,6 +695,7 @@ function loadPreloadModules() {
    // For user code, we preload modules if `-r` is passed
    const preloadModules = getOptionValue('--require');
    if (preloadModules && preloadModules.length > 0) {
@@ -837,7 +837,7 @@ index 3295121b87..bfe838b8c1 100644
 +  return adjacent(c, nargv);
 +}
 diff --git node/src/node_options.cc node/src/node_options.cc
-index 03c1dde6de..83bfbf1b93 100644
+index 342bffb00f..1802fbac25 100644
 --- node/src/node_options.cc
 +++ node/src/node_options.cc
 @@ -430,6 +430,7 @@ void Parse(
