@@ -5,13 +5,21 @@ on:
   workflow_call:
 
 jobs:
-  linux-x64:
-    runs-on: ubuntu-22.04
+  linux:
+    runs-on: ${{ matrix.arch.os }}
+    name: linux-${{ matrix.arch.name }} (${{ matrix.target-node }})
 
     strategy:
       fail-fast: false
       matrix:
         target-node: [20, 22, 24]
+        arch:
+          - name: x64
+            os: ubuntu-22.04
+            platform: amd64
+          - name: arm64
+            os: ubuntu-22.04-arm
+            platform: arm64
 
     steps:
       - uses: actions/checkout@v4
@@ -27,7 +35,7 @@ jobs:
             PKG_FETCH_OPTION_n=node${{ matrix.target-node }}
           context: .
           file: ./Dockerfile.linux
-          platforms: linux/amd64
+          platforms: linux/${{ matrix.arch.platform }}
           outputs: type=local, dest=dist
 
       - name: Check if binary is compiled, skip if download only
@@ -39,44 +47,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: steps.check_file.outputs.EXISTS == 'true'
         with:
-          name: node${{ matrix.target-node }}-linux-x64
+          name: node${{ matrix.target-node }}-linux-${{ matrix.arch.name }}
           path: dist/*
-
-  linux-arm64:
-    runs-on: ubuntu-22.04
-
-    strategy:
-      fail-fast: false
-      matrix:
-        target-node: [20, 22, 24]
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build
-        id: build
-        uses: docker/build-push-action@v5
-        with:
-          build-args: |
-            TARGET_TOOLCHAIN_ARCH=aarch64
-            PKG_FETCH_OPTION_a=arm64
-            PKG_FETCH_OPTION_n=node${{ matrix.target-node }}
-          context: .
-          file: ./Dockerfile.linuxcross
-          platforms: linux/amd64
-          outputs: type=local, dest=dist
-
-      - name: Check if binary is compiled, skip if download only
-        id: check_file
-        run: |
-          ls -l dist
-          (test -f dist/*.sha256sum && echo "EXISTS=true" >> $GITHUB_OUTPUT) || echo "EXISTS=false" >> $GITHUB_OUTPUT
-
-      - uses: actions/upload-artifact@v4
-        if: steps.check_file.outputs.EXISTS == 'true'
-        with:
-          name: node${{ matrix.target-node }}-linux-arm64
-          path: dist/*
+  
