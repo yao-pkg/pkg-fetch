@@ -69,7 +69,7 @@ index d3e35d6ec5..6e9bbe3849 100644
    static const char* GetVersion();
  
 diff --git node/deps/v8/src/api/api.cc node/deps/v8/src/api/api.cc
-index a06394e6c1..154b7a82a8 100644
+index da0c960f99..08af13d77a 100644
 --- node/deps/v8/src/api/api.cc
 +++ node/deps/v8/src/api/api.cc
 @@ -806,6 +806,28 @@ void V8::SetFlagsFromCommandLine(int* argc, char** argv, bool remove_flags) {
@@ -288,10 +288,10 @@ index 88c079d10d..a7eaca0574 100644
  const permission = require('internal/process/permission');
  const { kEmptyObject } = require('internal/util');
 diff --git node/lib/internal/process/pre_execution.js node/lib/internal/process/pre_execution.js
-index 0bbabb80c2..5dd097b69e 100644
+index 96bbfb4c35..ff50e19a6a 100644
 --- node/lib/internal/process/pre_execution.js
 +++ node/lib/internal/process/pre_execution.js
-@@ -50,7 +50,11 @@ const {
+@@ -49,7 +49,11 @@ const {
    },
  } = require('internal/v8/startup_snapshot');
  
@@ -303,7 +303,7 @@ index 0bbabb80c2..5dd097b69e 100644
    return prepareExecution({
      expandArgv1,
      initializeModules,
-@@ -243,7 +247,12 @@ function patchProcessObject(expandArgv1) {
+@@ -241,7 +245,12 @@ function patchProcessObject(expandArgv1) {
    let mainEntry;
    // If requested, update process.argv[1] to replace whatever the user provided with the resolved absolute file path of
    // the entry point.
@@ -317,7 +317,7 @@ index 0bbabb80c2..5dd097b69e 100644
      // Expand process.argv[1] into a full path.
      const path = require('path');
      try {
-@@ -739,6 +748,7 @@ function loadPreloadModules() {
+@@ -737,6 +746,7 @@ function loadPreloadModules() {
    // For user code, we preload modules if `-r` is passed
    const preloadModules = getOptionValue('--require');
    if (preloadModules && preloadModules.length > 0) {
