@@ -32,6 +32,10 @@ jobs:
         run: |
           pip install setuptools
 
+      # Setup sccache for faster compilation
+      - name: Run sccache-cache
+        uses: mozilla-actions/sccache-action@v0.0.8
+
       # Remove unneeded stuff to free up build space (from Node https://github.com/nodejs/build/issues/3878)
       - name: Cleanup before build
         run: |
@@ -41,9 +45,20 @@ jobs:
           df -h
           echo "::endgroup::"
 
+      # Cache Node.js source archives
+      - name: Cache Node.js source archive
+        uses: actions/cache@v4
+        with:
+          path: ~/.pkg-cache/node
+          key: node-source-${{ matrix.target-node }}-${{ hashFiles('patches/patches.json') }}
+          restore-keys: |
+            node-source-${{ matrix.target-node }}-
+
       - run: yarn start --node-range node${{ matrix.target-node }} --arch x64 --output dist
         env:
           MAKE_JOB_COUNT: 4 # prevent to run out of memory
+          CC: "sccache clang"
+          CXX: "sccache clang++"
 
       - name: Check if binary is compiled, skip if download only
         id: check_file
@@ -90,6 +105,10 @@ jobs:
       - name: Install distutils
         run: brew install python-setuptools
 
+      # Setup sccache for faster compilation
+      - name: Run sccache-cache
+        uses: mozilla-actions/sccache-action@v0.0.8
+
       # Remove unneeded stuff to free up build space (from Node https://github.com/nodejs/build/issues/3878)
       - name: Cleanup before build
         run: |
@@ -99,9 +118,20 @@ jobs:
           df -h
           echo "::endgroup::"
 
+      # Cache Node.js source archives
+      - name: Cache Node.js source archive
+        uses: actions/cache@v4
+        with:
+          path: ~/.pkg-cache/node
+          key: node-source-${{ matrix.target-node }}-${{ hashFiles('patches/patches.json') }}
+          restore-keys: |
+            node-source-${{ matrix.target-node }}-
+
       - run: yarn start --node-range node${{ matrix.target-node }} --arch arm64 --output dist
         env:
-          MAKE_JOB_COUNT: 2 # prevent to run out of memory
+          MAKE_JOB_COUNT: 3 # increased from 2 to match 3 vCPU on macos-14
+          CC: "sccache clang"
+          CXX: "sccache clang++"
 
       - name: Check if binary is compiled
         id: check_file
