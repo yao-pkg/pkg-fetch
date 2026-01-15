@@ -24,6 +24,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'yarn'
 
       - run: yarn install --ignore-engines
 
@@ -91,6 +92,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'yarn'
 
       - name: Check arch is arm64
         run: |
