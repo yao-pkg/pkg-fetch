@@ -1,3 +1,24 @@
+## [3.5.32](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.31...v3.5.32) (2026-01-15)
+
+### Features
+
+- add v20.20.0 patch ([#144](https://github.com/yao-pkg/pkg-fetch/issues/144)) ([d6b0478](https://github.com/yao-pkg/pkg-fetch/commit/d6b04784574d86a3e6e72eb3076bb51d3ccff232))
+- add v22.22.0 patch ([#145](https://github.com/yao-pkg/pkg-fetch/issues/145)) ([fcd0efc](https://github.com/yao-pkg/pkg-fetch/commit/fcd0efc11b0cc30930c92e9f8e3537b43a82cdf8))
+- add v24.13.0 patch ([#143](https://github.com/yao-pkg/pkg-fetch/issues/143)) ([e47ab95](https://github.com/yao-pkg/pkg-fetch/commit/e47ab9572d0d525d7464190f12d966dfecaa8638))
+- use native arm64 runner for aarch64 builds ([#142](https://github.com/yao-pkg/pkg-fetch/issues/142)) ([a024a39](https://github.com/yao-pkg/pkg-fetch/commit/a024a39fb5c78dc65eede3ac8358eece49b5a400)), closes [#141](https://github.com/yao-pkg/pkg-fetch/issues/141)
+
+### Bug Fixes
+
+- update expected shas ([#146](https://github.com/yao-pkg/pkg-fetch/issues/146)) ([126fae1](https://github.com/yao-pkg/pkg-fetch/commit/126fae16fce0b7b604fe0f1ef1346b8a99acf8d1))
+
+### Chores
+
+- migrate to es2022 target ([#138](https://github.com/yao-pkg/pkg-fetch/issues/138)) ([b5cada3](https://github.com/yao-pkg/pkg-fetch/commit/b5cada3e62c1ab59a5046e88b3d56fba51283888))
+
+### Documentation
+
+- update README with glibc 2.35 requirement for arm64 binaries ([#140](https://github.com/yao-pkg/pkg-fetch/issues/140)) ([eacb3c0](https://github.com/yao-pkg/pkg-fetch/commit/eacb3c0090d8cde03300f3b5ada7c20f8aa11209)), closes [yao-pkg/pkg-fetch#123](https://github.com/yao-pkg/pkg-fetch/issues/123) [yao-pkg/pkg-fetch#139](https://github.com/yao-pkg/pkg-fetch/issues/139)
+
 ## [3.5.31](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.30...v3.5.31) (2025-12-11)
 
 ### Features
