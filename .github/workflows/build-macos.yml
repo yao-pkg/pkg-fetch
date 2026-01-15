@@ -46,15 +46,6 @@ jobs:
           df -h
           echo "::endgroup::"
 
-      # Cache Node.js source archives
-      - name: Cache Node.js source archive
-        uses: actions/cache@v4
-        with:
-          path: ~/.pkg-cache/node
-          key: node-source-${{ matrix.target-node }}-${{ hashFiles('patches/patches.json') }}
-          restore-keys: |
-            node-source-${{ matrix.target-node }}-
-
       - run: yarn start --node-range node${{ matrix.target-node }} --arch x64 --output dist
         env:
           MAKE_JOB_COUNT: 4 # prevent to run out of memory
@@ -119,15 +110,6 @@ jobs:
           echo "::group::Free space after cleanup"
           df -h
           echo "::endgroup::"
-
-      # Cache Node.js source archives
-      - name: Cache Node.js source archive
-        uses: actions/cache@v4
-        with:
-          path: ~/.pkg-cache/node
-          key: node-source-${{ matrix.target-node }}-${{ hashFiles('patches/patches.json') }}
-          restore-keys: |
-            node-source-${{ matrix.target-node }}-
 
       - run: yarn start --node-range node${{ matrix.target-node }} --arch arm64 --output dist
         env:

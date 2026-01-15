@@ -39,28 +39,7 @@ These long build times were the main bottleneck in producing new binaries.
 - Subsequent builds: 30-50% faster compilation (cache hits)
 - Especially effective for patch releases where most code is unchanged
 
-### 2. Node.js Source Archive Caching (Expected: 1-2 minutes saved per build)
-
-**What:** Cache downloaded Node.js source tarballs to avoid re-downloading on every build.
-
-**Why:** Each build downloads ~50MB+ source archive from nodejs.org. Caching eliminates this download time.
-
-**Implementation:**
-```yaml
-- name: Cache Node.js source archive
-  uses: actions/cache@v4
-  with:
-    path: ~/.pkg-cache/node
-    key: node-source-${{ matrix.target-node }}-${{ hashFiles('patches/patches.json') }}
-    restore-keys: |
-      node-source-${{ matrix.target-node }}-
-```
-
-**Expected Impact:**
-- Saves 1-2 minutes per build on cache hits
-- Cache invalidates automatically when patches change
-
-### 3. Optimized Parallel Build Jobs (Expected: 33-50% improvement for arm64)
+### 2. Optimized Parallel Build Jobs (Expected: 33-50% improvement for arm64)
 
 **What:** Adjusted `MAKE_JOB_COUNT` to match available CPU cores on each runner.
 
@@ -77,7 +56,7 @@ These long build times were the main bottleneck in producing new binaries.
 - arm64: 33-50% faster compilation phase
 - x64: No change (already optimal)
 
-### 4. Yarn Dependency Caching (Expected: 30-60 seconds saved per build)
+### 3. Yarn Dependency Caching (Expected: 30-60 seconds saved per build)
 
 **What:** Added yarn cache to `setup-node` action.
 
@@ -102,19 +81,39 @@ Combining all optimizations:
 - Minimal improvement (~5% from parallel jobs on arm64)
 
 **Subsequent Builds (cache hits):**
-- **Best case:** 40-60% reduction in build time
-  - Example: Node 24 could go from 6 hours to 2.4-3.6 hours
-- **Typical case:** 30-45% reduction
-  - Example: Node 24 could go from 6 hours to 3.3-4.2 hours
+- **Best case:** 35-55% reduction in build time
+  - Example: Node 24 could go from 6 hours to 2.7-3.9 hours
+- **Typical case:** 25-40% reduction
+  - Example: Node 24 could go from 6 hours to 3.6-4.5 hours
 
 The actual improvement depends on:
 - How much code changed between builds (affects sccache hit rate)
-- Whether patches changed (affects source cache)
 - Network conditions (affects download times)
 
 ## Future Optimization Opportunities
 
-### 1. Switch from Full LTO to ThinLTO (Potential: 45-70% faster link times)
+### 1. Node.js Source Archive Caching (Potential: 1-2 minutes saved per build)
+
+**What:** Cache downloaded Node.js source tarballs to avoid re-downloading on every build.
+
+**Why:** Each build downloads ~50MB+ source archive from nodejs.org. Caching could eliminate this download time.
+
+**Implementation:**
+```yaml
+- name: Cache Node.js source archive
+  uses: actions/cache@v4
+  with:
+    path: ~/.pkg-cache/node
+    key: node-source-${{ matrix.target-node }}-${{ hashFiles('patches/patches.json') }}
+    restore-keys: |
+      node-source-${{ matrix.target-node }}-
+```
+
+**Considerations:**
+- Need to ensure cache invalidation works correctly when patches change
+- May interfere with build process if cache is corrupted
+
+### 2. Switch from Full LTO to ThinLTO (Potential: 45-70% faster link times)
 
 **Current State:** Builds use `--enable-lto` (Full Link-Time Optimization)
 - Provides best binary performance
@@ -140,7 +139,7 @@ if (major >= 12) {
 
 **Risk:** Needs thorough testing to ensure binary quality/performance is maintained.
 
-### 2. Use Larger GitHub Actions Runners (Potential: 2-3x faster)
+### 3. Use Larger GitHub Actions Runners (Potential: 2-3x faster)
 
 **Current:** Standard runners (3-4 vCPU)
 **Available:** XLarge runners (M2 Pro with 5-core CPU, more RAM)
@@ -154,7 +153,7 @@ if (major >= 12) {
 - Significantly higher cost per minute
 - Cost/benefit analysis needed
 
-### 3. Distributed Compilation with distcc/sccache remote backend
+### 4. Distributed Compilation with distcc/sccache remote backend
 
 **What:** Distribute compilation across multiple machines
 
@@ -167,7 +166,7 @@ if (major >= 12) {
 - Requires remote cache infrastructure
 - May not be cost-effective for GitHub Actions
 
-### 4. Optimize configure/build flags
+### 5. Optimize configure/build flags
 
 **Potential areas:**
 - Skip unnecessary build steps for pkg binaries
