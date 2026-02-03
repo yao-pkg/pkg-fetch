@@ -5,14 +5,19 @@ on:
   workflow_call:
 
 jobs:
-  windows-vs2022:
-    runs-on: windows-2022
+  windows:
+    runs-on: ${{ matrix.arch.os }}
+    name: windows-${{ matrix.arch.name }} (${{ matrix.target-node }})
 
     strategy:
       fail-fast: false
       matrix:
         target-node: [20, 22, 24]
-        target-arch: [x64, arm64]
+        arch:
+          - name: x64
+            os: windows-2022
+          - name: arm64
+            os: windows-11-arm
 
     steps:
       - uses: actions/checkout@v4
@@ -32,7 +37,7 @@ jobs:
 
       - run: choco install nasm
 
-      - run: yarn start --node-range node${{ matrix.target-node }} --arch ${{ matrix.target-arch }} --output dist
+      - run: yarn start --node-range node${{ matrix.target-node }} --arch ${{ matrix.arch.name }} --output dist
 
       - name: Check if binary is compiled, skip if download only
         id: check_file
@@ -47,5 +52,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: steps.check_file.outputs.EXISTS == 'true'
         with:
-          name: node${{ matrix.target-node }}-windows-${{ matrix.target-arch }}
+          name: node${{ matrix.target-node }}-windows-${{ matrix.arch.name }}
           path: dist\\*
