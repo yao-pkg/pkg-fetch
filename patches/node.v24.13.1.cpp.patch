@@ -1,5 +1,5 @@
 diff --git node/common.gypi node/common.gypi
-index db16253786..3a381990a3 100644
+index 5adfd88871..4c3e4181c2 100644
 --- node/common.gypi
 +++ node/common.gypi
 @@ -192,7 +192,7 @@
@@ -486,7 +486,7 @@ index 0000000000..a697294fdf
 +  }());
 +}());
 diff --git node/lib/internal/modules/cjs/loader.js node/lib/internal/modules/cjs/loader.js
-index 414e450ee3..356cbbaa94 100644
+index 2b199e82fe..bad6977ffd 100644
 --- node/lib/internal/modules/cjs/loader.js
 +++ node/lib/internal/modules/cjs/loader.js
 @@ -261,12 +261,15 @@ function stat(filename) {
@@ -507,10 +507,10 @@ index 414e450ee3..356cbbaa94 100644
      // Only set cache when `internalModuleStat(filename)` succeeds.
      statCache.set(filename, result);
 diff --git node/lib/internal/modules/package_json_reader.js node/lib/internal/modules/package_json_reader.js
-index 43a131f57c..6fe7afd784 100644
+index 968c3c5701..1c7b01a3f2 100644
 --- node/lib/internal/modules/package_json_reader.js
 +++ node/lib/internal/modules/package_json_reader.js
-@@ -111,17 +111,20 @@ const requiresJSONParse = (value) => (value !== undefined && (value[0] === '[' |
+@@ -120,17 +120,20 @@ const requiresJSONParse = (value) => (value !== undefined && (value[0] === '[' |
   * @returns {PackageConfig}
   */
  function read(jsonPath, { base, specifier, isESM } = kEmptyObject) {
@@ -615,7 +615,7 @@ index f62eb36b57..8ccc42dbd4 100644
      parent_env_->AddCleanupHook([](void* data) {
        Environment* env = static_cast<Environment*>(data);
 diff --git node/src/node.cc node/src/node.cc
-index 31439d0cc1..8dda6dcc8a 100644
+index 8791119956..679d936f5a 100644
 --- node/src/node.cc
 +++ node/src/node.cc
 @@ -355,6 +355,8 @@ MaybeLocal<Value> StartExecution(Environment* env, StartExecutionCallback cb) {
@@ -837,7 +837,7 @@ index 3295121b87..bfe838b8c1 100644
 +  return adjacent(c, nargv);
 +}
 diff --git node/src/node_options.cc node/src/node_options.cc
-index 342bffb00f..1802fbac25 100644
+index f6f81f50c8..36f46abe4f 100644
 --- node/src/node_options.cc
 +++ node/src/node_options.cc
 @@ -430,6 +430,7 @@ void Parse(
