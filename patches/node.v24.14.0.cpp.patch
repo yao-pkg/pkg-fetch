@@ -1,5 +1,5 @@
 diff --git node/common.gypi node/common.gypi
-index 5adfd88871..4c3e4181c2 100644
+index c5a7dc9cac..ea2c788f84 100644
 --- node/common.gypi
 +++ node/common.gypi
 @@ -192,7 +192,7 @@
@@ -486,10 +486,10 @@ index 0000000000..a697294fdf
 +  }());
 +}());
 diff --git node/lib/internal/modules/cjs/loader.js node/lib/internal/modules/cjs/loader.js
-index 2b199e82fe..bad6977ffd 100644
+index 0a6788d1b8..2050476a25 100644
 --- node/lib/internal/modules/cjs/loader.js
 +++ node/lib/internal/modules/cjs/loader.js
-@@ -261,12 +261,15 @@ function stat(filename) {
+@@ -267,12 +267,15 @@ function stat(filename) {
    // Guard against internal bugs where a non-string filename is passed in by mistake.
    assert(typeof filename === 'string');
  
@@ -615,10 +615,10 @@ index f62eb36b57..8ccc42dbd4 100644
      parent_env_->AddCleanupHook([](void* data) {
        Environment* env = static_cast<Environment*>(data);
 diff --git node/src/node.cc node/src/node.cc
-index 8791119956..679d936f5a 100644
+index 0bc086ccd1..9a76ce03cc 100644
 --- node/src/node.cc
 +++ node/src/node.cc
-@@ -355,6 +355,8 @@ MaybeLocal<Value> StartExecution(Environment* env, StartExecutionCallback cb) {
+@@ -351,6 +351,8 @@ MaybeLocal<Value> StartExecution(Environment* env,
      return env->RunSnapshotDeserializeMain();
    }
  
@@ -627,7 +627,7 @@ index 8791119956..679d936f5a 100644
    if (env->worker_context() != nullptr) {
      return StartExecution(env, "internal/main/worker_thread");
    }
-@@ -579,14 +581,6 @@ static void PlatformInit(ProcessInitializationFlags::Flags flags) {
+@@ -575,14 +577,6 @@ static void PlatformInit(ProcessInitializationFlags::Flags flags) {
    }
  
    if (!(flags & ProcessInitializationFlags::kNoDefaultSignalHandling)) {
