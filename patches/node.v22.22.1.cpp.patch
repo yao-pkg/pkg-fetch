@@ -1,5 +1,5 @@
 diff --git node/common.gypi node/common.gypi
-index ae31b372b9..b7baff1762 100644
+index d71df903c1..3cb663d174 100644
 --- node/common.gypi
 +++ node/common.gypi
 @@ -192,7 +192,7 @@
@@ -349,7 +349,7 @@ index 0000000000..a697294fdf
 +  }());
 +}());
 diff --git node/lib/internal/modules/cjs/loader.js node/lib/internal/modules/cjs/loader.js
-index a7d8fa1139..bffe5a8a53 100644
+index b87f557c16..051fbc140a 100644
 --- node/lib/internal/modules/cjs/loader.js
 +++ node/lib/internal/modules/cjs/loader.js
 @@ -252,14 +252,18 @@ function stat(filename) {
@@ -410,7 +410,7 @@ index 0f9442ea7a..e30582b3cc 100644
      __proto__: null,
      ...result.data,
 diff --git node/lib/internal/process/pre_execution.js node/lib/internal/process/pre_execution.js
-index 15443a710c..da28d36aa8 100644
+index 3546544ad0..7a285054a5 100644
 --- node/lib/internal/process/pre_execution.js
 +++ node/lib/internal/process/pre_execution.js
 @@ -49,7 +49,11 @@ const {
@@ -425,7 +425,7 @@ index 15443a710c..da28d36aa8 100644
    return prepareExecution({
      expandArgv1,
      initializeModules,
-@@ -263,7 +267,8 @@ function patchProcessObject(expandArgv1) {
+@@ -266,7 +270,8 @@ function patchProcessObject(expandArgv1) {
    let mainEntry;
    // If requested, update process.argv[1] to replace whatever the user provided with the resolved absolute file path of
    // the entry point.
@@ -435,7 +435,7 @@ index 15443a710c..da28d36aa8 100644
      // Expand process.argv[1] into a full path.
      const path = require('path');
      try {
-@@ -745,6 +750,7 @@ function loadPreloadModules() {
+@@ -748,6 +753,7 @@ function loadPreloadModules() {
    // For user code, we preload modules if `-r` is passed
    const preloadModules = getOptionValue('--require');
    if (preloadModules && preloadModules.length > 0) {
@@ -482,7 +482,7 @@ index 2318c4e0df..fb998531a7 100644
      parent_env_->AddCleanupHook([](void* data) {
        Environment* env = static_cast<Environment*>(data);
 diff --git node/src/node.cc node/src/node.cc
-index 2d8d0000d5..178fdaede0 100644
+index db0011b429..bb6dfa8f5f 100644
 --- node/src/node.cc
 +++ node/src/node.cc
 @@ -404,6 +404,8 @@ MaybeLocal<Value> StartExecution(Environment* env, StartExecutionCallback cb) {
@@ -695,7 +695,7 @@ index f66099a557..4048f6bd93 100644
 +  return adjacent(c, nargv);
 +}
 diff --git node/src/node_options.cc node/src/node_options.cc
-index 31fc23fdbf..8458d7796e 100644
+index 5b74045886..2dfb7bd76e 100644
 --- node/src/node_options.cc
 +++ node/src/node_options.cc
 @@ -359,7 +359,7 @@ void Parse(
