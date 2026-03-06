@@ -1,5 +1,5 @@
 diff --git node/common.gypi node/common.gypi
-index 311b203600..b2ee8cb47d 100644
+index dca22b881c..ac62fcd98b 100644
 --- node/common.gypi
 +++ node/common.gypi
 @@ -187,7 +187,7 @@
