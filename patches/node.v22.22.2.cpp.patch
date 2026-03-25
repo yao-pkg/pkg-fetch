@@ -1,5 +1,5 @@
 diff --git node/common.gypi node/common.gypi
-index d71df903c1..3cb663d174 100644
+index b7d84c3ead..1eec82c594 100644
 --- node/common.gypi
 +++ node/common.gypi
 @@ -192,7 +192,7 @@
@@ -92,7 +92,7 @@ index f9ce798dc2..68af88ab13 100644
  
  RegisteredExtension::RegisteredExtension(std::unique_ptr<Extension> extension)
 diff --git node/deps/v8/src/codegen/code-stub-assembler.h node/deps/v8/src/codegen/code-stub-assembler.h
-index b082bb8dc7..285683ecdc 100644
+index c7c92eed93..9eaea3aaa8 100644
 --- node/deps/v8/src/codegen/code-stub-assembler.h
 +++ node/deps/v8/src/codegen/code-stub-assembler.h
 @@ -286,7 +286,8 @@ enum class PrimitiveType { kBoolean, kNumber, kString, kSymbol };
@@ -196,10 +196,10 @@ index 529e283bbf..c997c53a18 100644
            ClassPositions::cast(*maybe_class_positions);
        int start_position = class_positions->start();
 diff --git node/deps/v8/src/objects/objects.cc node/deps/v8/src/objects/objects.cc
-index 8e013c2544..7ac03149d8 100644
+index 535ee9ed70..cf1e06d4fc 100644
 --- node/deps/v8/src/objects/objects.cc
 +++ node/deps/v8/src/objects/objects.cc
-@@ -4263,7 +4263,12 @@ void Script::InitLineEndsInternal(IsolateT* isolate, Handle<Script> script) {
+@@ -4246,7 +4246,12 @@ void Script::InitLineEndsInternal(IsolateT* isolate, Handle<Script> script) {
  
  void Script::SetSource(Isolate* isolate, Handle<Script> script,
                         Handle<String> source) {
