@@ -288,6 +288,10 @@ async function compileOnUnix(
 
   args.push(...getConfigureArgs(getMajor(nodeVersion), targetPlatform, targetArch));
 
+  // Accept extra configuration coming from github action like "--ninja" to speed up macos build
+  const extraConfigureArgs = (process.env.NODE_CONFIGURE_ARGS || '').split(/\s+/).filter(Boolean);
+  args.push(...extraConfigureArgs);
+
   log.info("Running configure with: ", args.join(" "));
   // TODO same for windows?
   await spawn('/bin/sh', ['./configure', ...args], {
