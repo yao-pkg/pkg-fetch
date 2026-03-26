@@ -41,9 +41,13 @@ jobs:
           df -h
           echo "::endgroup::"
 
+      - name: Install build tools
+        run: brew install ninja
+
       - run: yarn start --node-range node${{ matrix.target-node }} --arch x64 --output dist
         env:
           MAKE_JOB_COUNT: 4 # prevent to run out of memory
+          NODE_CONFIGURE_ARGS: --ninja # speed up compilation
 
       - name: Check if binary is compiled, skip if download only
         id: check_file
@@ -88,8 +92,8 @@ jobs:
 
       # add missing distutils package to python 3.12
       - name: Install distutils
-        run: brew install python-setuptools
-
+        run: brew install python-setuptools ninja
+      
       # Remove unneeded stuff to free up build space (from Node https://github.com/nodejs/build/issues/3878)
       - name: Cleanup before build
         run: |
@@ -102,6 +106,7 @@ jobs:
       - run: yarn start --node-range node${{ matrix.target-node }} --arch arm64 --output dist
         env:
           MAKE_JOB_COUNT: 2 # prevent to run out of memory
+          NODE_CONFIGURE_ARGS: --ninja # speed up compilation
 
       - name: Check if binary is compiled
         id: check_file
