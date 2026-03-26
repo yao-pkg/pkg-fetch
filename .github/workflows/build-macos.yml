@@ -93,7 +93,7 @@ jobs:
       # add missing distutils package to python 3.12
       - name: Install distutils
         run: brew install python-setuptools ninja
-      
+
       # Remove unneeded stuff to free up build space (from Node https://github.com/nodejs/build/issues/3878)
       - name: Cleanup before build
         run: |
