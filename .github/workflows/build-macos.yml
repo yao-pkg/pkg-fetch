@@ -45,6 +45,14 @@ jobs:
       - name: Install build tools
         run: brew install ninja make
 
+      - name: Put new GNU Make binary first in PATH
+        run: echo "$(brew --prefix)/opt/make/libexec/gnubin" >> "$GITHUB_PATH"
+
+      - name: Check make
+        run: |
+          which make
+          make --version
+
       - run: yarn start --node-range node${{ matrix.target-node }} --arch x64 --output dist
         env:
           MAKE_JOB_COUNT: 4 # prevent to run out of memory
@@ -95,6 +103,14 @@ jobs:
       # install GNU make v4 to fix make -j N option https://github.com/nodejs/node/issues/53176#issuecomment-2134740862
       - name: Install distutils
         run: brew install python-setuptools ninja make
+
+      - name: Put new GNU Make binary first in PATH
+        run: echo "$(brew --prefix)/opt/make/libexec/gnubin" >> "$GITHUB_PATH"
+
+      - name: Check make
+        run: |
+          which make
+          make --version 
 
       # Remove unneeded stuff to free up build space (from Node https://github.com/nodejs/build/issues/3878)
       - name: Cleanup before build
