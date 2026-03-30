@@ -6,7 +6,7 @@ on:
 
 jobs:
   macos-x64:
-    runs-on: macos-15-intel
+    runs-on: macos-26-intel
 
     strategy:
       fail-fast: false
@@ -62,7 +62,7 @@ jobs:
           path: dist/*
 
   macos-arm64:
-    runs-on: macos-14 # macos-14 is arm64: https://github.com/actions/runner-images#available-images
+    runs-on: macos-26 # is arm64: https://github.com/actions/runner-images#available-images
 
     strategy:
       fail-fast: false
