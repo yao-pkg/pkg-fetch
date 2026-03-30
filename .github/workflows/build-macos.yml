@@ -41,8 +41,9 @@ jobs:
           df -h
           echo "::endgroup::"
 
+      # install GNU make v4 to fix make -j N option https://github.com/nodejs/node/issues/53176#issuecomment-2134740862
       - name: Install build tools
-        run: brew install ninja
+        run: brew install ninja make
 
       - run: yarn start --node-range node${{ matrix.target-node }} --arch x64 --output dist
         env:
@@ -91,8 +92,9 @@ jobs:
       - run: yarn install --ignore-engines
 
       # add missing distutils package to python 3.12
+      # install GNU make v4 to fix make -j N option https://github.com/nodejs/node/issues/53176#issuecomment-2134740862
       - name: Install distutils
-        run: brew install python-setuptools ninja
+        run: brew install python-setuptools ninja make
 
       # Remove unneeded stuff to free up build space (from Node https://github.com/nodejs/build/issues/3878)
       - name: Cleanup before build
