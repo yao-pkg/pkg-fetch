@@ -1,3 +1,20 @@
+## [3.5.33](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.32...v3.5.33) (2026-03-31)
+
+### Features
+
+- add v20.20.1 patch ([#154](https://github.com/yao-pkg/pkg-fetch/issues/154)) ([c3aed2c](https://github.com/yao-pkg/pkg-fetch/commit/c3aed2c96b48ef05db17c02c1604126e54f9643a))
+- add v20.20.2 patch ([#158](https://github.com/yao-pkg/pkg-fetch/issues/158)) ([fc04868](https://github.com/yao-pkg/pkg-fetch/commit/fc04868c6c44c1f9464b6f464f906b3d26387476))
+- add v22.22.1 patch ([#155](https://github.com/yao-pkg/pkg-fetch/issues/155)) ([bd8f04a](https://github.com/yao-pkg/pkg-fetch/commit/bd8f04a17ba85467ef072b30a394b7a1d050c08a))
+- add v22.22.2 patch ([#157](https://github.com/yao-pkg/pkg-fetch/issues/157)) ([1a499e3](https://github.com/yao-pkg/pkg-fetch/commit/1a499e32ea93b1397518540af156cd157893601a))
+- add v24.13.1 patch ([#151](https://github.com/yao-pkg/pkg-fetch/issues/151)) ([207f072](https://github.com/yao-pkg/pkg-fetch/commit/207f072b10a193d34bd4e3e7e7b151e74435429d))
+- add v24.14.0 patch ([#153](https://github.com/yao-pkg/pkg-fetch/issues/153)) ([6c0795d](https://github.com/yao-pkg/pkg-fetch/commit/6c0795db79556b231b3d1c8a259c58f0abc74271))
+- add v24.14.1 patch ([#156](https://github.com/yao-pkg/pkg-fetch/issues/156)) ([e971f61](https://github.com/yao-pkg/pkg-fetch/commit/e971f61e138af8e38ae8d5167e9b0e73878aed76))
+
+### Bug Fixes
+
+- update expected shas ([#161](https://github.com/yao-pkg/pkg-fetch/issues/161)) ([873add6](https://github.com/yao-pkg/pkg-fetch/commit/873add6e109eea7092bbe7a0dfe9b9b4bf342abb))
+- use windows-11-arm runner to build for windows arm64 arch ([#150](https://github.com/yao-pkg/pkg-fetch/issues/150)) ([c72eedf](https://github.com/yao-pkg/pkg-fetch/commit/c72eedf46bc58697a8dfeffa52ad66386b74282f))
+
 ## [3.5.32](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.31...v3.5.32) (2026-01-15)
 
 ### Features
