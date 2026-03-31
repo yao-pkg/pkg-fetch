@@ -6,7 +6,7 @@ on:
 
 jobs:
   macos-x64:
-    runs-on: macos-15-large
+    runs-on: macos-26-intel
 
     strategy:
       fail-fast: false
@@ -55,7 +55,7 @@ jobs:
 
       - run: yarn start --node-range node${{ matrix.target-node }} --arch x64 --output dist
         env:
-          MAKE_JOB_COUNT: 8 # prevent to run out of memory
+          MAKE_JOB_COUNT: 4 # prevent to run out of memory
           NODE_CONFIGURE_ARGS: --ninja # speed up compilation
 
       - name: Check if binary is compiled, skip if download only
@@ -71,7 +71,7 @@ jobs:
           path: dist/*
 
   macos-arm64:
-    runs-on: macos-15-xlarge # is arm64: https://github.com/actions/runner-images#available-images
+    runs-on: macos-26 # is arm64: https://github.com/actions/runner-images#available-images
 
     strategy:
       fail-fast: false
@@ -123,7 +123,7 @@ jobs:
 
       - run: yarn start --node-range node${{ matrix.target-node }} --arch arm64 --output dist
         env:
-          MAKE_JOB_COUNT: 4 # prevent to run out of memory
+          MAKE_JOB_COUNT: 2 # prevent to run out of memory
           NODE_CONFIGURE_ARGS: --ninja # speed up compilation
 
       - name: Check if binary is compiled
