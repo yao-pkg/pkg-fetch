@@ -33,6 +33,7 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
+          registry-url: 'https://registry.npmjs.org'
           cache: 'yarn'
 
       - name: Upgrade npm for OIDC support (requires npm >= 11.5.1)
