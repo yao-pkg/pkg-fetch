@@ -1,20 +1,26 @@
+# pkg-fetch
+
+[![npm version](https://img.shields.io/npm/v/@yao-pkg/pkg-fetch)](https://www.npmjs.com/package/@yao-pkg/pkg-fetch)
+[![npm downloads](https://img.shields.io/npm/dm/@yao-pkg/pkg-fetch)](https://www.npmjs.com/package/@yao-pkg/pkg-fetch)
+[![license](https://img.shields.io/npm/l/@yao-pkg/pkg-fetch)](https://github.com/yao-pkg/pkg-fetch/blob/main/LICENSE)
+
 A utility to fetch or build patched Node binaries used by [pkg](https://github.com/yao-pkg/pkg) to generate executables. This repo hosts prebuilt binaries in [Releases](https://github.com/yao-pkg/pkg-fetch/releases).
 
 ## Binary Compatibility
 
-| Node                                                                                                                              | Platform    | Architectures             | Minimum OS version                                                                  |
-| --------------------------------------------------------------------------------------------------------------------------------- | ----------- | ------------------------- | ----------------------------------------------------------------------------------- |
-| 8<sup>[1](#fn1)</sup>, 10<sup>[1](#fn1)</sup>, 12<sup>[1](#fn1)</sup>, 14<sup>[1](#fn1)</sup>, 16<sup>[1](#fn1)</sup>, 18, 20, 22 | alpine      | x64, arm64                | 3.7.3, other distros with musl libc >= 1.1.18                                       |
-| 8<sup>[1](#fn1)</sup>, 10<sup>[1](#fn1)</sup>, 12<sup>[1](#fn1)</sup>, 14<sup>[1](#fn1)</sup>, 16<sup>[1](#fn1)</sup>             | linux       | x64                       | Enterprise Linux 7, Ubuntu 14.04, Debian jessie, other distros with glibc >= 2.17   |
-| 18, 20, 22                                                                                                                        | linux       | x64                       | Enterprise Linux 8, Ubuntu 20.04, Debian buster, other distros with glibc >= 2.28   |
-| 8<sup>[1](#fn1)</sup>, 10<sup>[1](#fn1)</sup>, 12<sup>[1](#fn1)</sup>, 14<sup>[1](#fn1)</sup>, 16<sup>[1](#fn1)</sup>             | linux       | arm64                     | Enterprise Linux 8, Ubuntu 18.04, Debian buster, other distros with glibc >= 2.27   |
-| 18, 20, 22                                                                                                                        | linux       | arm64                     | Enterprise Linux 9, Ubuntu 22.04, Debian bookworm, other distros with glibc >= 2.35 |
-| 8<sup>[1](#fn1)</sup>, 10<sup>[1](#fn1)</sup>, 12<sup>[1](#fn1)</sup>, 14<sup>[1](#fn1)</sup>, 16<sup>[1](#fn1)</sup>, 18, 20, 22 | linuxstatic | x64, arm64                | Any distro with Linux Kernel >= 2.6.32 (>= 3.10 strongly recommended)               |
-| 16<sup>[1](#fn1)</sup>, 18, 20, 22                                                                                                | linuxstatic | armv7<sup>[2](#fn2)</sup> | Any distro with Linux Kernel >= 2.6.32 (>= 3.10 strongly recommended)               |
-| 8<sup>[1](#fn1)</sup>, 10<sup>[1](#fn1)</sup>, 12<sup>[1](#fn1)</sup>, 14<sup>[1](#fn1)</sup>, 16<sup>[1](#fn1)</sup>, 18, 20, 22 | macos       | x64                       | 10.13                                                                               |
-| 14<sup>[1](#fn1)</sup>, 16<sup>[1](#fn1)</sup>, 18, 20, 22                                                                        | macos       | arm64<sup>[3](#fn3)</sup> | 11.0                                                                                |
-| 8<sup>[1](#fn1)</sup>, 10<sup>[1](#fn1)</sup>, 12<sup>[1](#fn1)</sup>, 14<sup>[1](#fn1)</sup>, 16<sup>[1](#fn1)</sup>, 18, 20, 22 | win         | x64                       | 8.1                                                                                 |
-| 14<sup>[1](#fn1)</sup>, 16<sup>[1](#fn1)</sup>, 18, 20, 22                                                                        | win         | arm64                     | 10                                                                                  |
+| Node                                                                                                                                  | Platform    | Architectures             | Minimum OS version                                                                  |
+| ------------------------------------------------------------------------------------------------------------------------------------- | ----------- | ------------------------- | ----------------------------------------------------------------------------------- |
+| 8<sup>[1](#fn1)</sup>, 10<sup>[1](#fn1)</sup>, 12<sup>[1](#fn1)</sup>, 14<sup>[1](#fn1)</sup>, 16<sup>[1](#fn1)</sup>, 18, 20, 22, 24 | alpine      | x64, arm64                | 3.7.3, other distros with musl libc >= 1.1.18                                       |
+| 8<sup>[1](#fn1)</sup>, 10<sup>[1](#fn1)</sup>, 12<sup>[1](#fn1)</sup>, 14<sup>[1](#fn1)</sup>, 16<sup>[1](#fn1)</sup>                 | linux       | x64                       | Enterprise Linux 7, Ubuntu 14.04, Debian jessie, other distros with glibc >= 2.17   |
+| 18, 20, 22, 24                                                                                                                        | linux       | x64                       | Enterprise Linux 8, Ubuntu 20.04, Debian buster, other distros with glibc >= 2.28   |
+| 8<sup>[1](#fn1)</sup>, 10<sup>[1](#fn1)</sup>, 12<sup>[1](#fn1)</sup>, 14<sup>[1](#fn1)</sup>, 16<sup>[1](#fn1)</sup>                 | linux       | arm64                     | Enterprise Linux 8, Ubuntu 18.04, Debian buster, other distros with glibc >= 2.27   |
+| 18, 20, 22, 24                                                                                                                        | linux       | arm64                     | Enterprise Linux 9, Ubuntu 22.04, Debian bookworm, other distros with glibc >= 2.35 |
+| 8<sup>[1](#fn1)</sup>, 10<sup>[1](#fn1)</sup>, 12<sup>[1](#fn1)</sup>, 14<sup>[1](#fn1)</sup>, 16<sup>[1](#fn1)</sup>, 18, 20, 22, 24 | linuxstatic | x64, arm64                | Any distro with Linux Kernel >= 2.6.32 (>= 3.10 strongly recommended)               |
+| 16<sup>[1](#fn1)</sup>, 18, 20, 22                                                                                                    | linuxstatic | armv7<sup>[2](#fn2)</sup> | Any distro with Linux Kernel >= 2.6.32 (>= 3.10 strongly recommended)               |
+| 8<sup>[1](#fn1)</sup>, 10<sup>[1](#fn1)</sup>, 12<sup>[1](#fn1)</sup>, 14<sup>[1](#fn1)</sup>, 16<sup>[1](#fn1)</sup>, 18, 20, 22, 24 | macos       | x64                       | 10.13                                                                               |
+| 14<sup>[1](#fn1)</sup>, 16<sup>[1](#fn1)</sup>, 18, 20, 22, 24                                                                        | macos       | arm64<sup>[3](#fn3)</sup> | 11.0                                                                                |
+| 8<sup>[1](#fn1)</sup>, 10<sup>[1](#fn1)</sup>, 12<sup>[1](#fn1)</sup>, 14<sup>[1](#fn1)</sup>, 16<sup>[1](#fn1)</sup>, 18, 20, 22, 24 | win         | x64                       | 8.1                                                                                 |
+| 14<sup>[1](#fn1)</sup>, 16<sup>[1](#fn1)</sup>, 18, 20, 22, 24                                                                        | win         | arm64                     | 10                                                                                  |
 
 <em id="fn1">[1]</em>: end-of-life, may be removed in the next major release.
 
@@ -82,7 +88,7 @@ tag you want a patch for (e.g. v18.13.0 to use the previous example). Alongside
 this, have the `.rej` file and go through each rejected hunk by hunk and use
 your best judgement to determine how it should apply against the new tag.
 
-Save you results, and export the overall git diff with the commands from the
+Save your results, and export the overall git diff with the commands from the
 example above.
 
 ### Checking that patches apply cleanly
