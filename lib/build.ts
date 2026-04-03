@@ -220,15 +220,6 @@ async function compileOnWindows(
     args.push('full-icu');
   }
 
-  // Can't cross compile for arm64 with small-icu
-  if (
-    major < 24 &&
-    hostArch !== targetArch &&
-    !config_flags.includes('--with-intl=full-icu')
-  ) {
-    config_flags.push('--without-intl');
-  }
-
   await spawn('cmd', args, {
     cwd: nodePath,
     env: { ...process.env, config_flags: config_flags.join(' ') },
