@@ -174,11 +174,21 @@ def cmd_apply(node_dir: str, response_path: str) -> None:
     initial_rejects = find_reject_files(node_dir)
     total = len(initial_rejects)
 
+    # Count rejected hunks per file BEFORE applying anything. The AI must
+    # return at least one successfully-applying SEARCH/REPLACE block per
+    # rejected hunk, otherwise we'd silently drop unaddressed hunks when
+    # the .rej is deleted at the end.
+    expected_per_file: dict[str, int] = {}
+    for rej in initial_rejects:
+        rel = os.path.relpath(rej[:-4], node_dir)
+        with open(rej, encoding="utf-8", errors="ignore") as f:
+            expected_per_file[rel] = len(parse_rej(f.read()))
+
     blocks = list(BLOCK_RE.finditer(response))
     print(f"Parsed {len(blocks)} search/replace block(s) from AI response")
 
     failed: list[str] = []
-    touched: set[str] = set()
+    applied_per_file: dict[str, int] = {}
 
     for m in blocks:
         rel = m.group("file").strip()
@@ -206,18 +216,30 @@ def cmd_apply(node_dir: str, response_path: str) -> None:
 
         with open(path, "w", encoding="utf-8") as f:
             f.write(content.replace(search, replace, 1))
-        touched.add(rel)
-        print(f"✅ {rel}: applied resolution")
+        applied_per_file[rel] = applied_per_file.get(rel, 0) + 1
+        expected = expected_per_file.get(rel, "?")
+        print(f"✅ {rel}: applied resolution ({applied_per_file[rel]}/{expected})")
 
-    # Drop .rej files for targets that were fully covered without failures.
+    # Delete .rej only when EVERY rejected hunk in that file has been
+    # addressed by a successfully-applying block. Files where the AI
+    # returned fewer blocks than there were hunks (or where any block
+    # failed to apply) keep their .rej, so the leftover scan below
+    # flags them as unresolved and the workflow aborts before PR.
     failed_set = set(failed)
     for rej in initial_rejects:
         rel = os.path.relpath(rej[:-4], node_dir)
-        if rel in touched and rel not in failed_set:
-            try:
-                os.remove(rej)
-            except OSError:
-                pass
+        expected = expected_per_file[rel]
+        applied = applied_per_file.get(rel, 0)
+        if rel in failed_set:
+            print(f"⚠️ {rel}: kept .rej — at least one block failed to apply")
+            continue
+        if applied < expected:
+            print(f"⚠️ {rel}: kept .rej — AI returned {applied}/{expected} blocks")
+            continue
+        try:
+            os.remove(rej)
+        except OSError:
+            pass
 
     leftover = [
         os.path.relpath(r[:-4], node_dir)
