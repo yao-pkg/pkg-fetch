@@ -81,7 +81,7 @@ jobs:
       - name: Resolve conflicts with AI
         if: steps.apply.outputs.needs_ai == 'true'
         id: ai
-        uses: actions/ai-inference@v1
+        uses: actions/ai-inference@v2
         with:
           prompt-file: ai_prompt.md
           system-prompt: |
@@ -89,7 +89,7 @@ jobs:
             Output ONLY the requested search/replace blocks in the exact format the user specifies.
             Preserve whitespace and indentation byte-for-byte. No markdown fences, no commentary, no preamble.
           model: openai/gpt-4o
-          max-tokens: 12000
+          max-completion-tokens: 12000
 
       - name: Apply AI resolutions
         if: steps.apply.outputs.needs_ai == 'true'
