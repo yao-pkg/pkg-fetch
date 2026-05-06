@@ -153,6 +153,12 @@ jobs:
         # following "Add release url to summary" step.
         run: |
           set -e
+
+          if [ -z "$TAG" ]; then
+            echo "::error::No release tag resolved: use_release_tag is empty. This happens when 'newRelease' is false and no previous release exists. Re-run with newRelease=true to create the first draft." >&2
+            exit 1
+          fi
+
           NOTES_FILE="$RUNNER_TEMP/release-notes.md"
 
           RELEASE_EXISTS=false
@@ -173,9 +179,15 @@ jobs:
 
           else
             # Case 3.
+            # Anchor the auto-generated notes to the commit being released
+            # (GITHUB_SHA) instead of the default branch HEAD, so dispatches
+            # from non-default branches still produce notes that reflect the
+            # built code. previous_tag_name is left to GitHub's heuristic.
             AUTO_NOTES="$RUNNER_TEMP/auto-notes.md"
             gh api -X POST "/repos/$GITHUB_REPOSITORY/releases/generate-notes" \
-              -f tag_name="$TAG" --jq '.body' > "$AUTO_NOTES"
+              -f tag_name="$TAG" \
+              -f target_commitish="$GITHUB_SHA" \
+              --jq '.body' > "$AUTO_NOTES"
             { printf '%s\n\n' "$BODY"; cat "$AUTO_NOTES"; } > "$NOTES_FILE"
 
             DRAFT_ARGS=()
