@@ -14,14 +14,14 @@ jobs:
         target-node: [20, 22, 24]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: latest
 
       - name: Use Node.js 20
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20
 
@@ -51,7 +51,7 @@ jobs:
           ls -l dist
           (test -f dist/*.sha256sum && echo "EXISTS=true" >> $GITHUB_OUTPUT) || echo "EXISTS=false" >> $GITHUB_OUTPUT
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: steps.check_file.outputs.EXISTS == 'true'
         with:
           name: node${{ matrix.target-node }}-macos-x64
@@ -66,14 +66,14 @@ jobs:
         target-node: [20, 22, 24]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: latest
 
       - name: Use Node.js 20
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20
 
@@ -109,7 +109,7 @@ jobs:
           ls -l dist
           (test -f dist/*.sha256sum && echo "EXISTS=true" >> $GITHUB_OUTPUT) || echo "EXISTS=false" >> $GITHUB_OUTPUT
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: steps.check_file.outputs.EXISTS == 'true'
         with:
           name: node${{ matrix.target-node }}-macos-arm64

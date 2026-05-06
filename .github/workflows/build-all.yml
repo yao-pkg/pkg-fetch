@@ -31,9 +31,9 @@ jobs:
     steps:
       - run: echo Is making new release? '${{ inputs.newRelease }}'
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: downloaded-artifacts
 
@@ -120,17 +120,39 @@ jobs:
 
       - name: Add binaries to release
         id: create_release
-        uses: softprops/action-gh-release@d4e8205d7e959a9107da6396278b2f1f07af0f9b
-        with:
-          token: ${{ github.token }}
-          draft: ${{ env.create_draft }}
-          tag_name: ${{ env.use_release_tag }}
-          files: |
-            artifact-shas/*
-            artifact-binaries/*
-          body: "${{ env.sha_summary }}"
-          generate_release_notes: true
-          append_body: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ env.use_release_tag }}
+          DRAFT: ${{ env.create_draft }}
+          BODY: ${{ env.sha_summary }}
+        run: |
+          set -e
+
+          # Build release notes: auto-generated notes (mirrors softprops's
+          # `generate_release_notes: true`) followed by our SHA summary
+          # (mirrors `append_body: true`). `gh release create` makes
+          # --generate-notes and --notes-file mutually exclusive, so we
+          # fetch the generated body via the REST API and concatenate.
+          NOTES_FILE="$RUNNER_TEMP/release-notes.md"
+          gh api -X POST "/repos/$GITHUB_REPOSITORY/releases/generate-notes" \
+            -f tag_name="$TAG" --jq '.body' > "$NOTES_FILE"
+          printf '\n\n%s\n' "$BODY" >> "$NOTES_FILE"
+
+          # Idempotent on tag: edit-and-upload if release exists, else create.
+          if gh release view "$TAG" --json tagName >/dev/null 2>&1; then
+            gh release edit   "$TAG" --notes-file "$NOTES_FILE"
+            gh release upload "$TAG" artifact-shas/* artifact-binaries/* --clobber
+          else
+            DRAFT_ARGS=()
+            [ "$DRAFT" = "true" ] && DRAFT_ARGS=(--draft)
+            gh release create "$TAG" "${DRAFT_ARGS[@]}" \
+              --title "$TAG" \
+              --notes-file "$NOTES_FILE" \
+              artifact-shas/* artifact-binaries/*
+          fi
+
+          URL=$(gh release view "$TAG" --json url --jq .url)
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
 
       - name: Add release url to summary
         run: echo "Release created/updated at ${{ steps.create_release.outputs.url }}" >> $GITHUB_STEP_SUMMARY
