@@ -125,24 +125,44 @@ jobs:
           TAG: ${{ env.use_release_tag }}
           DRAFT: ${{ env.create_draft }}
           BODY: ${{ env.sha_summary }}
+        # Replaces a SHA-pinned `softprops/action-gh-release@d4e8205` call
+        # that ran with `generate_release_notes: true` + `append_body: true`.
+        # We must preserve those semantics exactly:
+        #   - On UPDATE (release already exists for the tag): softprops with
+        #     `append_body: true` keeps the existing release body and appends
+        #     the new `body`. `generate_release_notes` is silently ignored
+        #     by the GitHub PATCH /releases API on update, so softprops
+        #     never actually injected auto-notes here — confirmed by the
+        #     production v3.5 body, which has accumulated SHA sections
+        #     since 2023 and contains zero auto-gen markers. We must do
+        #     the same: read existing body, append new SHA summary, write.
+        #   - On CREATE: softprops + GitHub semantics for `body` plus
+        #     `generate_release_notes: true` PRE-pends the body to the
+        #     auto-generated notes (per action.yml docs and the
+        #     POST /releases REST API contract). `gh release create`
+        #     makes --generate-notes and --notes-file mutually exclusive,
+        #     so we fetch the generated body via the REST API and
+        #     concatenate in the correct order: BODY + "\n\n" + auto-notes.
+        # Asset overwrite via `--clobber` mirrors softprops's default
+        # `overwrite_files: true`. Title and draft state on update are
+        # left untouched, matching softprops's update path.
         run: |
           set -e
-
-          # Build release notes: auto-generated notes (mirrors softprops's
-          # `generate_release_notes: true`) followed by our SHA summary
-          # (mirrors `append_body: true`). `gh release create` makes
-          # --generate-notes and --notes-file mutually exclusive, so we
-          # fetch the generated body via the REST API and concatenate.
           NOTES_FILE="$RUNNER_TEMP/release-notes.md"
-          gh api -X POST "/repos/$GITHUB_REPOSITORY/releases/generate-notes" \
-            -f tag_name="$TAG" --jq '.body' > "$NOTES_FILE"
-          printf '\n\n%s\n' "$BODY" >> "$NOTES_FILE"
 
-          # Idempotent on tag: edit-and-upload if release exists, else create.
           if gh release view "$TAG" --json tagName >/dev/null 2>&1; then
+            # UPDATE path — preserve existing body, append SHA summary.
+            gh release view "$TAG" --json body --jq .body > "$NOTES_FILE"
+            printf '\n%s\n' "$BODY" >> "$NOTES_FILE"
             gh release edit   "$TAG" --notes-file "$NOTES_FILE"
             gh release upload "$TAG" artifact-shas/* artifact-binaries/* --clobber
           else
+            # CREATE path — body PRE-pended to auto-generated notes.
+            AUTO_NOTES="$RUNNER_TEMP/auto-notes.md"
+            gh api -X POST "/repos/$GITHUB_REPOSITORY/releases/generate-notes" \
+              -f tag_name="$TAG" --jq '.body' > "$AUTO_NOTES"
+            { printf '%s\n\n' "$BODY"; cat "$AUTO_NOTES"; } > "$NOTES_FILE"
+
             DRAFT_ARGS=()
             [ "$DRAFT" = "true" ] && DRAFT_ARGS=(--draft)
             gh release create "$TAG" "${DRAFT_ARGS[@]}" \
