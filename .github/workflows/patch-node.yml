@@ -89,13 +89,29 @@ jobs:
           system-prompt: |
             You are an expert C/C++/JavaScript developer maintaining a Git patch against the Node.js source tree.
             Output ONLY the requested search/replace blocks in the exact format the user specifies.
-            Preserve whitespace and indentation byte-for-byte. No markdown fences, no commentary, no preamble.
+            No markdown fences, no commentary, no preamble.
+
+            Patch-structure rules (failing these breaks the build):
+            - In each rejected hunk, lines starting with a single space are CONTEXT — they exist in
+              the current file and must continue to exist there after your resolution. Never delete
+              or merge a context line, even if it is blank.
+            - Lines starting with `-` are removals (drop from the file); lines starting with `+` are
+              additions (insert into the file). Context lines stay put.
+            - Preserve every blank line that appears as context. Two blocks separated by a blank
+              line in the original file must remain separated by a blank line after your edit.
+            - SEARCH must match the file's CURRENT content byte-for-byte (whitespace included).
+            - REPLACE must contain the same context lines as SEARCH, with the `+`/`-` edits applied.
+              Whitespace and indentation in REPLACE must mirror the surrounding code style.
           # gpt-4.1 outperforms gpt-4o on coding + instruction-following
           # (key for the strict SEARCH/REPLACE output format) and is not a
           # reasoning model, so its output budget isn't shared with hidden
           # CoT tokens. 1M input / 32K output / "high" rate-limit tier.
           model: openai/gpt-4.1
           max-completion-tokens: 16000
+          # Low (not zero): cuts variance vs. the model default while
+          # leaving enough exploration to avoid the local-optimum traps
+          # of greedy decoding on long structured output.
+          temperature: 0.2
 
       - name: Apply AI resolutions
         if: steps.apply.outputs.needs_ai == 'true'
