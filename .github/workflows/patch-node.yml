@@ -76,14 +76,16 @@ jobs:
 
       - name: Build AI prompt
         if: steps.apply.outputs.needs_ai == 'true'
-        run: python3 .github/scripts/ai_resolver.py prepare ../node ai_prompt.md
+        # Write the prompt to RUNNER_TEMP — anything inside the checkout
+        # gets picked up by peter-evans/create-pull-request below.
+        run: python3 .github/scripts/ai_resolver.py prepare ../node "$RUNNER_TEMP/ai_prompt.md"
 
       - name: Resolve conflicts with AI
         if: steps.apply.outputs.needs_ai == 'true'
         id: ai
         uses: actions/ai-inference@v2
         with:
-          prompt-file: ai_prompt.md
+          prompt-file: ${{ runner.temp }}/ai_prompt.md
           system-prompt: |
             You are an expert C/C++/JavaScript developer maintaining a Git patch against the Node.js source tree.
             Output ONLY the requested search/replace blocks in the exact format the user specifies.
@@ -94,12 +96,6 @@ jobs:
           # CoT tokens. 1M input / 32K output / "high" rate-limit tier.
           model: openai/gpt-4.1
           max-completion-tokens: 16000
-          # The auto-injected GITHUB_TOKEN cannot access GitHub Models on
-          # orgs that don't have Models enabled at the org/enterprise level
-          # (returns 403 with no body). A fine-grained PAT scoped only to
-          # account-level "Models: Read" works regardless of org policy.
-          # See: https://github.com/actions/ai-inference/issues/155
-          token: ${{ secrets.MODELS_PAT }}
 
       - name: Apply AI resolutions
         if: steps.apply.outputs.needs_ai == 'true'
@@ -108,10 +104,10 @@ jobs:
           # Python exits non-zero on unresolved conflicts; pipefail+set -e
           # ensures the whole step fails so the PR step is skipped.
           python3 .github/scripts/ai_resolver.py apply ../node "${{ steps.ai.outputs.response-file }}" \
-            | tee resolution_output.txt
+            | tee "$RUNNER_TEMP/resolution_output.txt"
           {
             echo "RESOLUTION_OUTPUT<<EOF"
-            cat resolution_output.txt
+            cat "$RUNNER_TEMP/resolution_output.txt"
             echo "EOF"
           } >> "$GITHUB_ENV"
 
@@ -147,13 +143,18 @@ jobs:
 
             This PR updates the Node.js patch to version ${{ inputs.nodeVersion }}.
 
-            Patch conflicts (if any) were resolved with `actions/ai-inference@v1`
+            Patch conflicts (if any) were resolved with `actions/ai-inference@v2`
             using GitHub Models — no third-party API key required.
 
             ${{ env.RESOLUTION_OUTPUT && '### AI Resolution Details' || '' }}
             ${{ env.RESOLUTION_OUTPUT }}
           branch: "nodejs-v${{ inputs.nodeVersion }}"
           base: "main"
+          # Be explicit — only patch files belong in the PR, never any
+          # workspace scratch files that might appear during the run.
+          add-paths: |
+            patches/*.patch
+            patches/patches.json
           delete-branch: true
           labels: "enhancement,nodejs"
           draft: false
