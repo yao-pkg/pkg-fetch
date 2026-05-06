@@ -15,156 +15,135 @@ on:
         required: false
 
 jobs:
-    build:
-        permissions:
-            contents: write
-            pull-requests: write
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
-            
-            - name: Checkout nodejs and create new patch
-              run: |
-                set +e  # Don't exit on errors, we want to handle them ourselves
-                
-                # find the patch file by checking the patch file matching major version input node version
-                MAJOR_VERSION=$(echo ${{ inputs.nodeVersion }} | cut -d'.' -f1)
-                echo "Node.js major version: $MAJOR_VERSION"
+  build:
+    permissions:
+      contents: write
+      pull-requests: write
+      models: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-                if [ -z "${{ inputs.patchFile }}" ]; then
-                  PATCH_FILE=$(ls patches/node.v$MAJOR_VERSION.*.patch)
-                else
-                  PATCH_FILE=patches/node.v${{ inputs.patchFile }}.cpp.patch
-                fi
+      - name: Apply existing patch
+        id: apply
+        run: |
+          set -e
 
-                # extract patch version from PATCH_FILE. E.g. node.v20.11.1.cpp.patch -->  20.11.1
-                PATCH_VERSION=$(echo $PATCH_FILE | grep -oP 'node.v\K[0-9]+\.[0-9]+\.[0-9]+')
+          MAJOR_VERSION=$(echo "${{ inputs.nodeVersion }}" | cut -d'.' -f1)
+          echo "Node.js major version: $MAJOR_VERSION"
 
-                echo "Patch file: $PATCH_FILE"
+          if [ -z "${{ inputs.patchFile }}" ]; then
+            PATCH_FILE=$(ls patches/node.v$MAJOR_VERSION.*.patch)
+          else
+            PATCH_FILE="patches/node.v${{ inputs.patchFile }}.cpp.patch"
+          fi
 
-                # check if patch file exists
-                if [ ! -f "$PATCH_FILE" ]; then
-                  echo "No patch file found for Node.js version ${{ inputs.nodeVersion }}"
-                  exit 1
-                fi
+          if [ ! -f "$PATCH_FILE" ]; then
+            echo "No patch file found for Node.js version ${{ inputs.nodeVersion }}"
+            exit 1
+          fi
 
-                cd ..
-                echo "Cloning Node.js repository"
-                git clone -b v${{ inputs.nodeVersion }} --single-branch https://github.com/nodejs/node.git
-                cd node
+          PATCH_VERSION=$(echo "$PATCH_FILE" | grep -oP 'node\.v\K[0-9]+\.[0-9]+\.[0-9]+')
+          echo "Patch file:    $PATCH_FILE"
+          echo "Patch version: $PATCH_VERSION"
 
-                # Try to apply the patch cleanly first
-                echo "Applying patch $PATCH_FILE"
-                git apply --check ../pkg-fetch/$PATCH_FILE
-                PATCH_CHECK_RESULT=$?
-                
-                if [ $PATCH_CHECK_RESULT -eq 0 ]; then
-                  echo "✅ Patch $PATCH_FILE applies cleanly"
-                  git apply ../pkg-fetch/$PATCH_FILE
-                  echo "PATCH_STATUS=clean" >> $GITHUB_ENV
-                else
-                  echo "⚠️ Patch $PATCH_FILE does not apply cleanly, attempting conflict resolution"
-                  
-                  # Apply patch with --reject to create .rej files
-                  git apply --reject ../pkg-fetch/$PATCH_FILE || true
-                  
-                  # Check if we have any .rej files
-                  REJECT_COUNT=$(find . -name "*.rej" -type f | wc -l)
-                  
-                  if [ $REJECT_COUNT -eq 0 ]; then
-                    echo "ℹ️ No reject files found, patch applied partially"
-                    echo "PATCH_STATUS=partial" >> $GITHUB_ENV
-                  else
-                    echo "🤖 Found $REJECT_COUNT reject files, using AI to resolve conflicts"
-                    
-                    # Use our Python script to resolve conflicts
-                    if [ -n "${{ secrets.OPENAI_KEY }}" ]; then
-                      echo "Using OpenAI API for conflict resolution"
-                      python3 ../pkg-fetch/.github/scripts/openai_resolver.py . "${{ secrets.OPENAI_KEY }}" > resolution_output.txt 2>&1
-                      RESOLUTION_RESULT=$?
-                    else
-                      echo "No OpenAI API key found, creating manual resolution files only"
-                      python3 ../pkg-fetch/.github/scripts/openai_resolver.py . "dummy" "create_manual_only" > resolution_output.txt 2>&1
-                      RESOLUTION_RESULT=1
-                    fi
-                    
-                    # Extract results from Python script output
-                    CONFLICTS_RESOLVED=$(grep "CONFLICTS_RESOLVED=" resolution_output.txt | cut -d'=' -f2)
-                    TOTAL_CONFLICTS=$(grep "TOTAL_CONFLICTS=" resolution_output.txt | cut -d'=' -f2)
-                    HAS_UNRESOLVED=$(grep "HAS_UNRESOLVED=" resolution_output.txt | cut -d'=' -f2)
-                    FAILED_FILES_LINE=$(grep "FAILED_FILES=" resolution_output.txt | cut -d'=' -f2)
+          echo "PATCH_FILE=$PATCH_FILE"       >> "$GITHUB_ENV"
+          echo "PATCH_VERSION=$PATCH_VERSION" >> "$GITHUB_ENV"
+          # Default so later `${{ env.RESOLUTION_OUTPUT }}` is always defined.
+          echo "RESOLUTION_OUTPUT="           >> "$GITHUB_ENV"
 
-                    echo "PATCH_STATUS=conflicts" >> $GITHUB_ENV
-                    echo "CONFLICTS_RESOLVED=${CONFLICTS_RESOLVED:-0}" >> $GITHUB_ENV
-                    echo "TOTAL_CONFLICTS=${TOTAL_CONFLICTS:-0}" >> $GITHUB_ENV
-                    
-                    # Show resolution summary
-                    cat resolution_output.txt
-                    
-                    # Check if we have unresolved conflicts - if so, exit without creating PR
-                    if [ "${HAS_UNRESOLVED:-false}" = "True" ]; then
-                      echo "❌ There are unresolved conflicts. Exiting without creating PR."
-                      echo "Please resolve the conflicts manually and re-run the workflow."
-                      exit 1
-                    fi
-                  fi
-                fi
+          cd ..
+          echo "Cloning Node.js v${{ inputs.nodeVersion }}"
+          git clone -b "v${{ inputs.nodeVersion }}" --single-branch https://github.com/nodejs/node.git
+          cd node
 
-                # Only proceed with patch creation if we got here (no unresolved conflicts)
-                echo "✅ All conflicts resolved or patch applied successfully. Creating new patch file."
+          if git apply --check "../pkg-fetch/$PATCH_FILE" 2>/dev/null; then
+            echo "✅ Patch applies cleanly"
+            git apply "../pkg-fetch/$PATCH_FILE"
+            echo "needs_ai=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "⚠️ Patch does not apply cleanly, falling back to --reject"
+            git apply --reject "../pkg-fetch/$PATCH_FILE" || true
+            REJECT_COUNT=$(find . -name '*.rej' -type f | wc -l)
+            if [ "$REJECT_COUNT" -eq 0 ]; then
+              echo "ℹ️ No reject files produced; patch applied partially"
+              echo "needs_ai=false" >> "$GITHUB_OUTPUT"
+            else
+              echo "🤖 $REJECT_COUNT reject file(s); will use AI to resolve"
+              echo "needs_ai=true" >> "$GITHUB_OUTPUT"
+            fi
+          fi
 
-                # Store resolution output for PR body if it exists
-                if [ -f "../node/resolution_output.txt" ]; then
-                  echo "RESOLUTION_OUTPUT<<EOF" >> $GITHUB_ENV
-                  cat ../node/resolution_output.txt >> $GITHUB_ENV
-                  echo "EOF" >> $GITHUB_ENV
+      - name: Build AI prompt
+        if: steps.apply.outputs.needs_ai == 'true'
+        run: python3 .github/scripts/ai_resolver.py prepare ../node ai_prompt.md
 
-                  # delete resolution output file
-                  rm -f ../node/resolution_output.txt
-                else
-                  echo "RESOLUTION_OUTPUT=" >> $GITHUB_ENV
-                fi
+      - name: Resolve conflicts with AI
+        if: steps.apply.outputs.needs_ai == 'true'
+        id: ai
+        uses: actions/ai-inference@v1
+        with:
+          prompt-file: ai_prompt.md
+          system-prompt: |
+            You are an expert C/C++/JavaScript developer maintaining a Git patch against the Node.js source tree.
+            Output ONLY the requested search/replace blocks in the exact format the user specifies.
+            Preserve whitespace and indentation byte-for-byte. No markdown fences, no commentary, no preamble.
+          model: openai/gpt-4o
+          max-tokens: 12000
 
-                # delete old patch file and create new one
-                rm -rf ../pkg-fetch/$PATCH_FILE
-                
-                git add -A
-                git diff --staged --src-prefix=node/ --dst-prefix=node/ > ../pkg-fetch/patches/node.v${{ inputs.nodeVersion }}.cpp.patch
+      - name: Apply AI resolutions
+        if: steps.apply.outputs.needs_ai == 'true'
+        run: |
+          set -eo pipefail
+          # Python exits non-zero on unresolved conflicts; pipefail+set -e
+          # ensures the whole step fails so the PR step is skipped.
+          python3 .github/scripts/ai_resolver.py apply ../node "${{ steps.ai.outputs.response-file }}" \
+            | tee resolution_output.txt
+          {
+            echo "RESOLUTION_OUTPUT<<EOF"
+            cat resolution_output.txt
+            echo "EOF"
+          } >> "$GITHUB_ENV"
 
-                # Update patches.json
-                echo "Updating patches.json"
-                cd ../pkg-fetch/patches
-                
-                sed -i "s/\"v$PATCH_VERSION\": \[\"node.v$PATCH_VERSION.cpp.patch\"\]/\"v${{ inputs.nodeVersion }}\": \[\"node.v${{ inputs.nodeVersion }}.cpp.patch\"\]/" patches.json
-                
-                # Set default values for environment variables if not already set
-                echo "PATCH_STATUS=${PATCH_STATUS:-clean}" >> $GITHUB_ENV
-                echo "HAS_UNRESOLVED=${HAS_UNRESOLVED:-false}" >> $GITHUB_ENV
-                echo "CREATE_PR=true" >> $GITHUB_ENV
+      - name: Generate new patch & update patches.json
+        run: |
+          set -e
 
-                cd ..
-                
-                
-            
-            - name: Create Pull Request
-              if: env.CREATE_PR == 'true'
-              uses: peter-evans/create-pull-request@v4
-              with:
-                token: ${{ secrets.GITHUB_TOKEN }}
-                commit-message: "feat: add v${{ inputs.nodeVersion }} patch"
-                title: "feat: add v${{ inputs.nodeVersion }} patch"
-                body: |
-                  ## Node.js Patch Update to v${{ inputs.nodeVersion }}
-                  
-                  This PR updates the Node.js patch to version ${{ inputs.nodeVersion }}.
-                  
-                  The workflow automatically attempts to resolve patch conflicts using AI when the OpenAI API key is available.                 
-                                   
-                  ${{ env.RESOLUTION_OUTPUT && '### AI Resolution Details' || '' }}
-                  ${{ env.RESOLUTION_OUTPUT }}
-                branch: "nodejs-v${{ inputs.nodeVersion }}"
-                base: "main"
-                delete-branch: true
-                labels: "enhancement,nodejs"
-                draft: false
-              
+          cd ../node
+          git add -A
+          git diff --staged --src-prefix=node/ --dst-prefix=node/ \
+            > "../pkg-fetch/patches/node.v${{ inputs.nodeVersion }}.cpp.patch"
+
+          cd ../pkg-fetch
+          # Replace the old version entry with the new one. If a `patchFile`
+          # input was supplied, $PATCH_VERSION refers to that source patch.
+          sed -i \
+            "s/\"v$PATCH_VERSION\": \[\"node.v$PATCH_VERSION.cpp.patch\"\]/\"v${{ inputs.nodeVersion }}\": \[\"node.v${{ inputs.nodeVersion }}.cpp.patch\"\]/" \
+            patches/patches.json
+
+          # Remove the old patch file unless we just overwrote it in place.
+          if [ "$PATCH_FILE" != "patches/node.v${{ inputs.nodeVersion }}.cpp.patch" ]; then
+            rm -f "$PATCH_FILE"
+          fi
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "feat: add v${{ inputs.nodeVersion }} patch"
+          title: "feat: add v${{ inputs.nodeVersion }} patch"
+          body: |
+            ## Node.js Patch Update to v${{ inputs.nodeVersion }}
+
+            This PR updates the Node.js patch to version ${{ inputs.nodeVersion }}.
+
+            Patch conflicts (if any) were resolved with `actions/ai-inference@v1`
+            using GitHub Models — no third-party API key required.
+
+            ${{ env.RESOLUTION_OUTPUT && '### AI Resolution Details' || '' }}
+            ${{ env.RESOLUTION_OUTPUT }}
+          branch: "nodejs-v${{ inputs.nodeVersion }}"
+          base: "main"
+          delete-branch: true
+          labels: "enhancement,nodejs"
+          draft: false
