@@ -1,5 +1,5 @@
 diff --git node/common.gypi node/common.gypi
-index 283c60eab3..09b6fe4f19 100644
+index 576d5057d9..34e85ee423 100644
 --- node/common.gypi
 +++ node/common.gypi
 @@ -192,7 +192,7 @@
@@ -486,7 +486,7 @@ index 0000000000..a697294fdf
 +  }());
 +}());
 diff --git node/lib/internal/modules/cjs/loader.js node/lib/internal/modules/cjs/loader.js
-index 0a6788d1b8..2050476a25 100644
+index df656b8601..a49a1025a4 100644
 --- node/lib/internal/modules/cjs/loader.js
 +++ node/lib/internal/modules/cjs/loader.js
 @@ -267,12 +267,15 @@ function stat(filename) {
@@ -543,7 +543,7 @@ index 968c3c5701..1c7b01a3f2 100644
      __proto__: null,
      ...result.data,
 diff --git node/lib/internal/process/pre_execution.js node/lib/internal/process/pre_execution.js
-index 8ed8802adc..8152188eb7 100644
+index e9ab2b2a89..6c74e7cc64 100644
 --- node/lib/internal/process/pre_execution.js
 +++ node/lib/internal/process/pre_execution.js
 @@ -42,7 +42,11 @@ const {
@@ -558,7 +558,7 @@ index 8ed8802adc..8152188eb7 100644
    return prepareExecution({
      expandArgv1,
      initializeModules,
-@@ -274,7 +278,8 @@ function patchProcessObject(expandArgv1) {
+@@ -279,7 +283,8 @@ function patchProcessObject(expandArgv1) {
    let mainEntry;
    // If requested, update process.argv[1] to replace whatever the user provided with the resolved absolute file path of
    // the entry point.
@@ -568,7 +568,7 @@ index 8ed8802adc..8152188eb7 100644
      // Expand process.argv[1] into a full path.
      const path = require('path');
      try {
-@@ -690,6 +695,7 @@ function loadPreloadModules() {
+@@ -703,6 +708,7 @@ function loadPreloadModules() {
    // For user code, we preload modules if `-r` is passed
    const preloadModules = getOptionValue('--require');
    if (preloadModules && preloadModules.length > 0) {
@@ -643,18 +643,19 @@ index 0bc086ccd1..9a76ce03cc 100644
    }
  
 diff --git node/src/node_contextify.cc node/src/node_contextify.cc
-index 3c234205e8..5d2152be2e 100644
+index d3568da72a..fdc5524363 100644
 --- node/src/node_contextify.cc
 +++ node/src/node_contextify.cc
-@@ -88,6 +88,7 @@ using v8::Symbol;
- using v8::Uint32;
+@@ -87,7 +87,7 @@ using v8::String;
+ using v8::Symbol;
  using v8::UnboundScript;
  using v8::Value;
+-
 +using v8::V8;
- 
  // The vm module executes code in a sandboxed environment with a different
  // global object than the rest of the code. This is achieved by applying
-@@ -995,13 +996,13 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+ // every call that changes or queries a property on the global `this` in the
+@@ -970,13 +970,13 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
    Local<ArrayBufferView> cached_data_buf;
    bool produce_cached_data = false;
    Local<Context> parsing_context = context;
@@ -671,7 +672,7 @@ index 3c234205e8..5d2152be2e 100644
      CHECK(args[2]->IsNumber());
      line_offset = args[2].As<Int32>()->Value();
      CHECK(args[3]->IsNumber());
-@@ -1022,6 +1023,11 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -997,6 +997,11 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
      }
      CHECK(args[7]->IsSymbol());
      id_symbol = args[7].As<Symbol>();
@@ -683,7 +684,7 @@ index 3c234205e8..5d2152be2e 100644
    }
  
    ContextifyScript* contextify_script = New(env, args.This());
-@@ -1068,6 +1074,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1043,6 +1048,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
    ShouldNotAbortOnUncaughtScope no_abort_scope(env);
    Context::Scope scope(parsing_context);
  
@@ -694,7 +695,7 @@ index 3c234205e8..5d2152be2e 100644
    MaybeLocal<UnboundScript> maybe_v8_script =
        ScriptCompiler::CompileUnboundScript(isolate, &source, compile_options);
  
-@@ -1082,6 +1092,12 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1057,6 +1066,12 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
      return;
    }
  
@@ -707,7 +708,7 @@ index 3c234205e8..5d2152be2e 100644
    contextify_script->set_unbound_script(v8_script);
  
    std::unique_ptr<ScriptCompiler::CachedData> new_cached_data;
-@@ -1094,7 +1110,7 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1069,7 +1084,7 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
    if (contextify_script->object()
            ->SetPrivate(context, env->host_defined_option_symbol(), id_symbol)
            .IsNothing()) {
@@ -716,7 +717,7 @@ index 3c234205e8..5d2152be2e 100644
    }
    if (StoreCodeCacheResult(env,
                             self,
-@@ -1105,6 +1121,9 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1080,6 +1095,9 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
            .IsNothing()) {
      return;
    }
@@ -837,7 +838,7 @@ index 3295121b87..bfe838b8c1 100644
 +  return adjacent(c, nargv);
 +}
 diff --git node/src/node_options.cc node/src/node_options.cc
-index f6f81f50c8..36f46abe4f 100644
+index 79d7c8cac0..11e2a8a746 100644
 --- node/src/node_options.cc
 +++ node/src/node_options.cc
 @@ -430,6 +430,7 @@ void Parse(

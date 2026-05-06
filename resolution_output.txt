@@ -1,0 +1,6 @@
+Parsed 1 search/replace block(s) from AI response
+✅ src/node_contextify.cc: applied resolution
+CONFLICTS_RESOLVED=1
+TOTAL_CONFLICTS=1
+HAS_UNRESOLVED=False
+Resolution summary: 1/1 conflicts resolved
