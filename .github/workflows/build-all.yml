@@ -126,38 +126,56 @@ jobs:
           DRAFT: ${{ env.create_draft }}
           BODY: ${{ env.sha_summary }}
         # Replaces a SHA-pinned `softprops/action-gh-release@d4e8205` call
-        # that ran with `generate_release_notes: true` + `append_body: true`.
-        # We must preserve those semantics exactly:
-        #   - On UPDATE (release already exists for the tag): softprops with
-        #     `append_body: true` keeps the existing release body and appends
-        #     the new `body`. `generate_release_notes` is silently ignored
-        #     by the GitHub PATCH /releases API on update, so softprops
-        #     never actually injected auto-notes here — confirmed by the
-        #     production v3.5 body, which has accumulated SHA sections
-        #     since 2023 and contains zero auto-gen markers. We must do
-        #     the same: read existing body, append new SHA summary, write.
-        #   - On CREATE: softprops + GitHub semantics for `body` plus
-        #     `generate_release_notes: true` PRE-pends the body to the
-        #     auto-generated notes (per action.yml docs and the
-        #     POST /releases REST API contract). `gh release create`
-        #     makes --generate-notes and --notes-file mutually exclusive,
-        #     so we fetch the generated body via the REST API and
-        #     concatenate in the correct order: BODY + "\n\n" + auto-notes.
-        # Asset overwrite via `--clobber` mirrors softprops's default
-        # `overwrite_files: true`. Title and draft state on update are
-        # left untouched, matching softprops's update path.
+        # (Dec 2022) that ran with `generate_release_notes: true` and
+        # `append_body: true`. The branches below mirror the three code
+        # paths in that pinned source (src/github.ts `release()`):
+        #
+        #  1. input_draft=true AND a release already exists for the tag
+        #     → softprops returns it as-is and only re-uploads assets;
+        #     it does NOT update the body. (Drafts can't be fetched by
+        #     tag, so softprops scans allReleases for that case.)
+        #     Mirrored as the first `if` branch.
+        #
+        #  2. input_draft=false AND release exists → softprops updates
+        #     via PATCH /releases. With append_body=true, body becomes
+        #     `existingBody + "\n" + workflowBody`. `generate_release_notes`
+        #     is silently ignored by PATCH /releases (verified: the
+        #     production v3.5 body has no auto-gen markers despite 2.5
+        #     years of softprops updates). draft is forced to false.
+        #     name / target_commitish / prerelease are preserved.
+        #     Mirrored as the second `elif` branch.
+        #
+        #  3. Release does not exist → softprops creates via POST
+        #     /releases. With body + generate_release_notes=true, the
+        #     GitHub REST contract pre-pends body to the auto-generated
+        #     notes. `gh release create` rejects --generate-notes with
+        #     --notes-file together, so we fetch generated notes via
+        #     POST /releases/generate-notes and concatenate in the
+        #     correct order: BODY + "\n\n" + auto-notes.
+        #     Mirrored as the final `else` branch.
+        #
+        # Asset upload uses `--clobber`, matching softprops's default
+        # `overwrite_files: true` (delete-then-upload by name).
         run: |
           set -e
           NOTES_FILE="$RUNNER_TEMP/release-notes.md"
 
-          if gh release view "$TAG" --json tagName >/dev/null 2>&1; then
-            # UPDATE path — preserve existing body, append SHA summary.
-            gh release view "$TAG" --json body --jq .body > "$NOTES_FILE"
-            printf '\n%s\n' "$BODY" >> "$NOTES_FILE"
-            gh release edit   "$TAG" --notes-file "$NOTES_FILE"
+          if [ "$DRAFT" = "true" ] && gh release view "$TAG" --json tagName >/dev/null 2>&1; then
+            # Path 1: draft re-run on the same tag — body untouched, assets refreshed.
             gh release upload "$TAG" artifact-shas/* artifact-binaries/* --clobber
+
+          elif gh release view "$TAG" --json tagName >/dev/null 2>&1; then
+            # Path 2: update existing release. Append SHA summary to existing
+            # body using a single "\n" separator (matches softprops byte-for-byte).
+            # `// ""` defends against a null body field. `--draft=false` mirrors
+            # softprops's unconditional `draft: false` on this path.
+            gh release view "$TAG" --json body --jq '.body // ""' > "$NOTES_FILE"
+            printf '%s\n' "$BODY" >> "$NOTES_FILE"
+            gh release edit   "$TAG" --notes-file "$NOTES_FILE" --draft=false
+            gh release upload "$TAG" artifact-shas/* artifact-binaries/* --clobber
+
           else
-            # CREATE path — body PRE-pended to auto-generated notes.
+            # Path 3: create. Body pre-pended to auto-generated notes.
             AUTO_NOTES="$RUNNER_TEMP/auto-notes.md"
             gh api -X POST "/repos/$GITHUB_REPOSITORY/releases/generate-notes" \
               -f tag_name="$TAG" --jq '.body' > "$AUTO_NOTES"
