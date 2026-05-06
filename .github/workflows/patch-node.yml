@@ -94,6 +94,12 @@ jobs:
           # CoT tokens. 1M input / 32K output / "high" rate-limit tier.
           model: openai/gpt-4.1
           max-completion-tokens: 16000
+          # The auto-injected GITHUB_TOKEN cannot access GitHub Models on
+          # orgs that don't have Models enabled at the org/enterprise level
+          # (returns 403 with no body). A fine-grained PAT scoped only to
+          # account-level "Models: Read" works regardless of org policy.
+          # See: https://github.com/actions/ai-inference/issues/155
+          token: ${{ secrets.MODELS_PAT }}
 
       - name: Apply AI resolutions
         if: steps.apply.outputs.needs_ai == 'true'
