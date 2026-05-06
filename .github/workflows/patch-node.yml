@@ -88,8 +88,12 @@ jobs:
             You are an expert C/C++/JavaScript developer maintaining a Git patch against the Node.js source tree.
             Output ONLY the requested search/replace blocks in the exact format the user specifies.
             Preserve whitespace and indentation byte-for-byte. No markdown fences, no commentary, no preamble.
-          model: openai/gpt-4o
-          max-completion-tokens: 12000
+          # gpt-4.1 outperforms gpt-4o on coding + instruction-following
+          # (key for the strict SEARCH/REPLACE output format) and is not a
+          # reasoning model, so its output budget isn't shared with hidden
+          # CoT tokens. 1M input / 32K output / "high" rate-limit tier.
+          model: openai/gpt-4.1
+          max-completion-tokens: 16000
 
       - name: Apply AI resolutions
         if: steps.apply.outputs.needs_ai == 'true'
