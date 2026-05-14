@@ -31,9 +31,9 @@ jobs:
     steps:
       - run: echo Is making new release? '${{ inputs.newRelease }}'
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: downloaded-artifacts
 
@@ -120,17 +120,86 @@ jobs:
 
       - name: Add binaries to release
         id: create_release
-        uses: softprops/action-gh-release@d4e8205d7e959a9107da6396278b2f1f07af0f9b
-        with:
-          token: ${{ github.token }}
-          draft: ${{ env.create_draft }}
-          tag_name: ${{ env.use_release_tag }}
-          files: |
-            artifact-shas/*
-            artifact-binaries/*
-          body: "${{ env.sha_summary }}"
-          generate_release_notes: true
-          append_body: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ env.use_release_tag }}
+          DRAFT: ${{ env.create_draft }}
+          BODY: ${{ env.sha_summary }}
+        # Publishes the collected binaries to a GitHub release using the
+        # `gh` CLI. Three cases, in order:
+        #
+        #  1. DRAFT=true AND a release already exists for $TAG
+        #     → leave the release body untouched and only re-upload assets
+        #       (with --clobber, so existing assets of the same name are
+        #       replaced). This avoids double-appending the SHA summary
+        #       on a re-run that targets the same draft tag.
+        #
+        #  2. DRAFT=false AND a release exists for $TAG (the rolling
+        #     release case, e.g. v3.5)
+        #     → append the new SHA summary to the existing release body
+        #       (single "\n" separator), publish if it was a draft
+        #       (--draft=false), then re-upload assets. `// ""` keeps a
+        #       null body field from being rendered as the literal "null".
+        #       Title, target commit and prerelease flag are left as-is.
+        #
+        #  3. No release exists for $TAG
+        #     → create a new release. Auto-generated notes are fetched
+        #       from POST /repos/.../releases/generate-notes and the SHA
+        #       summary is pre-pended (BODY + "\n\n" + auto-notes), since
+        #       `gh release create` does not allow --generate-notes and
+        #       --notes-file together. Created as a draft when DRAFT=true.
+        #
+        # The release URL is exposed as the step output `url` for the
+        # following "Add release url to summary" step.
+        run: |
+          set -e
+
+          if [ -z "$TAG" ]; then
+            echo "::error::No release tag resolved: use_release_tag is empty. This happens when 'newRelease' is false and no previous release exists. Re-run with newRelease=true to create the first draft." >&2
+            exit 1
+          fi
+
+          NOTES_FILE="$RUNNER_TEMP/release-notes.md"
+
+          RELEASE_EXISTS=false
+          if gh release view "$TAG" --json tagName >/dev/null 2>&1; then
+            RELEASE_EXISTS=true
+          fi
+
+          if [ "$DRAFT" = "true" ] && [ "$RELEASE_EXISTS" = "true" ]; then
+            # Case 1.
+            gh release upload "$TAG" artifact-shas/* artifact-binaries/* --clobber
+
+          elif [ "$RELEASE_EXISTS" = "true" ]; then
+            # Case 2.
+            gh release view "$TAG" --json body --jq '.body // ""' > "$NOTES_FILE"
+            printf '%s\n' "$BODY" >> "$NOTES_FILE"
+            gh release edit   "$TAG" --notes-file "$NOTES_FILE" --draft=false
+            gh release upload "$TAG" artifact-shas/* artifact-binaries/* --clobber
+
+          else
+            # Case 3.
+            # Anchor the auto-generated notes to the commit being released
+            # (GITHUB_SHA) instead of the default branch HEAD, so dispatches
+            # from non-default branches still produce notes that reflect the
+            # built code. previous_tag_name is left to GitHub's heuristic.
+            AUTO_NOTES="$RUNNER_TEMP/auto-notes.md"
+            gh api -X POST "/repos/$GITHUB_REPOSITORY/releases/generate-notes" \
+              -f tag_name="$TAG" \
+              -f target_commitish="$GITHUB_SHA" \
+              --jq '.body' > "$AUTO_NOTES"
+            { printf '%s\n\n' "$BODY"; cat "$AUTO_NOTES"; } > "$NOTES_FILE"
+
+            DRAFT_ARGS=()
+            [ "$DRAFT" = "true" ] && DRAFT_ARGS=(--draft)
+            gh release create "$TAG" "${DRAFT_ARGS[@]}" \
+              --title "$TAG" \
+              --notes-file "$NOTES_FILE" \
+              artifact-shas/* artifact-binaries/*
+          fi
+
+          URL=$(gh release view "$TAG" --json url --jq .url)
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
 
       - name: Add release url to summary
         run: echo "Release created/updated at ${{ steps.create_release.outputs.url }}" >> $GITHUB_STEP_SUMMARY
