@@ -1,5 +1,5 @@
 diff --git node/common.gypi node/common.gypi
-index b7d84c3ead..1eec82c594 100644
+index 0ffa5b1371..6f04eb354f 100644
 --- node/common.gypi
 +++ node/common.gypi
 @@ -192,7 +192,7 @@
@@ -119,10 +119,10 @@ index 9048655363..ab81c326fc 100644
      } else if (can_consume_code_cache) {
        compile_timer.set_consuming_code_cache();
 diff --git node/deps/v8/src/compiler/wasm-compiler.cc node/deps/v8/src/compiler/wasm-compiler.cc
-index 16f1f1470b..4bfeca49e6 100644
+index bd3dd3b27b..dab870e776 100644
 --- node/deps/v8/src/compiler/wasm-compiler.cc
 +++ node/deps/v8/src/compiler/wasm-compiler.cc
-@@ -8613,12 +8613,13 @@ wasm::WasmCompilationResult CompileWasmImportCallWrapper(
+@@ -8618,12 +8618,13 @@ wasm::WasmCompilationResult CompileWasmImportCallWrapper(
                   '-');
  
    auto compile_with_turboshaft = [&]() {
@@ -141,7 +141,7 @@ index 16f1f1470b..4bfeca49e6 100644
    };
    auto compile_with_turbofan = [&]() {
      //--------------------------------------------------------------------------
-@@ -8774,13 +8775,15 @@ MaybeHandle<Code> CompileWasmToJSWrapper(Isolate* isolate,
+@@ -8779,13 +8780,15 @@ MaybeHandle<Code> CompileWasmToJSWrapper(Isolate* isolate,
        base::VectorOf(name_buffer.get(), kMaxNameLen) + kNamePrefixLen, sig);
  
    auto compile_with_turboshaft = [&]() {
@@ -349,10 +349,10 @@ index 0000000000..a697294fdf
 +  }());
 +}());
 diff --git node/lib/internal/modules/cjs/loader.js node/lib/internal/modules/cjs/loader.js
-index b87f557c16..051fbc140a 100644
+index e70b465db8..265197441d 100644
 --- node/lib/internal/modules/cjs/loader.js
 +++ node/lib/internal/modules/cjs/loader.js
-@@ -252,14 +252,18 @@ function stat(filename) {
+@@ -265,14 +265,18 @@ function stat(filename) {
    // Guard against internal bugs where a non-string filename is passed in by mistake.
    assert(typeof filename === 'string');
  
