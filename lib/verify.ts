@@ -57,8 +57,17 @@ const script = `
   } else
   if (modules === 115) {
     // no cpu features anymore
+  } else
+  if (modules === 127) {
+    // no cpu features anymore
+  } else
+  if (modules === 137) {
+    // no cpu features anymore
+  } else
+  if (modules === 147) {
+    // no cpu features anymore
   } else {
-    assert(false, modules);
+    assert(false, 'unknown node modules version: ' + modules);
   }
 
   if (modules >= 46 && // no cpu_features field in 0.12
@@ -96,8 +105,14 @@ const script = `
   if (modules === 111) {
   } else
   if (modules === 115) {
+  } else
+  if (modules === 127) {
+  } else
+  if (modules === 137) {
+  } else
+  if (modules === 147) {
   } else {
-    assert(false, modules);
+    assert(false, 'unknown node modules version: ' + modules);
   }
 
   var s4 = new vm.Script(text, { filename: 's4', produceCachedData: true });
