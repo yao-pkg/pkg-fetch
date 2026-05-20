@@ -36,6 +36,11 @@ jobs:
       - uses: actions/download-artifact@v8
         with:
           path: downloaded-artifacts
+          # Exclude the `*.dockerbuild` build-record artifacts that
+          # docker/build-push-action@v6+ uploads automatically. They
+          # contain no binaries/SHAs, so the artifact-folder steps below
+          # would fail on them ("mv: cannot stat '.../*.sha256sum'").
+          pattern: '!*.dockerbuild'
 
       - name: Get previous release tag
         env:
