@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target-node: [20, 22, 24]
+        target-node: [22, 24, 26]
         target-arch: [x64]
     steps:
       - uses: actions/checkout@v6
@@ -49,7 +49,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target-node: [20, 22, 24]
+        target-node: [22, 24, 26]
         target-arch: [arm64]
 
     steps:
