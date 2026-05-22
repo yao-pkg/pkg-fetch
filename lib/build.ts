@@ -50,8 +50,11 @@ function getConfigureArgs(major: number, targetPlatform: string, targetArch: str
   }
 
   // Link Time Optimization
+  // Skipped on macOS: LTO makes the link phase enormously slow and pushes the
+  // build past GitHub Actions' 6h job limit (worst on the Intel x64 runner).
+  // See yao-pkg/pkg-fetch#170.
   if (major >= 12) {
-    if (hostPlatform !== 'win') {
+    if (hostPlatform !== 'win' && targetPlatform !== 'macos') {
       args.push('--enable-lto');
     }
   }
