@@ -1,5 +1,5 @@
 diff --git node/deps/v8/include/v8-initialization.h node/deps/v8/include/v8-initialization.h
-index 406f1d0b..fb8eea42 100644
+index 406f1d0ba5..fb8eea420d 100644
 --- node/deps/v8/include/v8-initialization.h
 +++ node/deps/v8/include/v8-initialization.h
 @@ -98,6 +98,10 @@ class V8_EXPORT V8 {
@@ -14,7 +14,7 @@ index 406f1d0b..fb8eea42 100644
    static const char* GetVersion();
  
 diff --git node/deps/v8/src/api/api.cc node/deps/v8/src/api/api.cc
-index 9ef4e3b4..34cabe17 100644
+index 9ef4e3b4a6..34cabe171c 100644
 --- node/deps/v8/src/api/api.cc
 +++ node/deps/v8/src/api/api.cc
 @@ -469,6 +469,28 @@ void V8::SetFlagsFromCommandLine(int* argc, char** argv, bool remove_flags) {
@@ -47,7 +47,7 @@ index 9ef4e3b4..34cabe17 100644
  
  RegisteredExtension::RegisteredExtension(std::unique_ptr<Extension> extension)
 diff --git node/deps/v8/src/codegen/compiler.cc node/deps/v8/src/codegen/compiler.cc
-index 2dc78245..0cddfbbb 100644
+index 2dc782458e..0cddfbbbc4 100644
 --- node/deps/v8/src/codegen/compiler.cc
 +++ node/deps/v8/src/codegen/compiler.cc
 @@ -3988,7 +3988,7 @@ MaybeDirectHandle<SharedFunctionInfo> GetSharedFunctionInfoForScriptImpl(
@@ -60,7 +60,7 @@ index 2dc78245..0cddfbbb 100644
      } else if (can_consume_code_cache) {
        compile_timer.set_consuming_code_cache();
 diff --git node/deps/v8/src/compiler/wasm-compiler.cc node/deps/v8/src/compiler/wasm-compiler.cc
-index 632d54de..cbf91f9d 100644
+index 632d54de8c..cbf91f9d6c 100644
 --- node/deps/v8/src/compiler/wasm-compiler.cc
 +++ node/deps/v8/src/compiler/wasm-compiler.cc
 @@ -1090,11 +1090,15 @@ wasm::WasmCompilationResult CompileWasmImportCallWrapper(
@@ -82,7 +82,7 @@ index 632d54de..cbf91f9d 100644
  
    if (V8_UNLIKELY(v8_flags.trace_wasm_compilation_times)) {
 diff --git node/deps/v8/src/heap/marking-visitor-inl.h node/deps/v8/src/heap/marking-visitor-inl.h
-index 8ac9d6d4..7a241f2d 100644
+index 8ac9d6d49b..7a241f2de7 100644
 --- node/deps/v8/src/heap/marking-visitor-inl.h
 +++ node/deps/v8/src/heap/marking-visitor-inl.h
 @@ -517,6 +517,13 @@ bool MarkingVisitorBase<ConcreteVisitor>::HasBytecodeArrayForFlushing(
@@ -100,7 +100,7 @@ index 8ac9d6d4..7a241f2d 100644
    // During last resort GCs and stress testing we consider all code old.
    return IsOld(sfi) || V8_UNLIKELY(IsForceFlushingEnabled(code_flush_mode_));
 diff --git node/deps/v8/src/objects/js-function.cc node/deps/v8/src/objects/js-function.cc
-index a44e3fd6..e220a5bc 100644
+index a44e3fd6c0..e220a5bc0f 100644
 --- node/deps/v8/src/objects/js-function.cc
 +++ node/deps/v8/src/objects/js-function.cc
 @@ -1417,6 +1417,9 @@ DirectHandle<String> JSFunction::ToString(Isolate* isolate,
@@ -114,7 +114,7 @@ index a44e3fd6..e220a5bc 100644
            Cast<ClassPositions>(*maybe_class_positions);
        int start_position = class_positions->start();
 diff --git node/deps/v8/src/objects/script.cc node/deps/v8/src/objects/script.cc
-index a2078b53..1468ece4 100644
+index a2078b538c..1468ece463 100644
 --- node/deps/v8/src/objects/script.cc
 +++ node/deps/v8/src/objects/script.cc
 @@ -118,7 +118,11 @@ void Script::InitLineEndsInternal(IsolateT* isolate,
@@ -131,7 +131,7 @@ index a2078b53..1468ece4 100644
      InitLineEnds(isolate, script);
    } else if (script->line_ends() ==
 diff --git node/deps/v8/src/parsing/parsing.cc node/deps/v8/src/parsing/parsing.cc
-index 31758fdf..483192fc 100644
+index 31758fdfed..483192fc35 100644
 --- node/deps/v8/src/parsing/parsing.cc
 +++ node/deps/v8/src/parsing/parsing.cc
 @@ -42,6 +42,7 @@ bool ParseProgram(ParseInfo* info, DirectHandle<Script> script,
@@ -152,7 +152,7 @@ index 31758fdf..483192fc 100644
    uint32_t start_pos = shared_info->StartPosition();
    uint32_t end_pos = shared_info->EndPosition();
 diff --git node/deps/v8/src/snapshot/code-serializer.cc node/deps/v8/src/snapshot/code-serializer.cc
-index 6149ee8f..133659e3 100644
+index 6149ee8f1d..133659e328 100644
 --- node/deps/v8/src/snapshot/code-serializer.cc
 +++ node/deps/v8/src/snapshot/code-serializer.cc
 @@ -776,10 +776,6 @@ SerializedCodeSanityCheckResult SerializedCodeData::SanityCheck(
@@ -184,7 +184,7 @@ index 6149ee8f..133659e3 100644
    }
    uint32_t payload_length = GetHeaderValue(kPayloadLengthOffset);
 diff --git node/deps/v8/src/snapshot/read-only-serializer.cc node/deps/v8/src/snapshot/read-only-serializer.cc
-index 6732808e..ebb7938f 100644
+index 6732808e85..ebb7938f64 100644
 --- node/deps/v8/src/snapshot/read-only-serializer.cc
 +++ node/deps/v8/src/snapshot/read-only-serializer.cc
 @@ -14,6 +14,9 @@
@@ -364,7 +364,7 @@ index 6732808e..ebb7938f 100644
      }
    }
 diff --git node/lib/child_process.js node/lib/child_process.js
-index bba860a7..84250487 100644
+index 824af65556..8393ee812f 100644
 --- node/lib/child_process.js
 +++ node/lib/child_process.js
 @@ -171,7 +171,7 @@ function fork(modulePath, args = [], options) {
@@ -378,7 +378,7 @@ index bba860a7..84250487 100644
  function _forkChild(fd, serializationMode) {
 diff --git node/lib/internal/bootstrap/pkg.js node/lib/internal/bootstrap/pkg.js
 new file mode 100644
-index 00000000..a697294f
+index 0000000000..a697294fdf
 --- /dev/null
 +++ node/lib/internal/bootstrap/pkg.js
 @@ -0,0 +1,49 @@
@@ -432,7 +432,7 @@ index 00000000..a697294f
 +  }());
 +}());
 diff --git node/lib/internal/modules/cjs/loader.js node/lib/internal/modules/cjs/loader.js
-index c9cf6a0f..b910dab5 100644
+index 65a35299eb..025eb1c92f 100644
 --- node/lib/internal/modules/cjs/loader.js
 +++ node/lib/internal/modules/cjs/loader.js
 @@ -267,12 +267,15 @@ function stat(filename) {
@@ -453,7 +453,7 @@ index c9cf6a0f..b910dab5 100644
      // Only set cache when `internalModuleStat(filename)` succeeds.
      statCache.set(filename, result);
 diff --git node/lib/internal/modules/package_json_reader.js node/lib/internal/modules/package_json_reader.js
-index 6c6bf038..25db3d9f 100644
+index 6c6bf0383b..25db3d9f43 100644
 --- node/lib/internal/modules/package_json_reader.js
 +++ node/lib/internal/modules/package_json_reader.js
 @@ -120,17 +120,20 @@ const requiresJSONParse = (value) => (value !== undefined && (value[0] === '[' |
@@ -489,7 +489,7 @@ index 6c6bf038..25db3d9f 100644
      __proto__: null,
      ...result.data,
 diff --git node/lib/internal/process/pre_execution.js node/lib/internal/process/pre_execution.js
-index 16a80c2d..4f6232e8 100644
+index 16a80c2d4f..4f6232e8b8 100644
 --- node/lib/internal/process/pre_execution.js
 +++ node/lib/internal/process/pre_execution.js
 @@ -42,7 +42,11 @@ const {
@@ -523,7 +523,7 @@ index 16a80c2d..4f6232e8 100644
        Module: {
          _preloadModules,
 diff --git node/lib/vm.js node/lib/vm.js
-index ae710806..b05638de 100644
+index ae71080620..b05638de75 100644
 --- node/lib/vm.js
 +++ node/lib/vm.js
 @@ -98,6 +98,7 @@ class Script extends ContextifyScript {
@@ -545,7 +545,7 @@ index ae710806..b05638de 100644
        throw e; /* node-do-not-add-exception-line */
      }
 diff --git node/src/inspector_agent.cc node/src/inspector_agent.cc
-index 5e1d9149..1426160a 100644
+index 5e1d9149dc..1426160ac0 100644
 --- node/src/inspector_agent.cc
 +++ node/src/inspector_agent.cc
 @@ -858,11 +858,6 @@ bool Agent::Start(const std::string& path,
@@ -561,7 +561,7 @@ index 5e1d9149..1426160a 100644
      parent_env_->AddCleanupHook([](void* data) {
        Environment* env = static_cast<Environment*>(data);
 diff --git node/src/node.cc node/src/node.cc
-index 4ba019dd..b30d716a 100644
+index 4ba019ddca..b30d716a41 100644
 --- node/src/node.cc
 +++ node/src/node.cc
 @@ -351,6 +351,8 @@ MaybeLocal<Value> StartExecution(Environment* env,
@@ -589,7 +589,7 @@ index 4ba019dd..b30d716a 100644
    }
  
 diff --git node/src/node_contextify.cc node/src/node_contextify.cc
-index 14534ab8..dad27d63 100644
+index 14534ab896..dad27d634e 100644
 --- node/src/node_contextify.cc
 +++ node/src/node_contextify.cc
 @@ -88,6 +88,7 @@ using v8::String;
@@ -673,7 +673,7 @@ index 14534ab8..dad27d63 100644
                  env->source_url_string(),
                  v8_script->GetSourceURL())
 diff --git node/src/node_main.cc node/src/node_main.cc
-index 3295121b..bfe838b8 100644
+index 3295121b87..bfe838b8c1 100644
 --- node/src/node_main.cc
 +++ node/src/node_main.cc
 @@ -22,6 +22,8 @@
@@ -783,7 +783,7 @@ index 3295121b..bfe838b8 100644
 +  return adjacent(c, nargv);
 +}
 diff --git node/src/node_options.cc node/src/node_options.cc
-index bbb72d2b..47c7bcee 100644
+index 99c5a7dbe4..b0ae409120 100644
 --- node/src/node_options.cc
 +++ node/src/node_options.cc
 @@ -466,6 +466,7 @@ void Parse(
@@ -795,7 +795,7 @@ index bbb72d2b..47c7bcee 100644
              "set host:port for inspector",
              &DebugOptions::host_port,
 diff --git node/tools/icu/icu-generic.gyp node/tools/icu/icu-generic.gyp
-index f49b4ddb..eb1e4c0f 100644
+index f49b4ddba7..eb1e4c0f9b 100644
 --- node/tools/icu/icu-generic.gyp
 +++ node/tools/icu/icu-generic.gyp
 @@ -52,7 +52,7 @@
