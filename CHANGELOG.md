@@ -1,3 +1,9 @@
+## [3.6.1](https://github.com/yao-pkg/pkg-fetch/compare/v3.6...v3.6.1) (2026-05-26)
+
+### Bug Fixes
+
+- update expected shas ([#178](https://github.com/yao-pkg/pkg-fetch/issues/178)) ([9aa7a54](https://github.com/yao-pkg/pkg-fetch/commit/9aa7a5474f7f1af87e3ad0d6b0c4f99dad2967d6))
+
 ## [3.5.33](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.32...v3.5.33) (2026-03-31)
 
 ### Features
