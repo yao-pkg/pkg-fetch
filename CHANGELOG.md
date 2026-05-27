@@ -1,3 +1,5 @@
+## [3.6.3](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.34...v3.6.3) (2026-05-27)
+
 ## [3.5.34](https://github.com/yao-pkg/pkg-fetch/compare/v3.6...v3.5.34) (2026-05-27)
 
 ### Bug Fixes
