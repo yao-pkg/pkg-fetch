@@ -68,16 +68,99 @@ def find_reject_files(root: str) -> list[str]:
 
 
 def parse_rej(content: str) -> list[dict]:
-    """Return a list of {old_start, old_count} for each hunk in a .rej file."""
+    """Return a list of hunks for each hunk in a .rej file.
+
+    Each hunk is ``{old_start, old_count, lines}`` where ``lines`` holds the
+    raw body lines (each still carrying its leading ' ', '-', '+' or '\\' tag)
+    so callers can reconstruct the pre-/post-image of the change.
+    """
     hunks: list[dict] = []
+    current: dict | None = None
     for line in content.splitlines():
         m = HUNK_HEADER_RE.match(line)
         if m:
-            hunks.append({
+            current = {
                 "old_start": int(m.group(1)),
                 "old_count": int(m.group(2)) if m.group(2) else 1,
-            })
+                "lines": [],
+            }
+            hunks.append(current)
+        elif current is not None:
+            # A new file header means the previous hunk's body is over.
+            # .rej files normally hold a single file, but be defensive.
+            if line.startswith(("--- ", "+++ ", "diff ")):
+                current = None
+                continue
+            current["lines"].append(line)
     return hunks
+
+
+def _hunk_images(hunk: dict) -> tuple[list[str], list[str]]:
+    """Split a hunk body into its (pre-image, post-image) file lines.
+
+    Pre-image = context + removed lines (what the file looked like BEFORE the
+    patch). Post-image = context + added lines (what it looks like AFTER).
+    """
+    pre: list[str] = []
+    post: list[str] = []
+    for ln in hunk["lines"]:
+        if ln == "":
+            # A blank context line is normally " "; tolerate a bare "".
+            pre.append("")
+            post.append("")
+            continue
+        tag, text = ln[0], ln[1:]
+        if tag == " ":
+            pre.append(text)
+            post.append(text)
+        elif tag == "-":
+            pre.append(text)
+        elif tag == "+":
+            post.append(text)
+        elif tag == "\\":
+            # "\ No newline at end of file" marker — not file content.
+            continue
+        else:
+            # Unexpected prefix; keep it verbatim on both sides.
+            pre.append(ln)
+            post.append(ln)
+    return pre, post
+
+
+def _block_in(file_lines: list[str], block: list[str]) -> bool:
+    """True if `block` appears as a contiguous run within `file_lines`."""
+    if not block:
+        return False
+    n, m = len(file_lines), len(block)
+    for i in range(n - m + 1):
+        if file_lines[i:i + m] == block:
+            return True
+    return False
+
+
+def hunk_already_applied(target_path: str, hunk: dict) -> bool:
+    """True if `hunk`'s change is already present in the current file.
+
+    This is the common case where upstream independently landed the same edit
+    the patch carries (e.g. a Node.js release that merged the fix). The hunk's
+    post-image is in the file and its pre-image is gone, so there is nothing to
+    resolve — the regenerated patch should simply omit the hunk.
+    """
+    if not os.path.isfile(target_path):
+        return False
+    with open(target_path, encoding="utf-8", errors="ignore") as f:
+        file_lines = f.read().splitlines()
+    pre, post = _hunk_images(hunk)
+    return _block_in(file_lines, post) and not _block_in(file_lines, pre)
+
+
+def classify_hunks(target_path: str, hunks: list[dict]) -> tuple[list[dict], list[dict]]:
+    """Partition hunks into (already_applied, pending) for `target_path`."""
+    already: list[dict] = []
+    pending: list[dict] = []
+    for h in hunks:
+        (already if hunk_already_applied(target_path, h) else pending).append(h)
+    return already, pending
 
 
 def file_section(path: str, start: int, count: int) -> str:
@@ -134,6 +217,7 @@ def cmd_prepare(node_dir: str, prompt_path: str) -> None:
         "",
     ]
 
+    prompted = 0
     for rej in rejects:
         target = rej[:-4]
         rel = os.path.relpath(target, node_dir)
@@ -141,6 +225,18 @@ def cmd_prepare(node_dir: str, prompt_path: str) -> None:
             rej_content = f.read()
         hunks = parse_rej(rej_content)
 
+        # Drop hunks that upstream already applied — there is nothing for the
+        # model to resolve, and asking it to would only invite a hallucinated
+        # SEARCH block that fails to match. The `apply` step recognises these
+        # the same way and lets the .rej be cleared without an AI block.
+        already, pending = classify_hunks(target, hunks)
+        if already:
+            print(f"ℹ️ {rel}: {len(already)}/{len(hunks)} hunk(s) already applied upstream — skipping")
+        if hunks and not pending:
+            # Whole file is already upstream; nothing to send to the model.
+            continue
+
+        prompted += 1
         parts.append(f"================ REJECT: {rel} ================")
         parts.append(rej_content.rstrip())
         parts.append("")
@@ -149,7 +245,7 @@ def cmd_prepare(node_dir: str, prompt_path: str) -> None:
             # Couldn't parse any hunk header — show a small head of the file.
             parts.append(file_section(target, 1, 1))
         else:
-            for h in hunks:
+            for h in pending:
                 parts.append(f"# around line {h['old_start']}:")
                 parts.append(file_section(target, h["old_start"], h["old_count"]))
                 parts.append("")
@@ -157,7 +253,7 @@ def cmd_prepare(node_dir: str, prompt_path: str) -> None:
 
     with open(prompt_path, "w", encoding="utf-8") as f:
         f.write("\n".join(parts))
-    print(f"Prepared prompt for {len(rejects)} reject file(s) -> {prompt_path}")
+    print(f"Prepared prompt for {prompted}/{len(rejects)} reject file(s) -> {prompt_path}")
 
 
 def _strip_outer_fence(text: str) -> str:
@@ -174,15 +270,22 @@ def cmd_apply(node_dir: str, response_path: str) -> None:
     initial_rejects = find_reject_files(node_dir)
     total = len(initial_rejects)
 
-    # Count rejected hunks per file BEFORE applying anything. The AI must
-    # return at least one successfully-applying SEARCH/REPLACE block per
-    # rejected hunk, otherwise we'd silently drop unaddressed hunks when
+    # Count the hunks the AI must resolve per file BEFORE applying anything.
+    # Hunks upstream already landed are excluded — the file already carries
+    # their post-image, so no SEARCH/REPLACE block is expected (or possible)
+    # for them. The AI must return at least one successfully-applying block
+    # per *pending* hunk; otherwise we'd silently drop unaddressed hunks when
     # the .rej is deleted at the end.
     expected_per_file: dict[str, int] = {}
     for rej in initial_rejects:
-        rel = os.path.relpath(rej[:-4], node_dir)
+        target = rej[:-4]
+        rel = os.path.relpath(target, node_dir)
         with open(rej, encoding="utf-8", errors="ignore") as f:
-            expected_per_file[rel] = len(parse_rej(f.read()))
+            hunks = parse_rej(f.read())
+        already, pending = classify_hunks(target, hunks)
+        if already:
+            print(f"ℹ️ {rel}: {len(already)}/{len(hunks)} hunk(s) already applied upstream — skipping")
+        expected_per_file[rel] = len(pending)
 
     blocks = list(BLOCK_RE.finditer(response))
     print(f"Parsed {len(blocks)} search/replace block(s) from AI response")
