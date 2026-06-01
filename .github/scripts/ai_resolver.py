@@ -70,9 +70,10 @@ def find_reject_files(root: str) -> list[str]:
 def parse_rej(content: str) -> list[dict]:
     """Return a list of hunks for each hunk in a .rej file.
 
-    Each hunk is ``{old_start, old_count, lines}`` where ``lines`` holds the
-    raw body lines (each still carrying its leading ' ', '-', '+' or '\\' tag)
-    so callers can reconstruct the pre-/post-image of the change.
+    Each hunk is ``{old_start, old_count, header, lines}`` where ``header`` is
+    the raw ``@@ … @@`` line and ``lines`` holds the raw body lines (each still
+    carrying its leading ' ', '-', '+' or '\\' tag) so callers can reconstruct
+    both the hunk text and the pre-/post-image of the change.
     """
     hunks: list[dict] = []
     current: dict | None = None
@@ -82,6 +83,7 @@ def parse_rej(content: str) -> list[dict]:
             current = {
                 "old_start": int(m.group(1)),
                 "old_count": int(m.group(2)) if m.group(2) else 1,
+                "header": line,
                 "lines": [],
             }
             hunks.append(current)
@@ -138,28 +140,32 @@ def _block_in(file_lines: list[str], block: list[str]) -> bool:
     return False
 
 
-def hunk_already_applied(target_path: str, hunk: dict) -> bool:
-    """True if `hunk`'s change is already present in the current file.
+def hunk_already_applied(file_lines: list[str], hunk: dict) -> bool:
+    """True if `hunk`'s change is already present in `file_lines`.
 
     This is the common case where upstream independently landed the same edit
     the patch carries (e.g. a Node.js release that merged the fix). The hunk's
     post-image is in the file and its pre-image is gone, so there is nothing to
     resolve — the regenerated patch should simply omit the hunk.
     """
-    if not os.path.isfile(target_path):
-        return False
-    with open(target_path, encoding="utf-8", errors="ignore") as f:
-        file_lines = f.read().splitlines()
     pre, post = _hunk_images(hunk)
     return _block_in(file_lines, post) and not _block_in(file_lines, pre)
 
 
 def classify_hunks(target_path: str, hunks: list[dict]) -> tuple[list[dict], list[dict]]:
-    """Partition hunks into (already_applied, pending) for `target_path`."""
+    """Partition hunks into (already_applied, pending) for `target_path`.
+
+    The file is read once here and shared across every hunk check.
+    """
+    if not os.path.isfile(target_path):
+        # No file to compare against — treat every hunk as still pending.
+        return [], list(hunks)
+    with open(target_path, encoding="utf-8", errors="ignore") as f:
+        file_lines = f.read().splitlines()
     already: list[dict] = []
     pending: list[dict] = []
     for h in hunks:
-        (already if hunk_already_applied(target_path, h) else pending).append(h)
+        (already if hunk_already_applied(file_lines, h) else pending).append(h)
     return already, pending
 
 
@@ -238,17 +244,29 @@ def cmd_prepare(node_dir: str, prompt_path: str) -> None:
 
         prompted += 1
         parts.append(f"================ REJECT: {rel} ================")
-        parts.append(rej_content.rstrip())
-        parts.append("")
-        parts.append(f"---- current content of {rel} ----")
         if not hunks:
-            # Couldn't parse any hunk header — show a small head of the file.
+            # Couldn't parse any hunk header — fall back to the raw .rej body
+            # plus a small head of the file.
+            parts.append(rej_content.rstrip())
+            parts.append("")
+            parts.append(f"---- current content of {rel} ----")
             parts.append(file_section(target, 1, 1))
-        else:
-            for h in pending:
-                parts.append(f"# around line {h['old_start']}:")
-                parts.append(file_section(target, h["old_start"], h["old_count"]))
-                parts.append("")
+            parts.append("")
+            continue
+
+        # Show ONLY the pending hunks. Including already-applied hunks here —
+        # while the system prompt says "emit a block for every rejected hunk" —
+        # would push the model to produce a doomed block for them, which fails
+        # to apply and keeps the .rej around. The model never sees them.
+        for h in pending:
+            parts.append(h["header"])
+            parts.extend(h["lines"])
+            parts.append("")
+        parts.append(f"---- current content of {rel} ----")
+        for h in pending:
+            parts.append(f"# around line {h['old_start']}:")
+            parts.append(file_section(target, h["old_start"], h["old_count"]))
+            parts.append("")
         parts.append("")
 
     with open(prompt_path, "w", encoding="utf-8") as f:
