@@ -137,10 +137,12 @@ jobs:
           cd ../pkg-fetch
 
           # A zero-byte diff means the resolved tree carries no change at all —
-          # the patch would be a no-op and the build would be unpatched. Never
-          # open a PR for that.
+          # the patch would be a no-op and the build would be unpatched. This
+          # often means every hunk has landed upstream and the patch is no
+          # longer needed; either way a human should look, so never open a PR.
           if [ ! -s "$NEW_PATCH" ]; then
-            echo "❌ Regenerated patch is empty — the resolved tree produced no diff. Aborting."
+            echo "❌ Regenerated patch is empty — the resolved tree produced no diff."
+            echo "   Every hunk may have landed upstream in v${{ inputs.nodeVersion }}; investigate manually. Aborting."
             exit 1
           fi
 
@@ -166,21 +168,22 @@ jobs:
             rm -f "$PATCH_FILE"
           fi
 
-      - name: Verify regenerated patch & summarize
+      - name: Sanity-check generated patch & summarize
         run: |
           set -e
 
-          # The earlier "apply" step proved the OLD patch applies. This proves
-          # the freshly REGENERATED patch applies to a pristine v${{ inputs.nodeVersion }}
-          # tree — catching any case where an AI resolution left the working
-          # tree in a state that cannot be re-expressed as a clean patch.
+          # Regression guard on the diff-generation flags above: re-apply the
+          # generated patch to a pristine v${{ inputs.nodeVersion }} tree. This is a cheap check that
+          # the `--src-prefix`/`-p1` plumbing still lines up — it does NOT prove
+          # the resolution is semantically correct (any tree round-trips through
+          # `git diff`/`git apply`); only the build (test-patch.yml) does that.
           cd ../node
           git reset --hard HEAD >/dev/null
           git clean -fd >/dev/null   # drop leftover .rej/.orig
           if git apply --check "../pkg-fetch/$NEW_PATCH"; then
-            VERIFY="✅ Regenerated patch applies cleanly to a pristine v${{ inputs.nodeVersion }} tree."
+            VERIFY="✅ Generated patch re-applies to a pristine v${{ inputs.nodeVersion }} tree (build still validates semantics)."
           else
-            echo "❌ Regenerated patch does NOT apply to a pristine v${{ inputs.nodeVersion }} tree — aborting before PR."
+            echo "❌ Generated patch does NOT re-apply to a pristine v${{ inputs.nodeVersion }} tree — diff-generation plumbing is broken. Aborting before PR."
             exit 1
           fi
           cd ../pkg-fetch
@@ -201,10 +204,13 @@ jobs:
             CHANGED="ℹ️ The patch was updated to match the v${{ inputs.nodeVersion }} source tree."
           fi
 
+          # Random delimiter so a body line that happens to equal the marker
+          # can't terminate the heredoc early.
+          DELIM="RESOLUTION_EOF_$(uuidgen)"
           {
-            echo "RESOLUTION_OUTPUT<<EOF"
+            echo "RESOLUTION_OUTPUT<<$DELIM"
             printf '%s\n\n%s\n\n%s\n' "$MODE" "$CHANGED" "$VERIFY"
-            echo "EOF"
+            echo "$DELIM"
           } >> "$GITHUB_ENV"
 
       - name: Create Pull Request
