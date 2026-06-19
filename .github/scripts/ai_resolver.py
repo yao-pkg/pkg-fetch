@@ -288,6 +288,20 @@ def cmd_apply(node_dir: str, response_path: str) -> None:
     initial_rejects = find_reject_files(node_dir)
     total = len(initial_rejects)
 
+    # An empty model response while conflicts are still outstanding almost
+    # always means the GitHub Models quota is exhausted or the request was
+    # rate-limited — the action can return a 200 with no content. Fail loudly
+    # with that diagnosis instead of letting it surface downstream as a vague
+    # "SEARCH block not found", and never let an empty resolution reach a PR.
+    if total and not response.strip():
+        print("❌ AI response is empty — the model returned no content.")
+        print("   Likely cause: GitHub Models quota exhausted or request rate-limited.")
+        print("CONFLICTS_RESOLVED=0")
+        print(f"TOTAL_CONFLICTS={total}")
+        print("HAS_UNRESOLVED=True")
+        print(f"FAILED_FILES={' '.join(sorted(os.path.relpath(r[:-4], node_dir) for r in initial_rejects))}")
+        sys.exit(1)
+
     # Count the hunks the AI must resolve per file BEFORE applying anything.
     # Hunks upstream already landed are excluded — the file already carries
     # their post-image, so no SEARCH/REPLACE block is expected (or possible)

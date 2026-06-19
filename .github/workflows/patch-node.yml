@@ -118,25 +118,45 @@ jobs:
         run: |
           set -eo pipefail
           # Python exits non-zero on unresolved conflicts; pipefail+set -e
-          # ensures the whole step fails so the PR step is skipped.
+          # ensures the whole step fails so the PR step is skipped. The summary
+          # is saved to a temp file that the verify step folds into the PR body.
           python3 .github/scripts/ai_resolver.py apply ../node "${{ steps.ai.outputs.response-file }}" \
             | tee "$RUNNER_TEMP/resolution_output.txt"
-          {
-            echo "RESOLUTION_OUTPUT<<EOF"
-            cat "$RUNNER_TEMP/resolution_output.txt"
-            echo "EOF"
-          } >> "$GITHUB_ENV"
 
       - name: Generate new patch & update patches.json
         run: |
           set -e
 
+          NEW_PATCH="patches/node.v${{ inputs.nodeVersion }}.cpp.patch"
+
           cd ../node
           git add -A
           git diff --staged --src-prefix=node/ --dst-prefix=node/ \
-            > "../pkg-fetch/patches/node.v${{ inputs.nodeVersion }}.cpp.patch"
+            > "../pkg-fetch/$NEW_PATCH"
 
           cd ../pkg-fetch
+
+          # A zero-byte diff means the resolved tree carries no change at all —
+          # the patch would be a no-op and the build would be unpatched. This
+          # often means every hunk has landed upstream and the patch is no
+          # longer needed; either way a human should look, so never open a PR.
+          if [ ! -s "$NEW_PATCH" ]; then
+            echo "❌ Regenerated patch is empty — the resolved tree produced no diff."
+            echo "   Every hunk may have landed upstream in v${{ inputs.nodeVersion }}; investigate manually. Aborting."
+            exit 1
+          fi
+
+          # Record whether the regenerated patch is byte-identical to the source
+          # patch. That is legitimate (the touched source files were unchanged
+          # between releases) but worth surfacing in the PR body so a no-op
+          # carry-forward is not mistaken for a failed resolution.
+          if [ -f "$PATCH_FILE" ] && cmp -s "$PATCH_FILE" "$NEW_PATCH"; then
+            echo "PATCH_CHANGED=false" >> "$GITHUB_ENV"
+          else
+            echo "PATCH_CHANGED=true" >> "$GITHUB_ENV"
+          fi
+          echo "NEW_PATCH=$NEW_PATCH" >> "$GITHUB_ENV"
+
           # Replace the old version entry with the new one. If a `patchFile`
           # input was supplied, $PATCH_VERSION refers to that source patch.
           sed -i \
@@ -144,9 +164,54 @@ jobs:
             patches/patches.json
 
           # Remove the old patch file unless we just overwrote it in place.
-          if [ "$PATCH_FILE" != "patches/node.v${{ inputs.nodeVersion }}.cpp.patch" ]; then
+          if [ "$PATCH_FILE" != "$NEW_PATCH" ]; then
             rm -f "$PATCH_FILE"
           fi
+
+      - name: Sanity-check generated patch & summarize
+        run: |
+          set -e
+
+          # Regression guard on the diff-generation flags above: re-apply the
+          # generated patch to a pristine v${{ inputs.nodeVersion }} tree. This is a cheap check that
+          # the `--src-prefix`/`-p1` plumbing still lines up — it does NOT prove
+          # the resolution is semantically correct (any tree round-trips through
+          # `git diff`/`git apply`); only the build (test-patch.yml) does that.
+          cd ../node
+          git reset --hard HEAD >/dev/null
+          git clean -fd >/dev/null   # drop leftover .rej/.orig
+          if git apply --check "../pkg-fetch/$NEW_PATCH"; then
+            VERIFY="✅ Generated patch re-applies to a pristine v${{ inputs.nodeVersion }} tree (build still validates semantics)."
+          else
+            echo "❌ Generated patch does NOT re-apply to a pristine v${{ inputs.nodeVersion }} tree — diff-generation plumbing is broken. Aborting before PR."
+            exit 1
+          fi
+          cd ../pkg-fetch
+
+          # Compose an honest PR body. Never claim the AI ran when it did not.
+          if [ "${{ steps.apply.outputs.needs_ai }}" = "true" ]; then
+            MODE="🤖 Conflicts were resolved with \`actions/ai-inference@v2\` (GitHub Models)."
+            if [ -f "$RUNNER_TEMP/resolution_output.txt" ]; then
+              MODE="$MODE"$'\n\n'"$(cat "$RUNNER_TEMP/resolution_output.txt")"
+            fi
+          else
+            MODE="✅ The existing v$PATCH_VERSION patch applied cleanly to v${{ inputs.nodeVersion }} — no AI resolution was needed."
+          fi
+
+          if [ "$PATCH_CHANGED" = "false" ]; then
+            CHANGED="ℹ️ The regenerated patch is byte-identical to v$PATCH_VERSION — the source files it touches did not change between the two releases."
+          else
+            CHANGED="ℹ️ The patch was updated to match the v${{ inputs.nodeVersion }} source tree."
+          fi
+
+          # Random delimiter so a body line that happens to equal the marker
+          # can't terminate the heredoc early.
+          DELIM="RESOLUTION_EOF_$(uuidgen)"
+          {
+            echo "RESOLUTION_OUTPUT<<$DELIM"
+            printf '%s\n\n%s\n\n%s\n' "$MODE" "$CHANGED" "$VERIFY"
+            echo "$DELIM"
+          } >> "$GITHUB_ENV"
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v8
@@ -157,12 +222,9 @@ jobs:
           body: |
             ## Node.js Patch Update to v${{ inputs.nodeVersion }}
 
-            This PR updates the Node.js patch to version ${{ inputs.nodeVersion }}.
+            This PR updates the Node.js patch from v${{ env.PATCH_VERSION }} to v${{ inputs.nodeVersion }}.
 
-            Patch conflicts (if any) were resolved with `actions/ai-inference@v2`
-            using GitHub Models — no third-party API key required.
-
-            ${{ env.RESOLUTION_OUTPUT && '### AI Resolution Details' || '' }}
+            ### Resolution
             ${{ env.RESOLUTION_OUTPUT }}
           branch: "nodejs-v${{ inputs.nodeVersion }}"
           base: "main"
