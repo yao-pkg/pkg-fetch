@@ -483,7 +483,7 @@ index 0000000000..a697294fdf
 +  }());
 +}());
 diff --git node/lib/internal/modules/cjs/loader.js node/lib/internal/modules/cjs/loader.js
-index ad6bd33bad..8ee5222461 100644
+index 11a7196698..de729b660b 100644
 --- node/lib/internal/modules/cjs/loader.js
 +++ node/lib/internal/modules/cjs/loader.js
 @@ -267,12 +267,15 @@ function stat(filename) {
@@ -846,7 +846,7 @@ index b7062241d5..6098847b2a 100644
              "set host:port for inspector",
              &DebugOptions::host_port,
 diff --git node/tools/icu/icu-generic.gyp node/tools/icu/icu-generic.gyp
-index f007c65232..002a00a6ae 100644
+index f49b4ddba7..eb1e4c0f9b 100644
 --- node/tools/icu/icu-generic.gyp
 +++ node/tools/icu/icu-generic.gyp
 @@ -52,7 +52,7 @@
