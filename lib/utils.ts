@@ -1,11 +1,11 @@
-import fetch from 'node-fetch';
+import { fetch, ProxyAgent } from 'undici';
 import crypto from 'crypto';
 import { createReadStream, createWriteStream, mkdirSync, renameSync, rmSync } from 'fs';
 import { chmod, stat } from 'fs/promises';
-import httpsProxyAgent from 'https-proxy-agent';
 import path from 'path';
+import { Readable } from 'stream';
+import { pipeline } from 'stream/promises';
 import { spawnSync, SpawnSyncOptions } from 'child_process';
-import stream from 'stream';
 
 import { coerce } from 'semver';
 import { log, wasReported } from './log';
@@ -24,14 +24,14 @@ export async function downloadUrl(url: string, file: string): Promise<void> {
   try {
     res = await fetch(
       url,
-      proxy ? { agent: httpsProxyAgent(proxy) } : undefined
+      proxy ? { dispatcher: new ProxyAgent(proxy) } : undefined
     );
   } catch (err) {
     log.disableProgress();
     throw wasReported(`Network error during fetch: ${(err as Error).message}`);
   }
 
-  if (!res.ok) {
+  if (!res.ok || !res.body) {
     log.disableProgress();
     throw wasReported(`${res.status}: ${res.statusText}`);
   }
@@ -43,28 +43,28 @@ export async function downloadUrl(url: string, file: string): Promise<void> {
   const totalSize = Number(res.headers.get('content-length'));
   let currentSize = 0;
 
-  res.body.on('data', (chunk: Buffer) => {
+  const body = Readable.fromWeb(res.body);
+  body.on('data', (chunk: Buffer) => {
     if (totalSize != null && totalSize !== 0) {
       currentSize += chunk.length;
       log.showProgress((currentSize / totalSize) * 100);
     }
   });
-  res.body.pipe(ws);
 
-  return new Promise<void>((resolve, reject) => {
-    stream.finished(ws, (err) => {
-      if (err) {
-        log.disableProgress();
-        rmSync(tempFile);
-        reject(wasReported(`${err.name}: ${err.message}`));
-      } else {
-        log.showProgress(100);
-        log.disableProgress();
-        renameSync(tempFile, file);
-        resolve();
-      }
-    });
-  });
+  // `pipeline` propagates errors from the source (`body`) as well as the
+  // destination (`ws`), so a truncated/aborted download rejects loudly instead
+  // of leaving the promise unsettled and the process exiting silently.
+  try {
+    await pipeline(body, ws);
+  } catch (err) {
+    log.disableProgress();
+    rmSync(tempFile, { force: true });
+    throw wasReported(`${(err as Error).name}: ${(err as Error).message}`);
+  }
+
+  log.showProgress(100);
+  log.disableProgress();
+  renameSync(tempFile, file);
 }
 
 export async function hash(filePath: string): Promise<string> {
