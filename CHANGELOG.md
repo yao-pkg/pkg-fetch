@@ -1,3 +1,23 @@
+## [3.6.4](https://github.com/yao-pkg/pkg-fetch/compare/v3.6.3...v3.6.4) (2026-06-25)
+
+### Features
+
+- add v22.23.0 patch ([#189](https://github.com/yao-pkg/pkg-fetch/issues/189)) ([4cd2720](https://github.com/yao-pkg/pkg-fetch/commit/4cd2720fb9e5dde6b9a0fb17a54a4a8455695c18))
+- add v22.23.1 patch ([#192](https://github.com/yao-pkg/pkg-fetch/issues/192)) ([1a783a2](https://github.com/yao-pkg/pkg-fetch/commit/1a783a2444939fd0e9876f0858a3e83400a7ff56))
+- add v24.16.0 patch ([#183](https://github.com/yao-pkg/pkg-fetch/issues/183)) ([1f47516](https://github.com/yao-pkg/pkg-fetch/commit/1f475166666240b5f80060c624d31c4079905551))
+- add v24.17.0 patch ([#190](https://github.com/yao-pkg/pkg-fetch/issues/190)) ([fc772e4](https://github.com/yao-pkg/pkg-fetch/commit/fc772e4adfd5fed2062971c9386e8766c372f4b9))
+- add v24.18.0 patch ([#193](https://github.com/yao-pkg/pkg-fetch/issues/193)) ([ae533b1](https://github.com/yao-pkg/pkg-fetch/commit/ae533b1a1f46015a465890a88529d10f5e8c7453))
+- add v26.3.0 patch ([#182](https://github.com/yao-pkg/pkg-fetch/issues/182)) ([d183913](https://github.com/yao-pkg/pkg-fetch/commit/d183913e22967c813b2def36daa7f22e77475218))
+- add v26.3.1 patch ([#191](https://github.com/yao-pkg/pkg-fetch/issues/191)) ([887742c](https://github.com/yao-pkg/pkg-fetch/commit/887742c415a3f917c7f39cbb08cd679a643ddb07))
+- add v26.4.0 patch ([#194](https://github.com/yao-pkg/pkg-fetch/issues/194)) ([08feb89](https://github.com/yao-pkg/pkg-fetch/commit/08feb891b146a243ce5ebd933375f33eae53b2e4))
+
+### Bug Fixes
+
+- **ci:** detect upstream-applied hunks in AI patch resolver ([#181](https://github.com/yao-pkg/pkg-fetch/issues/181)) ([29f9843](https://github.com/yao-pkg/pkg-fetch/commit/29f984309903fb0de350da98bb5dc9ec7d28707f)), closes [#180](https://github.com/yao-pkg/pkg-fetch/issues/180) [#180](https://github.com/yao-pkg/pkg-fetch/issues/180)
+- **ci:** verify regenerated patch & report resolution honestly ([#187](https://github.com/yao-pkg/pkg-fetch/issues/187)) ([72b4f90](https://github.com/yao-pkg/pkg-fetch/commit/72b4f904b895097979f4ee8065ec2320ad6aa379)), closes [#184](https://github.com/yao-pkg/pkg-fetch/issues/184) [#185](https://github.com/yao-pkg/pkg-fetch/issues/185) [#186](https://github.com/yao-pkg/pkg-fetch/issues/186)
+- prevent silent exit on premature download close ([#195](https://github.com/yao-pkg/pkg-fetch/issues/195)) ([660b2e2](https://github.com/yao-pkg/pkg-fetch/commit/660b2e2e7f940142c356b8eb9f367f1b57626c95))
+- update expected shas ([#196](https://github.com/yao-pkg/pkg-fetch/issues/196)) ([c9619a7](https://github.com/yao-pkg/pkg-fetch/commit/c9619a7da38609666a6456f9277b1a3593be54c2))
+
 ## [3.6.3](https://github.com/yao-pkg/pkg-fetch/compare/v3.5.34...v3.6.3) (2026-05-27)
 
 ## [3.5.34](https://github.com/yao-pkg/pkg-fetch/compare/v3.6...v3.5.34) (2026-05-27)
