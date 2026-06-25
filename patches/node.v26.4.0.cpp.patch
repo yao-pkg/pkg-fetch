@@ -14,7 +14,7 @@ index 406f1d0ba5..fb8eea420d 100644
    static const char* GetVersion();
  
 diff --git node/deps/v8/src/api/api.cc node/deps/v8/src/api/api.cc
-index 9ef4e3b4a6..34cabe171c 100644
+index bdb9f715de..bed9acd14b 100644
 --- node/deps/v8/src/api/api.cc
 +++ node/deps/v8/src/api/api.cc
 @@ -469,6 +469,28 @@ void V8::SetFlagsFromCommandLine(int* argc, char** argv, bool remove_flags) {
@@ -432,10 +432,10 @@ index 0000000000..a697294fdf
 +  }());
 +}());
 diff --git node/lib/internal/modules/cjs/loader.js node/lib/internal/modules/cjs/loader.js
-index 65a35299eb..025eb1c92f 100644
+index a97a5f27a2..cf6c9d1a29 100644
 --- node/lib/internal/modules/cjs/loader.js
 +++ node/lib/internal/modules/cjs/loader.js
-@@ -267,12 +267,15 @@ function stat(filename) {
+@@ -272,12 +272,15 @@ function stat(filename) {
    // Guard against internal bugs where a non-string filename is passed in by mistake.
    assert(typeof filename === 'string');
  
@@ -489,7 +489,7 @@ index 6c6bf0383b..25db3d9f43 100644
      __proto__: null,
      ...result.data,
 diff --git node/lib/internal/process/pre_execution.js node/lib/internal/process/pre_execution.js
-index 076ae226f4..d3ba7b955c 100644
+index a9724f1e6b..943d6998d2 100644
 --- node/lib/internal/process/pre_execution.js
 +++ node/lib/internal/process/pre_execution.js
 @@ -42,7 +42,11 @@ const {
@@ -504,7 +504,7 @@ index 076ae226f4..d3ba7b955c 100644
    return prepareExecution({
      expandArgv1,
      initializeModules,
-@@ -281,7 +285,8 @@ function patchProcessObject(expandArgv1) {
+@@ -282,7 +286,8 @@ function patchProcessObject(expandArgv1) {
    let mainEntry;
    // If requested, update process.argv[1] to replace whatever the user provided with the resolved absolute file path of
    // the entry point.
@@ -514,7 +514,7 @@ index 076ae226f4..d3ba7b955c 100644
      // Expand process.argv[1] into a full path.
      const path = require('path');
      try {
-@@ -756,6 +761,7 @@ function loadPreloadModules() {
+@@ -766,6 +771,7 @@ function loadPreloadModules() {
    // For user code, we preload modules if `-r` is passed
    const preloadModules = getOptionValue('--require');
    if (preloadModules && preloadModules.length > 0) {
@@ -523,10 +523,10 @@ index 076ae226f4..d3ba7b955c 100644
        Module: {
          _preloadModules,
 diff --git node/lib/vm.js node/lib/vm.js
-index ae71080620..b05638de75 100644
+index 2c7446af60..95daf7caa1 100644
 --- node/lib/vm.js
 +++ node/lib/vm.js
-@@ -98,6 +98,7 @@ class Script extends ContextifyScript {
+@@ -99,6 +99,7 @@ class Script extends ContextifyScript {
        produceCachedData = false,
        importModuleDynamically,
        [kParsingContext]: parsingContext,
@@ -534,7 +534,7 @@ index ae71080620..b05638de75 100644
      } = options;
  
      validateString(filename, 'options.filename');
-@@ -121,7 +122,8 @@ class Script extends ContextifyScript {
+@@ -122,7 +123,8 @@ class Script extends ContextifyScript {
              cachedData,
              produceCachedData,
              parsingContext,
@@ -589,7 +589,7 @@ index 4ba019ddca..b30d716a41 100644
    }
  
 diff --git node/src/node_contextify.cc node/src/node_contextify.cc
-index f319420ae0..6b38c3b5e9 100644
+index 40ed019a73..3b74ea28d5 100644
 --- node/src/node_contextify.cc
 +++ node/src/node_contextify.cc
 @@ -88,6 +88,7 @@ using v8::String;
@@ -783,7 +783,7 @@ index 3295121b87..bfe838b8c1 100644
 +  return adjacent(c, nargv);
 +}
 diff --git node/src/node_options.cc node/src/node_options.cc
-index 99c5a7dbe4..b0ae409120 100644
+index 769fabbfe8..8007dd3cdd 100644
 --- node/src/node_options.cc
 +++ node/src/node_options.cc
 @@ -466,6 +466,7 @@ void Parse(
