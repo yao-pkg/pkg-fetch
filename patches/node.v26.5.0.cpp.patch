@@ -364,7 +364,7 @@ index 6732808e85..ebb7938f64 100644
      }
    }
 diff --git node/lib/child_process.js node/lib/child_process.js
-index 824af65556..8393ee812f 100644
+index 0e3e04af0d..6efe7cfe78 100644
 --- node/lib/child_process.js
 +++ node/lib/child_process.js
 @@ -171,7 +171,7 @@ function fork(modulePath, args = [], options) {
@@ -432,10 +432,10 @@ index 0000000000..a697294fdf
 +  }());
 +}());
 diff --git node/lib/internal/modules/cjs/loader.js node/lib/internal/modules/cjs/loader.js
-index a97a5f27a2..cf6c9d1a29 100644
+index e1f8a0eed3..9f6dae2d3b 100644
 --- node/lib/internal/modules/cjs/loader.js
 +++ node/lib/internal/modules/cjs/loader.js
-@@ -272,12 +272,15 @@ function stat(filename) {
+@@ -273,12 +273,15 @@ function stat(filename) {
    // Guard against internal bugs where a non-string filename is passed in by mistake.
    assert(typeof filename === 'string');
  
@@ -589,7 +589,7 @@ index 4ba019ddca..b30d716a41 100644
    }
  
 diff --git node/src/node_contextify.cc node/src/node_contextify.cc
-index 40ed019a73..3b74ea28d5 100644
+index dcfaf02c7e..5d1f63a4a8 100644
 --- node/src/node_contextify.cc
 +++ node/src/node_contextify.cc
 @@ -88,6 +88,7 @@ using v8::String;
@@ -598,9 +598,9 @@ index 40ed019a73..3b74ea28d5 100644
  using v8::Value;
 +using v8::V8;
  
- // The vm module executes code in a sandboxed environment with a different
- // global object than the rest of the code. This is achieved by applying
-@@ -981,13 +982,13 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+ // This is a helper function mediates deleted v8::PropertyDescriptor copy/move.
+ // The `Fn` receives a mutable reference of a stack allocated
+@@ -983,13 +984,13 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
    Local<ArrayBufferView> cached_data_buf;
    bool produce_cached_data = false;
    Local<Context> parsing_context = context;
@@ -617,7 +617,7 @@ index 40ed019a73..3b74ea28d5 100644
      CHECK(args[2]->IsNumber());
      line_offset = args[2].As<Int32>()->Value();
      CHECK(args[3]->IsNumber());
-@@ -1008,6 +1009,11 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1010,6 +1011,11 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
      }
      CHECK(args[7]->IsSymbol());
      id_symbol = args[7].As<Symbol>();
@@ -629,7 +629,7 @@ index 40ed019a73..3b74ea28d5 100644
    }
  
    ContextifyScript* contextify_script = New(env, args.This());
-@@ -1054,6 +1060,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1056,6 +1062,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
    ShouldNotAbortOnUncaughtScope no_abort_scope(env);
    Context::Scope scope(parsing_context);
  
@@ -640,7 +640,7 @@ index 40ed019a73..3b74ea28d5 100644
    MaybeLocal<UnboundScript> maybe_v8_script =
        ScriptCompiler::CompileUnboundScript(isolate, &source, compile_options);
  
-@@ -1068,6 +1078,12 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1070,6 +1080,12 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
      return;
    }
  
@@ -653,7 +653,7 @@ index 40ed019a73..3b74ea28d5 100644
    contextify_script->set_unbound_script(v8_script);
  
    std::unique_ptr<ScriptCompiler::CachedData> new_cached_data;
-@@ -1080,7 +1096,7 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1082,7 +1098,7 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
    if (contextify_script->object()
            ->SetPrivate(context, env->host_defined_option_symbol(), id_symbol)
            .IsNothing()) {
@@ -662,7 +662,7 @@ index 40ed019a73..3b74ea28d5 100644
    }
    if (StoreCodeCacheResult(env,
                             self,
-@@ -1091,6 +1107,9 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1093,6 +1109,9 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
            .IsNothing()) {
      return;
    }
@@ -783,7 +783,7 @@ index 3295121b87..bfe838b8c1 100644
 +  return adjacent(c, nargv);
 +}
 diff --git node/src/node_options.cc node/src/node_options.cc
-index 769fabbfe8..8007dd3cdd 100644
+index b0ddfb9eb9..9c83f88bf8 100644
 --- node/src/node_options.cc
 +++ node/src/node_options.cc
 @@ -466,6 +466,7 @@ void Parse(
