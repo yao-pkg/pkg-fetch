@@ -41,7 +41,7 @@ index 353afca4d4..dea944aed5 100644
  #  else  /* !((defined(_MSC_VER) && !defined(__clang__) && (defined(_M_ARM) || \
              (defined(_M_ARM64) && _MSC_VER < 1941))) || defined(WIN32)) */
 diff --git node/deps/v8/include/v8-initialization.h node/deps/v8/include/v8-initialization.h
-index 46a21a02cb..fdb0edf42a 100644
+index 406f1d0ba5..fb8eea420d 100644
 --- node/deps/v8/include/v8-initialization.h
 +++ node/deps/v8/include/v8-initialization.h
 @@ -98,6 +98,10 @@ class V8_EXPORT V8 {
@@ -56,10 +56,10 @@ index 46a21a02cb..fdb0edf42a 100644
    static const char* GetVersion();
  
 diff --git node/deps/v8/src/api/api.cc node/deps/v8/src/api/api.cc
-index ef4546de27..60bb6a4edc 100644
+index 7dc060bc87..736e9309ed 100644
 --- node/deps/v8/src/api/api.cc
 +++ node/deps/v8/src/api/api.cc
-@@ -443,6 +443,28 @@ void V8::SetFlagsFromCommandLine(int* argc, char** argv, bool remove_flags) {
+@@ -444,6 +444,28 @@ void V8::SetFlagsFromCommandLine(int* argc, char** argv, bool remove_flags) {
                                         HelpOptions(HelpOptions::kDontExit));
  }
  
@@ -415,7 +415,7 @@ index 0178607289..88c8c2b852 100644
      }
    }
 diff --git node/lib/child_process.js node/lib/child_process.js
-index 17c6b69c11..59f5e241af 100644
+index 779aebab83..d99cb66f88 100644
 --- node/lib/child_process.js
 +++ node/lib/child_process.js
 @@ -171,7 +171,7 @@ function fork(modulePath, args = [], options) {
@@ -483,7 +483,7 @@ index 0000000000..a697294fdf
 +  }());
 +}());
 diff --git node/lib/internal/modules/cjs/loader.js node/lib/internal/modules/cjs/loader.js
-index 11a7196698..de729b660b 100644
+index 5382be9b10..05718a4a12 100644
 --- node/lib/internal/modules/cjs/loader.js
 +++ node/lib/internal/modules/cjs/loader.js
 @@ -267,12 +267,15 @@ function stat(filename) {
@@ -540,7 +540,7 @@ index 968c3c5701..1c7b01a3f2 100644
      __proto__: null,
      ...result.data,
 diff --git node/lib/internal/process/pre_execution.js node/lib/internal/process/pre_execution.js
-index e9ab2b2a89..6c74e7cc64 100644
+index 2716c2ae81..55ef200092 100644
 --- node/lib/internal/process/pre_execution.js
 +++ node/lib/internal/process/pre_execution.js
 @@ -42,7 +42,11 @@ const {
@@ -565,7 +565,7 @@ index e9ab2b2a89..6c74e7cc64 100644
      // Expand process.argv[1] into a full path.
      const path = require('path');
      try {
-@@ -703,6 +708,7 @@ function loadPreloadModules() {
+@@ -702,6 +707,7 @@ function loadPreloadModules() {
    // For user code, we preload modules if `-r` is passed
    const preloadModules = getOptionValue('--require');
    if (preloadModules && preloadModules.length > 0) {
@@ -612,7 +612,7 @@ index 5e1d9149dc..1426160ac0 100644
      parent_env_->AddCleanupHook([](void* data) {
        Environment* env = static_cast<Environment*>(data);
 diff --git node/src/node.cc node/src/node.cc
-index 6f899ec062..1777a36383 100644
+index 078497db7e..dd34333f53 100644
 --- node/src/node.cc
 +++ node/src/node.cc
 @@ -351,6 +351,8 @@ MaybeLocal<Value> StartExecution(Environment* env,
@@ -834,7 +834,7 @@ index 3295121b87..bfe838b8c1 100644
 +  return adjacent(c, nargv);
 +}
 diff --git node/src/node_options.cc node/src/node_options.cc
-index b7062241d5..6098847b2a 100644
+index a3660223bb..b678a67692 100644
 --- node/src/node_options.cc
 +++ node/src/node_options.cc
 @@ -450,6 +450,7 @@ void Parse(
