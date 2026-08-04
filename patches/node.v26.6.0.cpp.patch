@@ -14,7 +14,7 @@ index 406f1d0ba5..fb8eea420d 100644
    static const char* GetVersion();
  
 diff --git node/deps/v8/src/api/api.cc node/deps/v8/src/api/api.cc
-index bdb9f715de..bed9acd14b 100644
+index fbd628370c..643550be70 100644
 --- node/deps/v8/src/api/api.cc
 +++ node/deps/v8/src/api/api.cc
 @@ -469,6 +469,28 @@ void V8::SetFlagsFromCommandLine(int* argc, char** argv, bool remove_flags) {
@@ -561,10 +561,10 @@ index 5e1d9149dc..1426160ac0 100644
      parent_env_->AddCleanupHook([](void* data) {
        Environment* env = static_cast<Environment*>(data);
 diff --git node/src/node.cc node/src/node.cc
-index 4ba019ddca..b30d716a41 100644
+index b368c58734..ad140216df 100644
 --- node/src/node.cc
 +++ node/src/node.cc
-@@ -351,6 +351,8 @@ MaybeLocal<Value> StartExecution(Environment* env,
+@@ -356,6 +356,8 @@ MaybeLocal<Value> StartExecution(Environment* env,
      return env->RunSnapshotDeserializeMain();
    }
  
@@ -573,7 +573,7 @@ index 4ba019ddca..b30d716a41 100644
    if (env->worker_context() != nullptr) {
      return StartExecution(env, "internal/main/worker_thread");
    }
-@@ -575,14 +577,6 @@ static void PlatformInit(ProcessInitializationFlags::Flags flags) {
+@@ -580,14 +582,6 @@ static void PlatformInit(ProcessInitializationFlags::Flags flags) {
    }
  
    if (!(flags & ProcessInitializationFlags::kNoDefaultSignalHandling)) {
@@ -589,7 +589,7 @@ index 4ba019ddca..b30d716a41 100644
    }
  
 diff --git node/src/node_contextify.cc node/src/node_contextify.cc
-index dcfaf02c7e..5d1f63a4a8 100644
+index 0d1e7efe90..195a570872 100644
 --- node/src/node_contextify.cc
 +++ node/src/node_contextify.cc
 @@ -88,6 +88,7 @@ using v8::String;
@@ -600,7 +600,7 @@ index dcfaf02c7e..5d1f63a4a8 100644
  
  // This is a helper function mediates deleted v8::PropertyDescriptor copy/move.
  // The `Fn` receives a mutable reference of a stack allocated
-@@ -983,13 +984,13 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -985,13 +986,13 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
    Local<ArrayBufferView> cached_data_buf;
    bool produce_cached_data = false;
    Local<Context> parsing_context = context;
@@ -617,7 +617,7 @@ index dcfaf02c7e..5d1f63a4a8 100644
      CHECK(args[2]->IsNumber());
      line_offset = args[2].As<Int32>()->Value();
      CHECK(args[3]->IsNumber());
-@@ -1010,6 +1011,11 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1012,6 +1013,11 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
      }
      CHECK(args[7]->IsSymbol());
      id_symbol = args[7].As<Symbol>();
@@ -629,7 +629,7 @@ index dcfaf02c7e..5d1f63a4a8 100644
    }
  
    ContextifyScript* contextify_script = New(env, args.This());
-@@ -1056,6 +1062,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1058,6 +1064,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
    ShouldNotAbortOnUncaughtScope no_abort_scope(env);
    Context::Scope scope(parsing_context);
  
@@ -640,7 +640,7 @@ index dcfaf02c7e..5d1f63a4a8 100644
    MaybeLocal<UnboundScript> maybe_v8_script =
        ScriptCompiler::CompileUnboundScript(isolate, &source, compile_options);
  
-@@ -1070,6 +1080,12 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1072,6 +1082,12 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
      return;
    }
  
@@ -653,7 +653,7 @@ index dcfaf02c7e..5d1f63a4a8 100644
    contextify_script->set_unbound_script(v8_script);
  
    std::unique_ptr<ScriptCompiler::CachedData> new_cached_data;
-@@ -1082,7 +1098,7 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1084,7 +1100,7 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
    if (contextify_script->object()
            ->SetPrivate(context, env->host_defined_option_symbol(), id_symbol)
            .IsNothing()) {
@@ -662,7 +662,7 @@ index dcfaf02c7e..5d1f63a4a8 100644
    }
    if (StoreCodeCacheResult(env,
                             self,
-@@ -1093,6 +1109,9 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1095,6 +1111,9 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
            .IsNothing()) {
      return;
    }
