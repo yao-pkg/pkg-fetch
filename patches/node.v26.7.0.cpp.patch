@@ -489,7 +489,7 @@ index 6c6bf0383b..25db3d9f43 100644
      __proto__: null,
      ...result.data,
 diff --git node/lib/internal/process/pre_execution.js node/lib/internal/process/pre_execution.js
-index a9724f1e6b..943d6998d2 100644
+index 30d1612c45..d29039a4bd 100644
 --- node/lib/internal/process/pre_execution.js
 +++ node/lib/internal/process/pre_execution.js
 @@ -42,7 +42,11 @@ const {
@@ -514,7 +514,7 @@ index a9724f1e6b..943d6998d2 100644
      // Expand process.argv[1] into a full path.
      const path = require('path');
      try {
-@@ -766,6 +771,7 @@ function loadPreloadModules() {
+@@ -774,6 +779,7 @@ function loadPreloadModules() {
    // For user code, we preload modules if `-r` is passed
    const preloadModules = getOptionValue('--require');
    if (preloadModules && preloadModules.length > 0) {
@@ -545,10 +545,10 @@ index 2c7446af60..95daf7caa1 100644
        throw e; /* node-do-not-add-exception-line */
      }
 diff --git node/src/inspector_agent.cc node/src/inspector_agent.cc
-index 5e1d9149dc..1426160ac0 100644
+index 00b4982d9b..3ce989209f 100644
 --- node/src/inspector_agent.cc
 +++ node/src/inspector_agent.cc
-@@ -858,11 +858,6 @@ bool Agent::Start(const std::string& path,
+@@ -866,11 +866,6 @@ bool Agent::Start(const std::string& path,
                                StartIoThreadAsyncCallback));
      uv_unref(reinterpret_cast<uv_handle_t*>(&start_io_thread_async));
      start_io_thread_async.data = this;
@@ -783,7 +783,7 @@ index 3295121b87..bfe838b8c1 100644
 +  return adjacent(c, nargv);
 +}
 diff --git node/src/node_options.cc node/src/node_options.cc
-index b0ddfb9eb9..9c83f88bf8 100644
+index 1a9302220d..2d011a811c 100644
 --- node/src/node_options.cc
 +++ node/src/node_options.cc
 @@ -466,6 +466,7 @@ void Parse(
