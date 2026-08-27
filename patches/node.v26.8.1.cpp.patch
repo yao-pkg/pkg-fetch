@@ -432,7 +432,7 @@ index 0000000000..a697294fdf
 +  }());
 +}());
 diff --git node/lib/internal/modules/cjs/loader.js node/lib/internal/modules/cjs/loader.js
-index e1f8a0eed3..9f6dae2d3b 100644
+index 554746b6e2..3cc2836c83 100644
 --- node/lib/internal/modules/cjs/loader.js
 +++ node/lib/internal/modules/cjs/loader.js
 @@ -273,12 +273,15 @@ function stat(filename) {
@@ -453,10 +453,10 @@ index e1f8a0eed3..9f6dae2d3b 100644
      // Only set cache when `internalModuleStat(filename)` succeeds.
      statCache.set(filename, result);
 diff --git node/lib/internal/modules/package_json_reader.js node/lib/internal/modules/package_json_reader.js
-index 6c6bf0383b..25db3d9f43 100644
+index c33cf166f5..1a8aae1380 100644
 --- node/lib/internal/modules/package_json_reader.js
 +++ node/lib/internal/modules/package_json_reader.js
-@@ -120,17 +120,20 @@ const requiresJSONParse = (value) => (value !== undefined && (value[0] === '[' |
+@@ -121,17 +121,20 @@ const requiresJSONParse = (value) => (value !== undefined && (value[0] === '[' |
   * @returns {PackageConfig}
   */
  function read(jsonPath, { base, specifier, isESM } = kEmptyObject) {
@@ -489,7 +489,7 @@ index 6c6bf0383b..25db3d9f43 100644
      __proto__: null,
      ...result.data,
 diff --git node/lib/internal/process/pre_execution.js node/lib/internal/process/pre_execution.js
-index 30d1612c45..d29039a4bd 100644
+index 59c63d59ed..fc905d26d9 100644
 --- node/lib/internal/process/pre_execution.js
 +++ node/lib/internal/process/pre_execution.js
 @@ -42,7 +42,11 @@ const {
@@ -504,7 +504,7 @@ index 30d1612c45..d29039a4bd 100644
    return prepareExecution({
      expandArgv1,
      initializeModules,
-@@ -282,7 +286,8 @@ function patchProcessObject(expandArgv1) {
+@@ -287,7 +291,8 @@ function patchProcessObject(expandArgv1) {
    let mainEntry;
    // If requested, update process.argv[1] to replace whatever the user provided with the resolved absolute file path of
    // the entry point.
@@ -514,7 +514,7 @@ index 30d1612c45..d29039a4bd 100644
      // Expand process.argv[1] into a full path.
      const path = require('path');
      try {
-@@ -774,6 +779,7 @@ function loadPreloadModules() {
+@@ -779,6 +784,7 @@ function loadPreloadModules() {
    // For user code, we preload modules if `-r` is passed
    const preloadModules = getOptionValue('--require');
    if (preloadModules && preloadModules.length > 0) {
@@ -545,10 +545,10 @@ index 2c7446af60..95daf7caa1 100644
        throw e; /* node-do-not-add-exception-line */
      }
 diff --git node/src/inspector_agent.cc node/src/inspector_agent.cc
-index 00b4982d9b..3ce989209f 100644
+index 4bb34e56bc..668571ccd0 100644
 --- node/src/inspector_agent.cc
 +++ node/src/inspector_agent.cc
-@@ -866,11 +866,6 @@ bool Agent::Start(const std::string& path,
+@@ -863,11 +863,6 @@ bool Agent::Start(const std::string& path,
                                StartIoThreadAsyncCallback));
      uv_unref(reinterpret_cast<uv_handle_t*>(&start_io_thread_async));
      start_io_thread_async.data = this;
@@ -561,7 +561,7 @@ index 00b4982d9b..3ce989209f 100644
      parent_env_->AddCleanupHook([](void* data) {
        Environment* env = static_cast<Environment*>(data);
 diff --git node/src/node.cc node/src/node.cc
-index b368c58734..ad140216df 100644
+index 0028263441..8a9e06434c 100644
 --- node/src/node.cc
 +++ node/src/node.cc
 @@ -356,6 +356,8 @@ MaybeLocal<Value> StartExecution(Environment* env,
@@ -795,7 +795,7 @@ index 1a9302220d..2d011a811c 100644
              "set host:port for inspector",
              &DebugOptions::host_port,
 diff --git node/tools/icu/icu-generic.gyp node/tools/icu/icu-generic.gyp
-index f49b4ddba7..eb1e4c0f9b 100644
+index c4e8c6fbb9..b2cba7b56b 100644
 --- node/tools/icu/icu-generic.gyp
 +++ node/tools/icu/icu-generic.gyp
 @@ -52,7 +52,7 @@
