@@ -289,13 +289,13 @@ def cmd_apply(node_dir: str, response_path: str) -> None:
     total = len(initial_rejects)
 
     # An empty model response while conflicts are still outstanding almost
-    # always means the GitHub Models quota is exhausted or the request was
-    # rate-limited — the action can return a 200 with no content. Fail loudly
+    # always means the Copilot request quota is exhausted or the request was
+    # rate-limited — the action can return an empty response. Fail loudly
     # with that diagnosis instead of letting it surface downstream as a vague
     # "SEARCH block not found", and never let an empty resolution reach a PR.
     if total and not response.strip():
         print("❌ AI response is empty — the model returned no content.")
-        print("   Likely cause: GitHub Models quota exhausted or request rate-limited.")
+        print("   Likely cause: Copilot request quota exhausted or request rate-limited.")
         print("CONFLICTS_RESOLVED=0")
         print(f"TOTAL_CONFLICTS={total}")
         print("HAS_UNRESOLVED=True")
