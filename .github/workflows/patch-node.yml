@@ -19,7 +19,6 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-      models: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -74,6 +73,30 @@ jobs:
             fi
           fi
 
+      # actions/ai-inference@v3 shells out to the Copilot CLI, which is not
+      # preinstalled on GitHub-hosted runners. Both steps are gated on a
+      # conflict so the common clean-apply path stays fast.
+      - name: Setup Node.js
+        if: steps.apply.outputs.needs_ai == 'true'
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Install Copilot CLI
+        if: steps.apply.outputs.needs_ai == 'true'
+        env:
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_PAT }}
+        run: |
+          # Without this the CLI exits 1 with "Access denied by policy
+          # settings", which is only visible under ACTIONS_STEP_DEBUG.
+          if [ -z "$COPILOT_GITHUB_TOKEN" ]; then
+            echo "::error::COPILOT_PAT secret is not set. Create a fine-grained PAT whose resource owner is a personal account (not the org) with the Account -> 'Copilot Requests' permission, then add it as the COPILOT_PAT repository secret. Classic PATs are not supported."
+            exit 1
+          fi
+          # Major-pinned, not exact: Copilot CLI auth tracks a server-side
+          # service, and every release so far is a 1.0.x patch bump.
+          npm install -g @github/copilot@^1
+
       - name: Build AI prompt
         if: steps.apply.outputs.needs_ai == 'true'
         # Write the prompt to RUNNER_TEMP — anything inside the checkout
@@ -83,7 +106,7 @@ jobs:
       - name: Resolve conflicts with AI
         if: steps.apply.outputs.needs_ai == 'true'
         id: ai
-        uses: actions/ai-inference@v2
+        uses: actions/ai-inference@v3
         with:
           prompt-file: ${{ runner.temp }}/ai_prompt.md
           system-prompt: |
@@ -102,16 +125,19 @@ jobs:
             - SEARCH must match the file's CURRENT content byte-for-byte (whitespace included).
             - REPLACE must contain the same context lines as SEARCH, with the `+`/`-` edits applied.
               Whitespace and indentation in REPLACE must mirror the surrounding code style.
-          # gpt-4.1 outperforms gpt-4o on coding + instruction-following
-          # (key for the strict SEARCH/REPLACE output format) and is not a
-          # reasoning model, so its output budget isn't shared with hidden
-          # CoT tokens. 1M input / 32K output / "high" rate-limit tier.
-          model: openai/gpt-4.1
-          max-completion-tokens: 16000
-          # Low (not zero): cuts variance vs. the model default while
-          # leaving enough exploration to avoid the local-optimum traps
-          # of greedy decoding on long structured output.
-          temperature: 0.2
+          # Copilot CLI model slug — no `openai/` provider prefix, and v3
+          # dropped `max-completion-tokens`/`temperature` (the CLI owns them).
+          # gpt-4.1 is gone from Copilot's supported models; gpt-5.4 is the
+          # current GA replacement and holds up on the strict SEARCH/REPLACE
+          # output format this prompt depends on.
+          model: gpt-5.4
+        env:
+          # Copilot CLI reads its credentials from the environment and prefers
+          # COPILOT_GITHUB_TOKEN over GH_TOKEN/GITHUB_TOKEN. Inference is billed
+          # to the PAT's owner. To bill the org instead, drop this and give the
+          # job `copilot-requests: write` + `GITHUB_TOKEN: ${{ github.token }}`,
+          # which needs the org's Copilot CLI policy enabled.
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_PAT }}
 
       - name: Apply AI resolutions
         if: steps.apply.outputs.needs_ai == 'true'
@@ -190,7 +216,7 @@ jobs:
 
           # Compose an honest PR body. Never claim the AI ran when it did not.
           if [ "${{ steps.apply.outputs.needs_ai }}" = "true" ]; then
-            MODE="🤖 Conflicts were resolved with \`actions/ai-inference@v2\` (GitHub Models)."
+            MODE="🤖 Conflicts were resolved with \`actions/ai-inference@v3\` (Copilot CLI)."
             if [ -f "$RUNNER_TEMP/resolution_output.txt" ]; then
               MODE="$MODE"$'\n\n'"$(cat "$RUNNER_TEMP/resolution_output.txt")"
             fi
