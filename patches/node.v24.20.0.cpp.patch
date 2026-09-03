@@ -1,5 +1,5 @@
 diff --git node/deps/ngtcp2/nghttp3/lib/nghttp3_ringbuf.c node/deps/ngtcp2/nghttp3/lib/nghttp3_ringbuf.c
-index dac89ef12e..e5cf338ff4 100644
+index f43714d2c2..f714a524e7 100644
 --- node/deps/ngtcp2/nghttp3/lib/nghttp3_ringbuf.c
 +++ node/deps/ngtcp2/nghttp3/lib/nghttp3_ringbuf.c
 @@ -33,10 +33,17 @@
@@ -25,21 +25,24 @@ index dac89ef12e..e5cf338ff4 100644
  int nghttp3_ringbuf_init(nghttp3_ringbuf *rb, size_t nmemb, size_t size,
                           const nghttp3_mem *mem) {
 diff --git node/deps/ngtcp2/ngtcp2/lib/ngtcp2_ringbuf.c node/deps/ngtcp2/ngtcp2/lib/ngtcp2_ringbuf.c
-index 353afca4d4..dea944aed5 100644
+index 40c25f2a3d..f03b9de0bd 100644
 --- node/deps/ngtcp2/ngtcp2/lib/ngtcp2_ringbuf.c
 +++ node/deps/ngtcp2/ngtcp2/lib/ngtcp2_ringbuf.c
-@@ -33,10 +33,7 @@
+@@ -33,7 +33,13 @@
  
  #ifndef NDEBUG
- static int ispow2(size_t n) {
--#  if defined(_MSC_VER) && !defined(__clang__) &&                              \
--    (defined(_M_ARM) || (defined(_M_ARM64) && _MSC_VER < 1941))
--  return n && !(n & (n - 1));
--#  elif defined(WIN32)
+ /* Power-of-two test; simple portable bit trick. */
+-static int ispow2(size_t n) { return n && !(n & (n - 1)); }
++static int ispow2(size_t n) {
 +#if defined(WIN32)
-   return 1 == __popcnt((unsigned int)n);
- #  else  /* !((defined(_MSC_VER) && !defined(__clang__) && (defined(_M_ARM) || \
-             (defined(_M_ARM64) && _MSC_VER < 1941))) || defined(WIN32)) */
++  return 1 == __popcnt((unsigned int)n);
++#else  /* !defined(WIN32) */
++  return n && !(n & (n - 1));
++#endif /* defined(WIN32) */
++}
+ #endif /* !defined(NDEBUG) */
+ 
+ int ngtcp2_ringbuf_init(ngtcp2_ringbuf *rb, size_t nmemb, size_t size,
 diff --git node/deps/v8/include/v8-initialization.h node/deps/v8/include/v8-initialization.h
 index 406f1d0ba5..fb8eea420d 100644
 --- node/deps/v8/include/v8-initialization.h
@@ -483,10 +486,10 @@ index 0000000000..a697294fdf
 +  }());
 +}());
 diff --git node/lib/internal/modules/cjs/loader.js node/lib/internal/modules/cjs/loader.js
-index 5382be9b10..05718a4a12 100644
+index 4bd752be19..d2a7c76d7b 100644
 --- node/lib/internal/modules/cjs/loader.js
 +++ node/lib/internal/modules/cjs/loader.js
-@@ -267,12 +267,15 @@ function stat(filename) {
+@@ -273,12 +273,15 @@ function stat(filename) {
    // Guard against internal bugs where a non-string filename is passed in by mistake.
    assert(typeof filename === 'string');
  
@@ -540,7 +543,7 @@ index 968c3c5701..1c7b01a3f2 100644
      __proto__: null,
      ...result.data,
 diff --git node/lib/internal/process/pre_execution.js node/lib/internal/process/pre_execution.js
-index 2716c2ae81..55ef200092 100644
+index a7ff17a646..57c3b75f40 100644
 --- node/lib/internal/process/pre_execution.js
 +++ node/lib/internal/process/pre_execution.js
 @@ -42,7 +42,11 @@ const {
@@ -555,7 +558,7 @@ index 2716c2ae81..55ef200092 100644
    return prepareExecution({
      expandArgv1,
      initializeModules,
-@@ -279,7 +283,8 @@ function patchProcessObject(expandArgv1) {
+@@ -280,7 +284,8 @@ function patchProcessObject(expandArgv1) {
    let mainEntry;
    // If requested, update process.argv[1] to replace whatever the user provided with the resolved absolute file path of
    // the entry point.
@@ -565,7 +568,7 @@ index 2716c2ae81..55ef200092 100644
      // Expand process.argv[1] into a full path.
      const path = require('path');
      try {
-@@ -702,6 +707,7 @@ function loadPreloadModules() {
+@@ -723,6 +728,7 @@ function loadPreloadModules() {
    // For user code, we preload modules if `-r` is passed
    const preloadModules = getOptionValue('--require');
    if (preloadModules && preloadModules.length > 0) {
@@ -612,10 +615,10 @@ index 5e1d9149dc..1426160ac0 100644
      parent_env_->AddCleanupHook([](void* data) {
        Environment* env = static_cast<Environment*>(data);
 diff --git node/src/node.cc node/src/node.cc
-index 078497db7e..dd34333f53 100644
+index f03a4447e5..aab6cdc0ac 100644
 --- node/src/node.cc
 +++ node/src/node.cc
-@@ -351,6 +351,8 @@ MaybeLocal<Value> StartExecution(Environment* env,
+@@ -356,6 +356,8 @@ MaybeLocal<Value> StartExecution(Environment* env,
      return env->RunSnapshotDeserializeMain();
    }
  
@@ -624,7 +627,7 @@ index 078497db7e..dd34333f53 100644
    if (env->worker_context() != nullptr) {
      return StartExecution(env, "internal/main/worker_thread");
    }
-@@ -575,14 +577,6 @@ static void PlatformInit(ProcessInitializationFlags::Flags flags) {
+@@ -580,14 +582,6 @@ static void PlatformInit(ProcessInitializationFlags::Flags flags) {
    }
  
    if (!(flags & ProcessInitializationFlags::kNoDefaultSignalHandling)) {
@@ -834,10 +837,10 @@ index 3295121b87..bfe838b8c1 100644
 +  return adjacent(c, nargv);
 +}
 diff --git node/src/node_options.cc node/src/node_options.cc
-index a3660223bb..b678a67692 100644
+index 9435a20299..d2180da55c 100644
 --- node/src/node_options.cc
 +++ node/src/node_options.cc
-@@ -450,6 +450,7 @@ void Parse(
+@@ -457,6 +457,7 @@ void Parse(
  // TODO(addaleax): Make that unnecessary.
  
  DebugOptionsParser::DebugOptionsParser() {
