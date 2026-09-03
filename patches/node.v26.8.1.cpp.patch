@@ -1,47 +1,5 @@
-diff --git node/deps/ngtcp2/nghttp3/lib/nghttp3_ringbuf.c node/deps/ngtcp2/nghttp3/lib/nghttp3_ringbuf.c
-index dac89ef12e..e5cf338ff4 100644
---- node/deps/ngtcp2/nghttp3/lib/nghttp3_ringbuf.c
-+++ node/deps/ngtcp2/nghttp3/lib/nghttp3_ringbuf.c
-@@ -33,10 +33,17 @@
- 
- #include "nghttp3_macro.h"
- 
--#ifndef NDEBUG
--/* Power-of-two test; simple portable bit trick. */
--static int ispow2(size_t n) { return n && !(n & (n - 1)); }
--#endif /* !defined(NDEBUG) */
-+static int ispow2(size_t n) {
-+#if defined(_MSC_VER) && !defined(__clang__) &&                                \
-+  (defined(_M_ARM) || (defined(_M_ARM64) && _MSC_VER < 1941))
-+  return n && !(n & (n - 1));
-+#elif defined(WIN32)
-+  return 1 == __popcnt((unsigned int)n);
-+#else  /* !((defined(_MSC_VER) && !defined(__clang__) && (defined(_M_ARM) ||   \
-+          (defined(_M_ARM64) && _MSC_VER < 1941))) || defined(WIN32)) */
-+  return n && !(n & (n - 1));
-+#endif
-+}
- 
- int nghttp3_ringbuf_init(nghttp3_ringbuf *rb, size_t nmemb, size_t size,
-                          const nghttp3_mem *mem) {
-diff --git node/deps/ngtcp2/ngtcp2/lib/ngtcp2_ringbuf.c node/deps/ngtcp2/ngtcp2/lib/ngtcp2_ringbuf.c
-index 353afca4d4..dea944aed5 100644
---- node/deps/ngtcp2/ngtcp2/lib/ngtcp2_ringbuf.c
-+++ node/deps/ngtcp2/ngtcp2/lib/ngtcp2_ringbuf.c
-@@ -33,10 +33,7 @@
- 
- #ifndef NDEBUG
- static int ispow2(size_t n) {
--#  if defined(_MSC_VER) && !defined(__clang__) &&                              \
--    (defined(_M_ARM) || (defined(_M_ARM64) && _MSC_VER < 1941))
--  return n && !(n & (n - 1));
--#  elif defined(WIN32)
-+#if defined(WIN32)
-   return 1 == __popcnt((unsigned int)n);
- #  else  /* !((defined(_MSC_VER) && !defined(__clang__) && (defined(_M_ARM) || \
-             (defined(_M_ARM64) && _MSC_VER < 1941))) || defined(WIN32)) */
 diff --git node/deps/v8/include/v8-initialization.h node/deps/v8/include/v8-initialization.h
-index 46a21a02cb..fdb0edf42a 100644
+index 406f1d0ba5..fb8eea420d 100644
 --- node/deps/v8/include/v8-initialization.h
 +++ node/deps/v8/include/v8-initialization.h
 @@ -98,6 +98,10 @@ class V8_EXPORT V8 {
@@ -56,10 +14,10 @@ index 46a21a02cb..fdb0edf42a 100644
    static const char* GetVersion();
  
 diff --git node/deps/v8/src/api/api.cc node/deps/v8/src/api/api.cc
-index ef4546de27..60bb6a4edc 100644
+index fbd628370c..643550be70 100644
 --- node/deps/v8/src/api/api.cc
 +++ node/deps/v8/src/api/api.cc
-@@ -443,6 +443,28 @@ void V8::SetFlagsFromCommandLine(int* argc, char** argv, bool remove_flags) {
+@@ -469,6 +469,28 @@ void V8::SetFlagsFromCommandLine(int* argc, char** argv, bool remove_flags) {
                                         HelpOptions(HelpOptions::kDontExit));
  }
  
@@ -89,10 +47,10 @@ index ef4546de27..60bb6a4edc 100644
  
  RegisteredExtension::RegisteredExtension(std::unique_ptr<Extension> extension)
 diff --git node/deps/v8/src/codegen/compiler.cc node/deps/v8/src/codegen/compiler.cc
-index e31937f042..fa8c37072f 100644
+index 2dc782458e..0cddfbbbc4 100644
 --- node/deps/v8/src/codegen/compiler.cc
 +++ node/deps/v8/src/codegen/compiler.cc
-@@ -3945,7 +3945,7 @@ MaybeDirectHandle<SharedFunctionInfo> GetSharedFunctionInfoForScriptImpl(
+@@ -3988,7 +3988,7 @@ MaybeDirectHandle<SharedFunctionInfo> GetSharedFunctionInfoForScriptImpl(
      maybe_script = lookup_result.script();
      maybe_result = lookup_result.toplevel_sfi();
      is_compiled_scope = lookup_result.is_compiled_scope();
@@ -101,24 +59,11 @@ index e31937f042..fa8c37072f 100644
        compile_timer.set_hit_isolate_cache();
      } else if (can_consume_code_cache) {
        compile_timer.set_consuming_code_cache();
-diff --git node/deps/v8/src/codegen/define-code-stub-assembler-macros.inc node/deps/v8/src/codegen/define-code-stub-assembler-macros.inc
-index fb272f6afd..eb7c237530 100644
---- node/deps/v8/src/codegen/define-code-stub-assembler-macros.inc
-+++ node/deps/v8/src/codegen/define-code-stub-assembler-macros.inc
-@@ -21,7 +21,7 @@
- // This is a check that always calls into the runtime if it aborts.
- // This also exits silently when --hole-fuzzing is enabled.
- #define CSA_HOLE_SECURITY_CHECK(csa, x) \
--  (csa)->Check([&]() -> TNode<BoolT> { return x; }, #x, __FILE__, __LINE__)
-+  (csa)->Check([&]() -> TNode<BoolT> { return x; }, #x, "placeholder", 1)
- 
- #ifdef DEBUG
- // CSA_DCHECK_ARGS generates an
 diff --git node/deps/v8/src/compiler/wasm-compiler.cc node/deps/v8/src/compiler/wasm-compiler.cc
-index 87a194b5c2..06270d0c6e 100644
+index 632d54de8c..cbf91f9d6c 100644
 --- node/deps/v8/src/compiler/wasm-compiler.cc
 +++ node/deps/v8/src/compiler/wasm-compiler.cc
-@@ -1096,11 +1096,15 @@ wasm::WasmCompilationResult CompileWasmImportCallWrapper(
+@@ -1090,11 +1090,15 @@ wasm::WasmCompilationResult CompileWasmImportCallWrapper(
                                   "wasm-to-js-%d-", static_cast<int>(kind));
    PrintSignature(base::VectorOf(func_name, kMaxNameLen) + name_prefix_len, sig,
                   '-');
@@ -133,14 +78,14 @@ index 87a194b5c2..06270d0c6e 100644
 -      wasm::WrapperCompilationInfo{CodeKind::WASM_TO_JS_FUNCTION, kind,
 -                                   expected_arity, suspend},
 +      info,
-       func_name, WasmStubAssemblerOptions(), nullptr);
+       func_name, WasmStubAssemblerOptions());
  
    if (V8_UNLIKELY(v8_flags.trace_wasm_compilation_times)) {
 diff --git node/deps/v8/src/heap/marking-visitor-inl.h node/deps/v8/src/heap/marking-visitor-inl.h
-index c38e02da07..6d6d7b33ed 100644
+index 8ac9d6d49b..7a241f2de7 100644
 --- node/deps/v8/src/heap/marking-visitor-inl.h
 +++ node/deps/v8/src/heap/marking-visitor-inl.h
-@@ -464,6 +464,13 @@ bool MarkingVisitorBase<ConcreteVisitor>::HasBytecodeArrayForFlushing(
+@@ -517,6 +517,13 @@ bool MarkingVisitorBase<ConcreteVisitor>::HasBytecodeArrayForFlushing(
  template <typename ConcreteVisitor>
  bool MarkingVisitorBase<ConcreteVisitor>::ShouldFlushCode(
      Tagged<SharedFunctionInfo> sfi) const {
@@ -155,10 +100,10 @@ index c38e02da07..6d6d7b33ed 100644
    // During last resort GCs and stress testing we consider all code old.
    return IsOld(sfi) || V8_UNLIKELY(IsForceFlushingEnabled(code_flush_mode_));
 diff --git node/deps/v8/src/objects/js-function.cc node/deps/v8/src/objects/js-function.cc
-index 22df966c8f..8c1835e0b6 100644
+index a44e3fd6c0..e220a5bc0f 100644
 --- node/deps/v8/src/objects/js-function.cc
 +++ node/deps/v8/src/objects/js-function.cc
-@@ -1454,6 +1454,9 @@ DirectHandle<String> JSFunction::ToString(DirectHandle<JSFunction> function) {
+@@ -1417,6 +1417,9 @@ DirectHandle<String> JSFunction::ToString(Isolate* isolate,
      DirectHandle<Object> maybe_class_positions = JSReceiver::GetDataProperty(
          isolate, function, isolate->factory()->class_positions_symbol());
      if (IsClassPositions(*maybe_class_positions)) {
@@ -168,11 +113,11 @@ index 22df966c8f..8c1835e0b6 100644
        Tagged<ClassPositions> class_positions =
            Cast<ClassPositions>(*maybe_class_positions);
        int start_position = class_positions->start();
-diff --git node/deps/v8/src/objects/objects.cc node/deps/v8/src/objects/objects.cc
-index 14013579bd..1e9bc653e0 100644
---- node/deps/v8/src/objects/objects.cc
-+++ node/deps/v8/src/objects/objects.cc
-@@ -4347,7 +4347,11 @@ void Script::InitLineEndsInternal(IsolateT* isolate,
+diff --git node/deps/v8/src/objects/script.cc node/deps/v8/src/objects/script.cc
+index a2078b538c..1468ece463 100644
+--- node/deps/v8/src/objects/script.cc
++++ node/deps/v8/src/objects/script.cc
+@@ -118,7 +118,11 @@ void Script::InitLineEndsInternal(IsolateT* isolate,
  
  void Script::SetSource(Isolate* isolate, DirectHandle<Script> script,
                         DirectHandle<String> source) {
@@ -207,10 +152,10 @@ index 31758fdfed..483192fc35 100644
    uint32_t start_pos = shared_info->StartPosition();
    uint32_t end_pos = shared_info->EndPosition();
 diff --git node/deps/v8/src/snapshot/code-serializer.cc node/deps/v8/src/snapshot/code-serializer.cc
-index 11ced93c08..1f4b534415 100644
+index 6149ee8f1d..133659e328 100644
 --- node/deps/v8/src/snapshot/code-serializer.cc
 +++ node/deps/v8/src/snapshot/code-serializer.cc
-@@ -771,10 +771,6 @@ SerializedCodeSanityCheckResult SerializedCodeData::SanityCheck(
+@@ -776,10 +776,6 @@ SerializedCodeSanityCheckResult SerializedCodeData::SanityCheck(
  
  SerializedCodeSanityCheckResult SerializedCodeData::SanityCheckJustSource(
      uint32_t expected_source_hash) const {
@@ -221,7 +166,7 @@ index 11ced93c08..1f4b534415 100644
    return SerializedCodeSanityCheckResult::kSuccess;
  }
  
-@@ -791,13 +787,12 @@ SerializedCodeSanityCheckResult SerializedCodeData::SanityCheckWithoutSource(
+@@ -796,13 +792,12 @@ SerializedCodeSanityCheckResult SerializedCodeData::SanityCheckWithoutSource(
    if (version_hash != Version::Hash()) {
      return SerializedCodeSanityCheckResult::kVersionMismatch;
    }
@@ -239,10 +184,10 @@ index 11ced93c08..1f4b534415 100644
    }
    uint32_t payload_length = GetHeaderValue(kPayloadLengthOffset);
 diff --git node/deps/v8/src/snapshot/read-only-serializer.cc node/deps/v8/src/snapshot/read-only-serializer.cc
-index 0178607289..88c8c2b852 100644
+index 6732808e85..ebb7938f64 100644
 --- node/deps/v8/src/snapshot/read-only-serializer.cc
 +++ node/deps/v8/src/snapshot/read-only-serializer.cc
-@@ -12,6 +12,9 @@
+@@ -14,6 +14,9 @@
  #include "src/objects/slots.h"
  #include "src/snapshot/read-only-serializer-deserializer.h"
  
@@ -252,7 +197,7 @@ index 0178607289..88c8c2b852 100644
  namespace v8 {
  namespace internal {
  
-@@ -160,6 +163,10 @@ ro::EncodedTagged Encode(Isolate* isolate, Tagged<HeapObject> o) {
+@@ -226,6 +229,10 @@ ro::EncodedTagged Encode(Isolate* isolate, Tagged<HeapObject> o) {
    uint32_t offset = static_cast<int>(chunk->Offset(o_address));
    DCHECK(IsAligned(offset, kTaggedSize));
  
@@ -263,7 +208,7 @@ index 0178607289..88c8c2b852 100644
    return ro::EncodedTagged(index, offset / kTaggedSize);
  }
  
-@@ -247,6 +254,11 @@ class EncodeRelocationsVisitor final : public ObjectVisitor {
+@@ -325,6 +332,11 @@ class EncodeRelocationsVisitor final : public ObjectVisitor {
  
      // Encode:
      ro::EncodedTagged encoded = Encode(isolate_, o.GetHeapObject());
@@ -275,7 +220,7 @@ index 0178607289..88c8c2b852 100644
      memcpy(segment_->contents.get() + slot_offset, &encoded,
             ro::EncodedTagged::kSize);
  
-@@ -279,8 +291,18 @@ void ReadOnlySegmentForSerialization::EncodeTaggedSlots(Isolate* isolate) {
+@@ -357,8 +369,18 @@ void ReadOnlySegmentForSerialization::EncodeTaggedSlots(Isolate* isolate) {
    const Address segment_end = segment_start + segment_size;
    ReadOnlyPageObjectIterator it(page, segment_start,
                                  SkipFreeSpaceOrFiller::kNo);
@@ -294,7 +239,7 @@ index 0178607289..88c8c2b852 100644
      VisitObject(isolate, o, &v);
    }
  }
-@@ -307,7 +329,14 @@ class ReadOnlyHeapImageSerializer {
+@@ -384,7 +406,14 @@ class ReadOnlyHeapImageSerializer {
      DCHECK_EQ(sink_->Position(), 0);
  
      ReadOnlySpace* ro_space = isolate_->read_only_heap()->read_only_space();
@@ -309,19 +254,19 @@ index 0178607289..88c8c2b852 100644
 +    #endif
      // Allocate all pages first s.t. the deserializer can easily handle forward
      // references (e.g.: an object on page i points at an object on page i+1).
-     for (const ReadOnlyPageMetadata* page : ro_space->pages()) {
-@@ -321,6 +350,10 @@ class ReadOnlyHeapImageSerializer {
- 
+     for (const ReadOnlyPage* page : ro_space->pages()) {
+@@ -399,6 +428,10 @@ class ReadOnlyHeapImageSerializer {
      EmitReadOnlyRootsTable();
      sink_->Put(Bytecode::kFinalizeReadOnlySpace, "space end");
+     sink_->PutUint30(isolate_->next_unique_sfi_id(), "shared function info ID");
 +
 +    #ifdef PKG_TRACE_READONLY_HEAP
 +    PrintF("[PKGTRACE] END SERIALIZE READONLY\n");
 +    #endif
    }
  
-   uint32_t IndexOf(const ReadOnlyPageMetadata* page) {
-@@ -339,6 +372,13 @@ class ReadOnlyHeapImageSerializer {
+   uint32_t IndexOf(const ReadOnlyPage* page) {
+@@ -416,6 +449,13 @@ class ReadOnlyHeapImageSerializer {
      sink_->PutUint30(
          static_cast<uint32_t>(page->HighWaterMark() - page->area_start()),
          "area size in bytes");
@@ -335,35 +280,39 @@ index 0178607289..88c8c2b852 100644
      if (V8_STATIC_ROOTS_BOOL) {
        auto page_addr = page->ChunkAddress();
        sink_->PutUint32(V8HeapCompressionScheme::CompressAny(page_addr),
-@@ -350,6 +390,9 @@ class ReadOnlyHeapImageSerializer {
-                      const std::vector<MemoryRegion>& unmapped_regions) {
-     Address pos = page->area_start();
+@@ -447,6 +487,9 @@ class ReadOnlyHeapImageSerializer {
  
+   void SerializePage(const ReadOnlyPage* page) {
+     Address pos = page->area_start();
 +    #ifdef PKG_TRACE_READONLY_HEAP
-+    PrintF("[PKGTRACE] serialize page addr=%lx\n");
++    PrintF("[PKGTRACE] serialize page addr=%lx\n", page->area_start());
 +    #endif
-     // If this page contains unmapped regions split it into multiple segments.
-     for (auto r = unmapped_regions.begin(); r != unmapped_regions.end(); ++r) {
-       // Regions must be sorted and non-overlapping.
-@@ -372,9 +415,17 @@ class ReadOnlyHeapImageSerializer {
-     ReadOnlySegmentForSerialization segment(isolate_, page, pos, segment_size,
-                                             &pre_processor_);
-     EmitSegment(&segment);
-+    #ifdef PKG_TRACE_READONLY_HEAP
-+    PrintF("[PKGTRACE] last segment\n");
-+    #endif
-   }
+     if (v8_flags.trace_serializer) {
+       PrintF("[ro serializer] Serializing page %p -> %p\n",
+              reinterpret_cast<char*>(page->area_start()),
+@@ -479,6 +522,9 @@ class ReadOnlyHeapImageSerializer {
+               isolate_, page, pos, segment_size, &pre_processor_);
+           EmitSegment(&segment);
+         }
++        #ifdef PKG_TRACE_READONLY_HEAP
++        PrintF("[PKGTRACE] last segment\n");
++        #endif
+         return;
+       }
+ 
+@@ -511,6 +557,11 @@ class ReadOnlyHeapImageSerializer {
  
    void EmitSegment(const ReadOnlySegmentForSerialization* segment) {
+     if (segment->segment_size == 0) return;
 +    #ifdef PKG_TRACE_READONLY_HEAP
 +    PrintF("  [PKGTRACE] segment segment_start=%lx page_index=%d offset=%zu size=%zu tagged_slots=%zu\n",
 +        segment->segment_start, IndexOf(segment->page), segment->segment_offset,
 +        segment->segment_size, segment->tagged_slots.size_in_bytes());
 +    #endif
-     sink_->Put(Bytecode::kSegment, "segment begin");
-     sink_->PutUint30(IndexOf(segment->page), "page index");
-     sink_->PutUint30(static_cast<uint32_t>(segment->segment_offset),
-@@ -383,11 +434,29 @@ class ReadOnlyHeapImageSerializer {
+     if (v8_flags.trace_serializer) {
+       PrintF("[ro serializer] * Serializing segment %p -> %p\n",
+              reinterpret_cast<char*>(segment->segment_start),
+@@ -525,11 +576,29 @@ class ReadOnlyHeapImageSerializer {
                       "segment byte size");
      sink_->PutRaw(segment->contents.get(),
                    static_cast<int>(segment->segment_size), "page");
@@ -393,7 +342,7 @@ index 0178607289..88c8c2b852 100644
      }
    }
  
-@@ -395,11 +464,20 @@ class ReadOnlyHeapImageSerializer {
+@@ -537,11 +606,20 @@ class ReadOnlyHeapImageSerializer {
      sink_->Put(Bytecode::kReadOnlyRootsTable, "read only roots table");
      if (!V8_STATIC_ROOTS_BOOL) {
        ReadOnlyRoots roots(isolate_);
@@ -415,7 +364,7 @@ index 0178607289..88c8c2b852 100644
      }
    }
 diff --git node/lib/child_process.js node/lib/child_process.js
-index 17c6b69c11..59f5e241af 100644
+index 0e3e04af0d..6efe7cfe78 100644
 --- node/lib/child_process.js
 +++ node/lib/child_process.js
 @@ -171,7 +171,7 @@ function fork(modulePath, args = [], options) {
@@ -483,10 +432,10 @@ index 0000000000..a697294fdf
 +  }());
 +}());
 diff --git node/lib/internal/modules/cjs/loader.js node/lib/internal/modules/cjs/loader.js
-index 11a7196698..de729b660b 100644
+index 554746b6e2..3cc2836c83 100644
 --- node/lib/internal/modules/cjs/loader.js
 +++ node/lib/internal/modules/cjs/loader.js
-@@ -267,12 +267,15 @@ function stat(filename) {
+@@ -273,12 +273,15 @@ function stat(filename) {
    // Guard against internal bugs where a non-string filename is passed in by mistake.
    assert(typeof filename === 'string');
  
@@ -504,10 +453,10 @@ index 11a7196698..de729b660b 100644
      // Only set cache when `internalModuleStat(filename)` succeeds.
      statCache.set(filename, result);
 diff --git node/lib/internal/modules/package_json_reader.js node/lib/internal/modules/package_json_reader.js
-index 968c3c5701..1c7b01a3f2 100644
+index c33cf166f5..1a8aae1380 100644
 --- node/lib/internal/modules/package_json_reader.js
 +++ node/lib/internal/modules/package_json_reader.js
-@@ -120,17 +120,20 @@ const requiresJSONParse = (value) => (value !== undefined && (value[0] === '[' |
+@@ -121,17 +121,20 @@ const requiresJSONParse = (value) => (value !== undefined && (value[0] === '[' |
   * @returns {PackageConfig}
   */
  function read(jsonPath, { base, specifier, isESM } = kEmptyObject) {
@@ -540,7 +489,7 @@ index 968c3c5701..1c7b01a3f2 100644
      __proto__: null,
      ...result.data,
 diff --git node/lib/internal/process/pre_execution.js node/lib/internal/process/pre_execution.js
-index e9ab2b2a89..6c74e7cc64 100644
+index 59c63d59ed..fc905d26d9 100644
 --- node/lib/internal/process/pre_execution.js
 +++ node/lib/internal/process/pre_execution.js
 @@ -42,7 +42,11 @@ const {
@@ -555,7 +504,7 @@ index e9ab2b2a89..6c74e7cc64 100644
    return prepareExecution({
      expandArgv1,
      initializeModules,
-@@ -279,7 +283,8 @@ function patchProcessObject(expandArgv1) {
+@@ -287,7 +291,8 @@ function patchProcessObject(expandArgv1) {
    let mainEntry;
    // If requested, update process.argv[1] to replace whatever the user provided with the resolved absolute file path of
    // the entry point.
@@ -565,7 +514,7 @@ index e9ab2b2a89..6c74e7cc64 100644
      // Expand process.argv[1] into a full path.
      const path = require('path');
      try {
-@@ -703,6 +708,7 @@ function loadPreloadModules() {
+@@ -779,6 +784,7 @@ function loadPreloadModules() {
    // For user code, we preload modules if `-r` is passed
    const preloadModules = getOptionValue('--require');
    if (preloadModules && preloadModules.length > 0) {
@@ -574,10 +523,10 @@ index e9ab2b2a89..6c74e7cc64 100644
        Module: {
          _preloadModules,
 diff --git node/lib/vm.js node/lib/vm.js
-index ae71080620..b05638de75 100644
+index 2c7446af60..95daf7caa1 100644
 --- node/lib/vm.js
 +++ node/lib/vm.js
-@@ -98,6 +98,7 @@ class Script extends ContextifyScript {
+@@ -99,6 +99,7 @@ class Script extends ContextifyScript {
        produceCachedData = false,
        importModuleDynamically,
        [kParsingContext]: parsingContext,
@@ -585,7 +534,7 @@ index ae71080620..b05638de75 100644
      } = options;
  
      validateString(filename, 'options.filename');
-@@ -121,7 +122,8 @@ class Script extends ContextifyScript {
+@@ -122,7 +123,8 @@ class Script extends ContextifyScript {
              cachedData,
              produceCachedData,
              parsingContext,
@@ -596,10 +545,10 @@ index ae71080620..b05638de75 100644
        throw e; /* node-do-not-add-exception-line */
      }
 diff --git node/src/inspector_agent.cc node/src/inspector_agent.cc
-index 5e1d9149dc..1426160ac0 100644
+index 4bb34e56bc..668571ccd0 100644
 --- node/src/inspector_agent.cc
 +++ node/src/inspector_agent.cc
-@@ -858,11 +858,6 @@ bool Agent::Start(const std::string& path,
+@@ -863,11 +863,6 @@ bool Agent::Start(const std::string& path,
                                StartIoThreadAsyncCallback));
      uv_unref(reinterpret_cast<uv_handle_t*>(&start_io_thread_async));
      start_io_thread_async.data = this;
@@ -612,10 +561,10 @@ index 5e1d9149dc..1426160ac0 100644
      parent_env_->AddCleanupHook([](void* data) {
        Environment* env = static_cast<Environment*>(data);
 diff --git node/src/node.cc node/src/node.cc
-index 6f899ec062..1777a36383 100644
+index 0028263441..8a9e06434c 100644
 --- node/src/node.cc
 +++ node/src/node.cc
-@@ -351,6 +351,8 @@ MaybeLocal<Value> StartExecution(Environment* env,
+@@ -356,6 +356,8 @@ MaybeLocal<Value> StartExecution(Environment* env,
      return env->RunSnapshotDeserializeMain();
    }
  
@@ -624,7 +573,7 @@ index 6f899ec062..1777a36383 100644
    if (env->worker_context() != nullptr) {
      return StartExecution(env, "internal/main/worker_thread");
    }
-@@ -575,14 +577,6 @@ static void PlatformInit(ProcessInitializationFlags::Flags flags) {
+@@ -580,14 +582,6 @@ static void PlatformInit(ProcessInitializationFlags::Flags flags) {
    }
  
    if (!(flags & ProcessInitializationFlags::kNoDefaultSignalHandling)) {
@@ -640,7 +589,7 @@ index 6f899ec062..1777a36383 100644
    }
  
 diff --git node/src/node_contextify.cc node/src/node_contextify.cc
-index 211bc07416..a8f4eeb126 100644
+index 0d1e7efe90..195a570872 100644
 --- node/src/node_contextify.cc
 +++ node/src/node_contextify.cc
 @@ -88,6 +88,7 @@ using v8::String;
@@ -649,9 +598,9 @@ index 211bc07416..a8f4eeb126 100644
  using v8::Value;
 +using v8::V8;
  
- // The vm module executes code in a sandboxed environment with a different
- // global object than the rest of the code. This is achieved by applying
-@@ -997,13 +998,13 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+ // This is a helper function mediates deleted v8::PropertyDescriptor copy/move.
+ // The `Fn` receives a mutable reference of a stack allocated
+@@ -985,13 +986,13 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
    Local<ArrayBufferView> cached_data_buf;
    bool produce_cached_data = false;
    Local<Context> parsing_context = context;
@@ -668,7 +617,7 @@ index 211bc07416..a8f4eeb126 100644
      CHECK(args[2]->IsNumber());
      line_offset = args[2].As<Int32>()->Value();
      CHECK(args[3]->IsNumber());
-@@ -1024,6 +1025,11 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1012,6 +1013,11 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
      }
      CHECK(args[7]->IsSymbol());
      id_symbol = args[7].As<Symbol>();
@@ -680,7 +629,7 @@ index 211bc07416..a8f4eeb126 100644
    }
  
    ContextifyScript* contextify_script = New(env, args.This());
-@@ -1070,6 +1076,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1058,6 +1064,10 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
    ShouldNotAbortOnUncaughtScope no_abort_scope(env);
    Context::Scope scope(parsing_context);
  
@@ -691,7 +640,7 @@ index 211bc07416..a8f4eeb126 100644
    MaybeLocal<UnboundScript> maybe_v8_script =
        ScriptCompiler::CompileUnboundScript(isolate, &source, compile_options);
  
-@@ -1084,6 +1094,12 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1072,6 +1082,12 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
      return;
    }
  
@@ -704,7 +653,7 @@ index 211bc07416..a8f4eeb126 100644
    contextify_script->set_unbound_script(v8_script);
  
    std::unique_ptr<ScriptCompiler::CachedData> new_cached_data;
-@@ -1096,7 +1112,7 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1084,7 +1100,7 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
    if (contextify_script->object()
            ->SetPrivate(context, env->host_defined_option_symbol(), id_symbol)
            .IsNothing()) {
@@ -713,7 +662,7 @@ index 211bc07416..a8f4eeb126 100644
    }
    if (StoreCodeCacheResult(env,
                             self,
-@@ -1107,6 +1123,9 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
+@@ -1095,6 +1111,9 @@ void ContextifyScript::New(const FunctionCallbackInfo<Value>& args) {
            .IsNothing()) {
      return;
    }
@@ -834,10 +783,10 @@ index 3295121b87..bfe838b8c1 100644
 +  return adjacent(c, nargv);
 +}
 diff --git node/src/node_options.cc node/src/node_options.cc
-index b7062241d5..6098847b2a 100644
+index 1a9302220d..2d011a811c 100644
 --- node/src/node_options.cc
 +++ node/src/node_options.cc
-@@ -450,6 +450,7 @@ void Parse(
+@@ -466,6 +466,7 @@ void Parse(
  // TODO(addaleax): Make that unnecessary.
  
  DebugOptionsParser::DebugOptionsParser() {
@@ -846,7 +795,7 @@ index b7062241d5..6098847b2a 100644
              "set host:port for inspector",
              &DebugOptions::host_port,
 diff --git node/tools/icu/icu-generic.gyp node/tools/icu/icu-generic.gyp
-index f49b4ddba7..eb1e4c0f9b 100644
+index c4e8c6fbb9..b2cba7b56b 100644
 --- node/tools/icu/icu-generic.gyp
 +++ node/tools/icu/icu-generic.gyp
 @@ -52,7 +52,7 @@
