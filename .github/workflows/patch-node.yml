@@ -19,8 +19,6 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-      # Copilot CLI bills inference to the org; GitHub Models was retired 2026-07-30.
-      copilot-requests: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -86,9 +84,18 @@ jobs:
 
       - name: Install Copilot CLI
         if: steps.apply.outputs.needs_ai == 'true'
-        # Major-pinned, not exact: the GITHUB_TOKEN auth path below needs a
-        # recent CLI, and every release so far is a 1.0.x patch bump.
-        run: npm install -g @github/copilot@^1
+        env:
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_PAT }}
+        run: |
+          # Without this the CLI exits 1 with "Access denied by policy
+          # settings", which is only visible under ACTIONS_STEP_DEBUG.
+          if [ -z "$COPILOT_GITHUB_TOKEN" ]; then
+            echo "::error::COPILOT_PAT secret is not set. Create a fine-grained PAT whose resource owner is a personal account (not the org) with the Account -> 'Copilot Requests' permission, then add it as the COPILOT_PAT repository secret. Classic PATs are not supported."
+            exit 1
+          fi
+          # Major-pinned, not exact: Copilot CLI auth tracks a server-side
+          # service, and every release so far is a 1.0.x patch bump.
+          npm install -g @github/copilot@^1
 
       - name: Build AI prompt
         if: steps.apply.outputs.needs_ai == 'true'
@@ -125,9 +132,12 @@ jobs:
           # output format this prompt depends on.
           model: gpt-5.4
         env:
-          # Copilot CLI reads its credentials from the environment; the job's
-          # `copilot-requests: write` permission is what authorizes the calls.
-          GITHUB_TOKEN: ${{ github.token }}
+          # Copilot CLI reads its credentials from the environment and prefers
+          # COPILOT_GITHUB_TOKEN over GH_TOKEN/GITHUB_TOKEN. Inference is billed
+          # to the PAT's owner. To bill the org instead, drop this and give the
+          # job `copilot-requests: write` + `GITHUB_TOKEN: ${{ github.token }}`,
+          # which needs the org's Copilot CLI policy enabled.
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_PAT }}
 
       - name: Apply AI resolutions
         if: steps.apply.outputs.needs_ai == 'true'
