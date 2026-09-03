@@ -86,7 +86,9 @@ jobs:
 
       - name: Install Copilot CLI
         if: steps.apply.outputs.needs_ai == 'true'
-        run: npm install -g @github/copilot
+        # Major-pinned, not exact: the GITHUB_TOKEN auth path below needs a
+        # recent CLI, and every release so far is a 1.0.x patch bump.
+        run: npm install -g @github/copilot@^1
 
       - name: Build AI prompt
         if: steps.apply.outputs.needs_ai == 'true'
@@ -116,12 +118,12 @@ jobs:
             - SEARCH must match the file's CURRENT content byte-for-byte (whitespace included).
             - REPLACE must contain the same context lines as SEARCH, with the `+`/`-` edits applied.
               Whitespace and indentation in REPLACE must mirror the surrounding code style.
-          # gpt-4.1 is strong on coding + instruction-following (key for the
-          # strict SEARCH/REPLACE output format) and is not a reasoning model,
-          # so its output budget isn't shared with hidden CoT tokens. Model
-          # names are Copilot CLI names now — no `openai/` provider prefix.
-          # v3 dropped `max-completion-tokens`/`temperature`; the CLI owns them.
-          model: gpt-4.1
+          # Copilot CLI model slug — no `openai/` provider prefix, and v3
+          # dropped `max-completion-tokens`/`temperature` (the CLI owns them).
+          # gpt-4.1 is gone from Copilot's supported models; gpt-5.4 is the
+          # current GA replacement and holds up on the strict SEARCH/REPLACE
+          # output format this prompt depends on.
+          model: gpt-5.4
         env:
           # Copilot CLI reads its credentials from the environment; the job's
           # `copilot-requests: write` permission is what authorizes the calls.
