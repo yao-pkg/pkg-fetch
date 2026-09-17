@@ -14,7 +14,7 @@ index 406f1d0ba5..fb8eea420d 100644
    static const char* GetVersion();
  
 diff --git node/deps/v8/src/api/api.cc node/deps/v8/src/api/api.cc
-index fbd628370c..643550be70 100644
+index 48da5b35b8..824939abe7 100644
 --- node/deps/v8/src/api/api.cc
 +++ node/deps/v8/src/api/api.cc
 @@ -469,6 +469,28 @@ void V8::SetFlagsFromCommandLine(int* argc, char** argv, bool remove_flags) {
@@ -364,7 +364,7 @@ index 6732808e85..ebb7938f64 100644
      }
    }
 diff --git node/lib/child_process.js node/lib/child_process.js
-index 0e3e04af0d..6efe7cfe78 100644
+index 887f5668e3..ce62a51d8f 100644
 --- node/lib/child_process.js
 +++ node/lib/child_process.js
 @@ -171,7 +171,7 @@ function fork(modulePath, args = [], options) {
@@ -432,7 +432,7 @@ index 0000000000..a697294fdf
 +  }());
 +}());
 diff --git node/lib/internal/modules/cjs/loader.js node/lib/internal/modules/cjs/loader.js
-index 554746b6e2..3cc2836c83 100644
+index 1995eef579..0c373df8dc 100644
 --- node/lib/internal/modules/cjs/loader.js
 +++ node/lib/internal/modules/cjs/loader.js
 @@ -273,12 +273,15 @@ function stat(filename) {
@@ -445,7 +445,7 @@ index 554746b6e2..3cc2836c83 100644
      const result = statCache.get(filename);
      if (result !== undefined) { return result; }
    }
--  const result = internalFsBinding.internalModuleStat(filename);
+-  const result = loaderMethods.internalModuleStat(filename);
 +  const fs = require('fs');
 +  const result = fs.existsSync(origFilename) ?
 +    (fs.statSync(origFilename).isDirectory() ? 1 : 0) : -1;
@@ -453,16 +453,16 @@ index 554746b6e2..3cc2836c83 100644
      // Only set cache when `internalModuleStat(filename)` succeeds.
      statCache.set(filename, result);
 diff --git node/lib/internal/modules/package_json_reader.js node/lib/internal/modules/package_json_reader.js
-index c33cf166f5..1a8aae1380 100644
+index ea6b7d2639..fd8cb1a065 100644
 --- node/lib/internal/modules/package_json_reader.js
 +++ node/lib/internal/modules/package_json_reader.js
-@@ -121,17 +121,20 @@ const requiresJSONParse = (value) => (value !== undefined && (value[0] === '[' |
+@@ -124,17 +124,20 @@ const requiresJSONParse = (value) => (value !== undefined && (value[0] === '[' |
   * @returns {PackageConfig}
   */
  function read(jsonPath, { base, specifier, isESM } = kEmptyObject) {
 -  // This function will be called by both CJS and ESM, so we need to make sure
 -  // non-null attributes are converted to strings.
--  const parsed = modulesBinding.readPackageJSON(
+-  const parsed = loaderMethods.readPackageJSON(
 -    jsonPath,
 -    isESM,
 -    base == null ? undefined : `${base}`,
@@ -474,13 +474,13 @@ index c33cf166f5..1a8aae1380 100644
 +  const fs = require('fs');
 +  let result;
 +  if (fs.existsSync(jsonPath)) {
-+    const json = JSONParse(fs.readFileSync(jsonPath, { encoding: "utf8" }).trim());
++    const json = JSONParse(fs.readFileSync(jsonPath, { encoding: 'utf8' }).trim());
 +    result = deserializePackageJSON(jsonPath, [
-+      json['name'],
-+      json['main'],
-+      json['type'],
-+      json['imports'],
-+      json['exports'],
++      json.name,
++      json.main,
++      json.type,
++      json.imports,
++      json.exports,
 +    ]);
 +  } else {
 +    result = deserializePackageJSON(jsonPath, undefined);
@@ -489,7 +489,7 @@ index c33cf166f5..1a8aae1380 100644
      __proto__: null,
      ...result.data,
 diff --git node/lib/internal/process/pre_execution.js node/lib/internal/process/pre_execution.js
-index 59c63d59ed..fc905d26d9 100644
+index 5275f95e6a..2a32cf4fd1 100644
 --- node/lib/internal/process/pre_execution.js
 +++ node/lib/internal/process/pre_execution.js
 @@ -42,7 +42,11 @@ const {
@@ -504,7 +504,7 @@ index 59c63d59ed..fc905d26d9 100644
    return prepareExecution({
      expandArgv1,
      initializeModules,
-@@ -287,7 +291,8 @@ function patchProcessObject(expandArgv1) {
+@@ -288,7 +292,8 @@ function patchProcessObject(expandArgv1) {
    let mainEntry;
    // If requested, update process.argv[1] to replace whatever the user provided with the resolved absolute file path of
    // the entry point.
@@ -514,7 +514,7 @@ index 59c63d59ed..fc905d26d9 100644
      // Expand process.argv[1] into a full path.
      const path = require('path');
      try {
-@@ -779,6 +784,7 @@ function loadPreloadModules() {
+@@ -811,6 +816,7 @@ function loadPreloadModules() {
    // For user code, we preload modules if `-r` is passed
    const preloadModules = getOptionValue('--require');
    if (preloadModules && preloadModules.length > 0) {
@@ -561,10 +561,10 @@ index 4bb34e56bc..668571ccd0 100644
      parent_env_->AddCleanupHook([](void* data) {
        Environment* env = static_cast<Environment*>(data);
 diff --git node/src/node.cc node/src/node.cc
-index 0028263441..8a9e06434c 100644
+index fcf572d71e..cc18a56e07 100644
 --- node/src/node.cc
 +++ node/src/node.cc
-@@ -356,6 +356,8 @@ MaybeLocal<Value> StartExecution(Environment* env,
+@@ -354,6 +354,8 @@ MaybeLocal<Value> StartExecution(Environment* env,
      return env->RunSnapshotDeserializeMain();
    }
  
@@ -573,7 +573,7 @@ index 0028263441..8a9e06434c 100644
    if (env->worker_context() != nullptr) {
      return StartExecution(env, "internal/main/worker_thread");
    }
-@@ -580,14 +582,6 @@ static void PlatformInit(ProcessInitializationFlags::Flags flags) {
+@@ -582,14 +584,6 @@ static void PlatformInit(ProcessInitializationFlags::Flags flags) {
    }
  
    if (!(flags & ProcessInitializationFlags::kNoDefaultSignalHandling)) {
@@ -783,10 +783,10 @@ index 3295121b87..bfe838b8c1 100644
 +  return adjacent(c, nargv);
 +}
 diff --git node/src/node_options.cc node/src/node_options.cc
-index 1a9302220d..2d011a811c 100644
+index 54961361a1..4473744fac 100644
 --- node/src/node_options.cc
 +++ node/src/node_options.cc
-@@ -466,6 +466,7 @@ void Parse(
+@@ -529,6 +529,7 @@ void Parse(
  // TODO(addaleax): Make that unnecessary.
  
  DebugOptionsParser::DebugOptionsParser() {
