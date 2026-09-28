@@ -14,7 +14,7 @@ index 406f1d0ba5..fb8eea420d 100644
    static const char* GetVersion();
  
 diff --git node/deps/v8/src/api/api.cc node/deps/v8/src/api/api.cc
-index 48da5b35b8..824939abe7 100644
+index eb3cd7dee2..f5d289c07b 100644
 --- node/deps/v8/src/api/api.cc
 +++ node/deps/v8/src/api/api.cc
 @@ -469,6 +469,28 @@ void V8::SetFlagsFromCommandLine(int* argc, char** argv, bool remove_flags) {
@@ -364,7 +364,7 @@ index 6732808e85..ebb7938f64 100644
      }
    }
 diff --git node/lib/child_process.js node/lib/child_process.js
-index 887f5668e3..ce62a51d8f 100644
+index 1fdc520d31..eca0bc723b 100644
 --- node/lib/child_process.js
 +++ node/lib/child_process.js
 @@ -171,7 +171,7 @@ function fork(modulePath, args = [], options) {
@@ -489,10 +489,10 @@ index ea6b7d2639..fd8cb1a065 100644
      __proto__: null,
      ...result.data,
 diff --git node/lib/internal/process/pre_execution.js node/lib/internal/process/pre_execution.js
-index 5275f95e6a..2a32cf4fd1 100644
+index 00647022a8..24f96e676d 100644
 --- node/lib/internal/process/pre_execution.js
 +++ node/lib/internal/process/pre_execution.js
-@@ -42,7 +42,11 @@ const {
+@@ -46,7 +46,11 @@ const {
    runDeserializeCallbacks,
  } = require('internal/v8/startup_snapshot');
  
@@ -504,17 +504,17 @@ index 5275f95e6a..2a32cf4fd1 100644
    return prepareExecution({
      expandArgv1,
      initializeModules,
-@@ -288,7 +292,8 @@ function patchProcessObject(expandArgv1) {
-   let mainEntry;
-   // If requested, update process.argv[1] to replace whatever the user provided with the resolved absolute file path of
-   // the entry point.
--  if (expandArgv1 && process.argv[1] && process.argv[1][0] !== '-') {
-+  if (expandArgv1 && process.argv[1] && process.argv[1][0] !== '-' &&
-+    process.argv[1] !== 'PKG_DUMMY_ENTRYPOINT') {
+@@ -401,7 +405,8 @@ function patchProcessObject(expandArgv1) {
+   // argument was consumed as one: argv[1] is the program's own first argument
+   // and expanding it to a path would corrupt it.
+   if (expandArgv1 && !getOptionValue('[vfs_load_set]') &&
+-      process.argv[1] && process.argv[1][0] !== '-') {
++      process.argv[1] && process.argv[1][0] !== '-' &&
++      process.argv[1] !== 'PKG_DUMMY_ENTRYPOINT') {
      // Expand process.argv[1] into a full path.
      const path = require('path');
      try {
-@@ -811,6 +816,7 @@ function loadPreloadModules() {
+@@ -924,6 +929,7 @@ function loadPreloadModules() {
    // For user code, we preload modules if `-r` is passed
    const preloadModules = getOptionValue('--require');
    if (preloadModules && preloadModules.length > 0) {
@@ -545,26 +545,34 @@ index 2c7446af60..95daf7caa1 100644
        throw e; /* node-do-not-add-exception-line */
      }
 diff --git node/src/inspector_agent.cc node/src/inspector_agent.cc
-index 4bb34e56bc..668571ccd0 100644
+index cecc3ce193..22b77b1cb7 100644
 --- node/src/inspector_agent.cc
 +++ node/src/inspector_agent.cc
-@@ -863,11 +863,6 @@ bool Agent::Start(const std::string& path,
-                               StartIoThreadAsyncCallback));
-     uv_unref(reinterpret_cast<uv_handle_t*>(&start_io_thread_async));
-     start_io_thread_async.data = this;
--    if (parent_env_->should_start_debug_signal_handler()) {
--      // Ignore failure, SIGUSR1 won't work, but that should not block node
--      // start.
--      StartDebugSignalHandler();
--    }
+@@ -878,8 +878,7 @@ bool Agent::Start(const std::string& path,
+   host_port_ = host_port;
  
-     parent_env_->AddCleanupHook([](void* data) {
-       Environment* env = static_cast<Environment*>(data);
+   client_ = std::make_shared<NodeInspectorClient>(parent_env_, is_main);
+-  if (parent_env_->owns_inspector() &&
+-      parent_env_->should_start_debug_signal_handler()) {
++  if (parent_env_->owns_inspector()) {
+     start_io_thread_async_ = new uv_async_t;
+     start_io_thread_async_->data = this;
+     CHECK_EQ(0,
+@@ -894,9 +893,6 @@ bool Agent::Start(const std::string& path,
+       start_io_thread_agents.push_back(this);
+     }
+     parent_env_->AddCleanupHook(StopAcceptingIoThreadStartsHook, this);
+-    // Ignore failure, SIGUSR1 won't work, but that should not block node
+-    // start.
+-    StartDebugSignalHandler();
+   }
+ 
+   AtExit(parent_env_, [](void* env) {
 diff --git node/src/node.cc node/src/node.cc
-index fcf572d71e..cc18a56e07 100644
+index cd83e7c043..9f8557da81 100644
 --- node/src/node.cc
 +++ node/src/node.cc
-@@ -354,6 +354,8 @@ MaybeLocal<Value> StartExecution(Environment* env,
+@@ -357,6 +357,8 @@ MaybeLocal<Value> StartExecution(Environment* env,
      return env->RunSnapshotDeserializeMain();
    }
  
@@ -573,7 +581,7 @@ index fcf572d71e..cc18a56e07 100644
    if (env->worker_context() != nullptr) {
      return StartExecution(env, "internal/main/worker_thread");
    }
-@@ -582,14 +584,6 @@ static void PlatformInit(ProcessInitializationFlags::Flags flags) {
+@@ -588,14 +590,6 @@ static void PlatformInit(ProcessInitializationFlags::Flags flags) {
    }
  
    if (!(flags & ProcessInitializationFlags::kNoDefaultSignalHandling)) {
@@ -783,7 +791,7 @@ index 3295121b87..bfe838b8c1 100644
 +  return adjacent(c, nargv);
 +}
 diff --git node/src/node_options.cc node/src/node_options.cc
-index 54961361a1..4473744fac 100644
+index eaf758bc48..e2316004bf 100644
 --- node/src/node_options.cc
 +++ node/src/node_options.cc
 @@ -529,6 +529,7 @@ void Parse(
