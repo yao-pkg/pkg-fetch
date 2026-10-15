@@ -418,7 +418,7 @@ index 0178607289..88c8c2b852 100644
      }
    }
 diff --git node/lib/child_process.js node/lib/child_process.js
-index 779aebab83..d99cb66f88 100644
+index e72461ea5f..90dd6938a4 100644
 --- node/lib/child_process.js
 +++ node/lib/child_process.js
 @@ -171,7 +171,7 @@ function fork(modulePath, args = [], options) {
@@ -543,7 +543,7 @@ index 9cf3e64e90..99ee29a113 100644
      __proto__: null,
      ...result.data,
 diff --git node/lib/internal/process/pre_execution.js node/lib/internal/process/pre_execution.js
-index a2790695e0..6628989c62 100644
+index d17da5d977..56e0ab7b60 100644
 --- node/lib/internal/process/pre_execution.js
 +++ node/lib/internal/process/pre_execution.js
 @@ -42,7 +42,11 @@ const {
@@ -568,7 +568,7 @@ index a2790695e0..6628989c62 100644
      // Expand process.argv[1] into a full path.
      const path = require('path');
      try {
-@@ -724,6 +729,7 @@ function loadPreloadModules() {
+@@ -729,6 +734,7 @@ function loadPreloadModules() {
    // For user code, we preload modules if `-r` is passed
    const preloadModules = getOptionValue('--require');
    if (preloadModules && preloadModules.length > 0) {
@@ -599,23 +599,21 @@ index ae71080620..b05638de75 100644
        throw e; /* node-do-not-add-exception-line */
      }
 diff --git node/src/inspector_agent.cc node/src/inspector_agent.cc
-index 1f86e4bfc2..07df3e0b3f 100644
+index 31277a74d1..91306400df 100644
 --- node/src/inspector_agent.cc
 +++ node/src/inspector_agent.cc
-@@ -855,11 +855,6 @@ bool Agent::Start(const std::string& path,
-                               StartIoThreadAsyncCallback));
-     uv_unref(reinterpret_cast<uv_handle_t*>(&start_io_thread_async));
-     start_io_thread_async.data = this;
--    if (parent_env_->should_start_debug_signal_handler()) {
--      // Ignore failure, SIGUSR1 won't work, but that should not block node
--      // start.
--      StartDebugSignalHandler();
--    }
+@@ -886,9 +886,6 @@ bool Agent::Start(const std::string& path,
+       start_io_thread_agents.push_back(this);
+     }
+     parent_env_->AddCleanupHook(StopAcceptingIoThreadStartsHook, this);
+-    // Ignore failure, SIGUSR1 won't work, but that should not block node
+-    // start.
+-    StartDebugSignalHandler();
+   }
  
-     parent_env_->AddCleanupHook([](void* data) {
-       Environment* env = static_cast<Environment*>(data);
+   AtExit(parent_env_, [](void* env) {
 diff --git node/src/node.cc node/src/node.cc
-index 838106acff..65ecda0a49 100644
+index 92c5fd8cb6..f550d2b3cb 100644
 --- node/src/node.cc
 +++ node/src/node.cc
 @@ -356,6 +356,8 @@ MaybeLocal<Value> StartExecution(Environment* env,
@@ -837,10 +835,10 @@ index 3295121b87..bfe838b8c1 100644
 +  return adjacent(c, nargv);
 +}
 diff --git node/src/node_options.cc node/src/node_options.cc
-index 5cbb2e7c59..60cb04799d 100644
+index 9ccad939f1..ad49b989f2 100644
 --- node/src/node_options.cc
 +++ node/src/node_options.cc
-@@ -457,6 +457,7 @@ void Parse(
+@@ -474,6 +474,7 @@ void Parse(
  // TODO(addaleax): Make that unnecessary.
  
  DebugOptionsParser::DebugOptionsParser() {
