@@ -37,6 +37,14 @@ jobs:
 
       - run: choco install nasm
 
+      # windows-11-arm ships only VS 2026, but Node 22's vcbuild.bat only detects VS 2022
+      - name: Install VS 2022 Build Tools
+        if: matrix.arch.name == 'arm64' && matrix.target-node == 22
+        run: |
+          Invoke-WebRequest https://aka.ms/vs/17/release/vs_buildtools.exe -OutFile vs_buildtools.exe
+          $p = Start-Process -Wait -PassThru vs_buildtools.exe -ArgumentList '--quiet', '--wait', '--norestart', '--nocache', '--add', 'Microsoft.VisualStudio.Workload.VCTools', '--includeRecommended', '--add', 'Microsoft.VisualStudio.Component.VC.Tools.ARM64', '--add', 'Microsoft.VisualStudio.Component.VC.ATL.ARM64'
+          if ($p.ExitCode -ne 0 -and $p.ExitCode -ne 3010) { exit $p.ExitCode }
+
       - run: yarn start --node-range node${{ matrix.target-node }} --arch ${{ matrix.arch.name }} --output dist
 
       - name: Check if binary is compiled, skip if download only
