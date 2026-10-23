@@ -1,3 +1,24 @@
+## [3.6.7](https://github.com/yao-pkg/pkg-fetch/compare/v3.6.6...v3.6.7) (2026-10-23)
+
+### Features
+
+- add v22.23.3 patch ([#214](https://github.com/yao-pkg/pkg-fetch/issues/214)) ([f65e2c6](https://github.com/yao-pkg/pkg-fetch/commit/f65e2c6a970d47d058c8e20e526436d1c86bfc32))
+- add v22.23.4 patch ([#221](https://github.com/yao-pkg/pkg-fetch/issues/221)) ([5f4a2d5](https://github.com/yao-pkg/pkg-fetch/commit/5f4a2d5f4447eaa2f2a0da8461b1f8f35d591117))
+- add v24.21.0 patch ([#211](https://github.com/yao-pkg/pkg-fetch/issues/211)) ([ee7678c](https://github.com/yao-pkg/pkg-fetch/commit/ee7678cf0b0ec052556247198bf47eedf60bfbbd))
+- add v24.22.0 patch ([#218](https://github.com/yao-pkg/pkg-fetch/issues/218)) ([cd1d886](https://github.com/yao-pkg/pkg-fetch/commit/cd1d8862d99e7cb0bc6d6a30560eba5f9ebafe66))
+- add v24.22.1 patch ([#219](https://github.com/yao-pkg/pkg-fetch/issues/219)) ([6cf65cb](https://github.com/yao-pkg/pkg-fetch/commit/6cf65cb6d604d83ae5478cd497fa745ea69b333f))
+- add v26.10.0 patch ([#215](https://github.com/yao-pkg/pkg-fetch/issues/215)) ([d2224fe](https://github.com/yao-pkg/pkg-fetch/commit/d2224fefb59520d14d3a1befd145b775b3a826ef))
+- add v26.11.1 patch ([#216](https://github.com/yao-pkg/pkg-fetch/issues/216)) ([029df9a](https://github.com/yao-pkg/pkg-fetch/commit/029df9a5311cc57cc0f830820b902b54b7914fdc))
+- add v26.12.0 patch ([#217](https://github.com/yao-pkg/pkg-fetch/issues/217)) ([725d05b](https://github.com/yao-pkg/pkg-fetch/commit/725d05b53d6d3d777ce1df178baa2afaddd9da91))
+- add v26.12.1 patch ([#220](https://github.com/yao-pkg/pkg-fetch/issues/220)) ([1b8a2fe](https://github.com/yao-pkg/pkg-fetch/commit/1b8a2fe09ab5c3c17a5ecd36b06d0c7f1538972d))
+- add v26.8.2 patch ([#212](https://github.com/yao-pkg/pkg-fetch/issues/212)) ([da2a53f](https://github.com/yao-pkg/pkg-fetch/commit/da2a53f1f3a41ce8ad9946bf1e0998f096adf189))
+- add v26.9.0 patch ([#213](https://github.com/yao-pkg/pkg-fetch/issues/213)) ([e530590](https://github.com/yao-pkg/pkg-fetch/commit/e5305907cc43091dda433ea66dfdc8ca30c51fd2))
+
+### Bug Fixes
+
+- **ci:** install VS 2022 Build Tools for Node 22 on windows-arm64 ([#222](https://github.com/yao-pkg/pkg-fetch/issues/222)) ([72dec93](https://github.com/yao-pkg/pkg-fetch/commit/72dec9343c15ed89700463ce4b62f50333a49366)), closes [actions/runner-images#14602](https://github.com/actions/runner-images/issues/14602) [nodejs/node#60727](https://github.com/nodejs/node/issues/60727)
+- update expected shas ([#224](https://github.com/yao-pkg/pkg-fetch/issues/224)) ([e337fec](https://github.com/yao-pkg/pkg-fetch/commit/e337fecae699855499c284444a1b967989b939d7))
+
 ## [3.6.6](https://github.com/yao-pkg/pkg-fetch/compare/v3.6.5...v3.6.6) (2026-09-03)
 
 ### Features
