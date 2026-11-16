@@ -1,3 +1,17 @@
+## [3.6.8](https://github.com/yao-pkg/pkg-fetch/compare/v3.6.7...v3.6.8) (2026-11-16)
+
+### Features
+
+- add v22.23.5 patch ([#228](https://github.com/yao-pkg/pkg-fetch/issues/228)) ([b3adf02](https://github.com/yao-pkg/pkg-fetch/commit/b3adf02762efe2add067933af6fc044a06f71888))
+- add v24.22.2 patch ([#225](https://github.com/yao-pkg/pkg-fetch/issues/225)) ([5fb60d6](https://github.com/yao-pkg/pkg-fetch/commit/5fb60d6796cdb07cc840619a1c3e854c47e9cb7e))
+- add v24.22.3 patch ([#227](https://github.com/yao-pkg/pkg-fetch/issues/227)) ([5d3754d](https://github.com/yao-pkg/pkg-fetch/commit/5d3754d253deb6622ece5a559ccd0adb247bfba6))
+- add v26.13.0 patch ([#226](https://github.com/yao-pkg/pkg-fetch/issues/226)) ([251bfbc](https://github.com/yao-pkg/pkg-fetch/commit/251bfbc947b506b911b23ac35b50aa7e8fe23b9e))
+- add v26.13.1 patch ([#229](https://github.com/yao-pkg/pkg-fetch/issues/229)) ([903d16c](https://github.com/yao-pkg/pkg-fetch/commit/903d16c8c7728a00230dde43d8ffade0b1bb7c25)), closes [#230](https://github.com/yao-pkg/pkg-fetch/issues/230)
+
+### Bug Fixes
+
+- update expected shas ([#231](https://github.com/yao-pkg/pkg-fetch/issues/231)) ([d394c28](https://github.com/yao-pkg/pkg-fetch/commit/d394c287b4cf9e8ab1e4c1a6b24ff038ea9b5022))
+
 ## [3.6.7](https://github.com/yao-pkg/pkg-fetch/compare/v3.6.6...v3.6.7) (2026-10-23)
 
 ### Features
